@@ -20,8 +20,17 @@ enum class DspPreset
     music,
     acoustic,
     live,
-    podcast
+    podcast,
+    // --- M8: Otoha Sound additions (same engine, same table) -----------------
+    bass,       // low-frequency lift for speakers that need help
+    clarity     // presence/intelligibility lift
 };
+
+/** Number of enumerable presets (including off) — keeps UI loops honest. */
+inline constexpr int kNumDspPresets = 10;
+
+/** Ordered list of every preset — UI combos must iterate this, not hardcode. */
+juce::Array<DspPreset> allDspPresets();
 
 juce::String presetToString (DspPreset p);
 DspPreset    presetFromString (const juce::String& s);

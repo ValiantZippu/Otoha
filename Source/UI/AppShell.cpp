@@ -14,29 +14,34 @@ AppShell::AppShell (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl, Lib
                                                  exportManager, exportStore);
     editorView  = std::make_unique<EditorView> (player, library, [this] { showLibrary(); },
                                                 exportManager, exportStore);
+    soundView   = std::make_unique<SoundView> (otohaBaseDirectory());
 
     addChildComponent (*recordView);
     addChildComponent (*libraryView);
     addChildComponent (*editorView);
+    addChildComponent (*soundView);
 
-    for (auto* b : { &libraryButton, &recordButton, &cameraButton, &settingsButton })
+    for (auto* b : { &libraryButton, &recordButton, &soundButton, &cameraButton, &settingsButton })
         addAndMakeVisible (*b);
 
     libraryButton.setClickingTogglesState (true);
     recordButton.setClickingTogglesState (true);
+    soundButton.setClickingTogglesState (true);
     libraryButton.setRadioGroupId (10);
     recordButton.setRadioGroupId (10);
+    soundButton.setRadioGroupId (10);
 
-    cameraButton.setEnabled (false);     // Milestone 7 — video
+    cameraButton.setEnabled (false);     // video milestone
     settingsButton.setEnabled (false);
     cameraButton.setTooltip ("Coming in the video milestone");
     settingsButton.setTooltip ("Coming soon");
 
     libraryButton.onClick = [this] { showLibrary(); };
     recordButton.onClick  = [this] { showRecording(); };
+    soundButton.onClick   = [this] { showSound(); };
 
     // Record is the home screen; the editor opens from the Library or Record's
-    // Edit button.
+    // Edit button. Sound lives in its own section (#40) — never mixed into Studio.
     recordButton.setToggleState (true, juce::dontSendNotification);
     recordView->setVisible (true);
 }
@@ -46,9 +51,11 @@ void AppShell::resized()
     auto bounds = getLocalBounds();
 
     auto nav = bounds.removeFromTop (44).reduced (12, 6);
-    libraryButton.setBounds  (nav.removeFromLeft (90).withHeight (30));
+    libraryButton.setBounds (nav.removeFromLeft (90).withHeight (30));
     nav.removeFromLeft (8);
-    recordButton.setBounds   (nav.removeFromLeft (90).withHeight (30));
+    recordButton.setBounds  (nav.removeFromLeft (90).withHeight (30));
+    nav.removeFromLeft (8);
+    soundButton.setBounds   (nav.removeFromLeft (80).withHeight (30));
     nav.removeFromLeft (16);
     cameraButton.setBounds   (nav.removeFromLeft (88).withHeight (30));
     nav.removeFromLeft (8);
@@ -57,6 +64,7 @@ void AppShell::resized()
     recordView->setBounds  (bounds);
     libraryView->setBounds (bounds);
     editorView->setBounds  (bounds);
+    soundView->setBounds   (bounds);
 }
 
 void AppShell::showLibrary()
@@ -64,6 +72,7 @@ void AppShell::showLibrary()
     libraryButton.setToggleState (true, juce::dontSendNotification);
     recordView->setVisible (false);
     editorView->setVisible (false);
+    soundView->setVisible (false);
     libraryView->setVisible (true);
     libraryView->refreshItemsForDisplay();
     libraryView->grabDefaultFocus();
@@ -74,6 +83,7 @@ void AppShell::showRecording()
     recordButton.setToggleState (true, juce::dontSendNotification);
     libraryView->setVisible (false);
     editorView->setVisible (false);
+    soundView->setVisible (false);
     recordView->setVisible (true);
     recordView->grabKeyboardFocus();
 }
@@ -82,8 +92,18 @@ void AppShell::showEditor()
 {
     libraryView->setVisible (false);
     recordView->setVisible (false);
+    soundView->setVisible (false);
     editorView->setVisible (true);
     editorView->grabKeyboardFocus();
+}
+
+void AppShell::showSound()
+{
+    soundButton.setToggleState (true, juce::dontSendNotification);
+    libraryView->setVisible (false);
+    recordView->setVisible (false);
+    editorView->setVisible (false);
+    soundView->setVisible (true);
 }
 
 bool AppShell::openInEditor (const otoha::MediaItem& item)
