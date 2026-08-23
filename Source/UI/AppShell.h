@@ -4,6 +4,8 @@
 
 #include "../Audio/Player.h"
 #include "../Audio/Recorder.h"
+#include "../Export/ExportManager.h"
+#include "../Export/ExportPresets.h"
 #include "../Library/LibraryService.h"
 #include "EditorView.h"
 #include "LibraryView.h"
@@ -27,6 +29,8 @@ public:
     /** Opens a library item in the editor view. */
     bool openInEditor (const otoha::MediaItem& item);
 
+    otoha::ExportSettingsStore exportStore;
+
 private:
     void showLibrary();
     void showRecording();
@@ -35,6 +39,7 @@ private:
     LibraryService& library;
     Recorder& recorder;
     Player& player;
+    otoha::ExportManager exportManager;
 
     juce::TextButton libraryButton { "Library" }, recordButton { "Record" },
                      cameraButton { "Camera" }, settingsButton { "Settings" };

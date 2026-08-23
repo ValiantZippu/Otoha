@@ -5,6 +5,8 @@
 #include <memory>
 #include <vector>
 
+#include "../Dsp/ProcessingState.h"
+
 /*
     AudioDocument — the whole M4 editing engine, deliberately small.
 
@@ -112,6 +114,13 @@ public:
 
     bool isModified() const                     { return modified; }
     void markUnmodified()                       { modified = false; }
+
+    /** Processing (Enhance) state — persisted alongside the timeline so a
+        reopened recording keeps its EQ/compression/NR configuration. */
+    otoha::ProcessingState processing;
+
+    /** Test hook: associate a sidecar location without a real file load. */
+    juce::File& sourceFileForTest()             { return sourceFile; }
 
     /** Test hook: associate a sidecar location without a real file load. */
     juce::File& sourceFileForTest()             { return sourceFile; }

@@ -1,5 +1,7 @@
 #include "AudioDocument.h"
 
+#include "../Dsp/SampleRateConverter.h"
+
 #include <algorithm>
 #include <cmath>
 
@@ -38,68 +40,7 @@ juce::AudioBuffer<float> readWholeFile (juce::AudioFormatReader& reader, juce::S
     return result;
 }
 
-/** Linear-interpolation resampler. Appropriate for paste preview quality;
-    can be upgraded to a windowed-sinc filter later without touching callers. */
-juce::AudioBuffer<float> resampleLinear (const juce::AudioBuffer<float>& input,
-                                         double srcRate, double destRate)
-{
-    if (srcRate == destRate || srcRate <= 0.0 || destRate <= 0.0)
-        return input;
-
-    const double ratio = srcRate / destRate;                 // >1 when dropping rate
-    const int outLength = (int) std::ceil ((double) input.getNumSamples() / ratio);
-    const int channels = input.getNumChannels();
-
-    juce::AudioBuffer<float> output (channels, outLength);
-    const int lastInputIndex = input.getNumSamples() - 1;
-
-    for (int ch = 0; ch < channels; ++ch)
-    {
-        const auto* in = input.getReadPointer (ch);
-        auto* out = output.getWritePointer (ch);
-
-        for (int i = 0; i < outLength; ++i)
-        {
-            const double sourcePos = (double) i * ratio;
-            const int i0 = (int) sourcePos;
-            const double frac = sourcePos - (double) i0;
-            const int i1 = juce::jmin (i0 + 1, lastInputIndex);
-
-            if (juce::isNegativeInfinity ((float) in[i0])) // guard NaN/inf defensively
-                out[i] = 0.0f;
-            else
-                out[i] = (float) ((1.0 - frac) * (double) in[juce::jlimit (0, lastInputIndex, i0)]
-                                  + frac * (double) in[i1]);
-        }
-    }
-    return output;
-}
-
-juce::AudioBuffer<float> adaptChannels (const juce::AudioBuffer<float>& input, int targetChannels)
-{
-    const int channels = input.getNumSamples() >= 0 ? input.getNumChannels() : 0;
-    if (channels == targetChannels || channels <= 0 || targetChannels <= 0)
-        return input;
-
-    juce::AudioBuffer<float> output (targetChannels, input.getNumSamples());
-
-    if (channels == 1 && targetChannels == 2)      // mono -> stereo: duplicate
-    {
-        output.copyFrom (0, 0, input, 0, 0, input.getNumSamples());
-        output.copyFrom (1, 0, input, 0, 0, input.getNumSamples());
-    }
-    else if (channels == 2 && targetChannels == 1) // stereo -> mono: average
-    {
-        for (int i = 0; i < input.getNumSamples(); ++i)
-            output.setSample (0, i, 0.5f * (input.getSample (0, i) + input.getSample (1, i)));
-    }
-    else
-    {
-        for (int ch = 0; ch < targetChannels; ++ch)
-            output.copyFrom (ch, 0, input, juce::jmin (ch, channels - 1), 0, input.getNumSamples());
-    }
-    return output;
-}
+// Resampler/channel adapter live in Dsp/SampleRateConverter (shared with export).
 } // namespace
 
 // =============================================================================
@@ -463,6 +404,7 @@ juce::var AudioDocument::toJSON() const
     root->setProperty ("version", 1);
     root->setProperty ("source", sourceFile.getFullPathName());
     root->setProperty ("clips", clipArray);
+    root->setProperty ("dsp", processing.toJSON());
     return juce::var (root);
 }
 
@@ -489,6 +431,10 @@ bool AudioDocument::fromJSON (const juce::var& state)
 
     clips = std::move (parsed);
     selection.clearSelection();
+
+    // Restore processing state if present (older sidecars simply keep defaults).
+    processing = ProcessingState::fromJSON (state.getProperty ("dsp", {}));
+
     ++version;
     return true;
 }

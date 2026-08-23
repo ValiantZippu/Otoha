@@ -31,13 +31,23 @@ target_sources(Otoha PRIVATE
     Source/Audio/Player.cpp
     Source/Audio/Recorder.cpp
     Source/Core/RecordingSupport.cpp
+    Source/Dsp/DspChain.cpp
+    Source/Dsp/Presets.cpp
+    Source/Dsp/SampleRateConverter.cpp
     Source/Editor/AudioDocument.cpp
     Source/Editor/TimelineRenderer.cpp
     Source/Editor/TimelineSource.cpp
+    Source/Export/AudioExporter.cpp
+    Source/Export/ExportManager.cpp
+    Source/Export/ExportPresets.cpp
+    Source/Export/FfmpegSupport.cpp
+    Source/Export/Naming.cpp
     Source/Library/Database.cpp
     Source/Library/LibraryService.cpp
     Source/Library/WaveformCache.cpp
     Source/UI/AppShell.cpp
+    Source/UI/EnhancePanel.cpp
+    Source/UI/ExportUi.cpp
     Source/UI/LibraryView.cpp
     Source/UI/RecordView.cpp)
 
@@ -80,11 +90,42 @@ target_sources(otoha_tests PRIVATE Tests/WavRoundTripTest.cpp)
 juce_add_console_app(otoha_edit_tests PRODUCT_NAME "otoha_edit_tests")
 target_sources(otoha_edit_tests PRIVATE
     Tests/EditEngineTests.cpp
+    Source/Dsp/DspChain.cpp
+    Source/Dsp/Presets.cpp
     Source/Editor/AudioDocument.cpp
     Source/Editor/TimelineRenderer.cpp)
 
 target_link_libraries(otoha_edit_tests PRIVATE
     juce::juce_audio_formats)
+
+juce_add_console_app(otoha_dsp_tests PRODUCT_NAME "otoha_dsp_tests")
+target_sources(otoha_dsp_tests PRIVATE
+    Tests/DspEngineTests.cpp
+    Source/Dsp/DspChain.cpp
+    Source/Dsp/Presets.cpp)
+
+target_link_libraries(otoha_dsp_tests PRIVATE
+    juce::juce_audio_basics)
+
+juce_add_console_app(otoha_export_tests PRODUCT_NAME "otoha_export_tests")
+target_sources(otoha_export_tests PRIVATE
+    Tests/ExportTests.cpp
+    Source/Core/RecordingSupport.cpp
+    Source/Dsp/DspChain.cpp
+    Source/Dsp/Presets.cpp
+    Source/Dsp/SampleRateConverter.cpp
+    Source/Editor/AudioDocument.cpp
+    Source/Editor/TimelineRenderer.cpp
+    Source/Export/AudioExporter.cpp
+    Source/Export/ExportManager.cpp
+    Source/Export/ExportPresets.cpp
+    Source/Export/FfmpegSupport.cpp
+    Source/Export/Naming.cpp)
+
+target_include_directories(otoha_export_tests PRIVATE ${SQLite3_INCLUDE_DIRS})
+target_link_libraries(otoha_export_tests PRIVATE
+    juce::juce_audio_formats
+    ${SQLite3_LIBRARIES})
 
 juce_add_console_app(otoha_state_tests PRODUCT_NAME "otoha_state_tests")
 target_sources(otoha_state_tests PRIVATE Tests/StateMachineTest.cpp)
@@ -106,3 +147,5 @@ add_test(NAME state_machine COMMAND otoha_state_tests)
 add_test(NAME support COMMAND otoha_support_tests)
 add_test(NAME library COMMAND otoha_library_tests)
 add_test(NAME edit_engine COMMAND otoha_edit_tests)
+add_test(NAME dsp_engine COMMAND otoha_dsp_tests)
+add_test(NAME export_system COMMAND otoha_export_tests)

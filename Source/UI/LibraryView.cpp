@@ -1,6 +1,8 @@
 #include "LibraryView.h"
 
 #include "../Core/RecordingSupport.h"
+#include "../Export/FfmpegSupport.h"
+#include "ExportUi.h"
 
 #include <algorithm>
 
@@ -185,12 +187,16 @@ private:
 // LibraryView
 // =============================================================================
 LibraryView::LibraryView (LibraryService& lib, Player& pl, std::function<void()> goToRec,
-                          OpenInEditorFn openInEditorFn, IsFileOpenFn fileOpenFn)
+                          OpenInEditorFn openInEditorFn, IsFileOpenFn fileOpenFn,
+                          otoha::ExportManager& exportManagerRef,
+                          otoha::ExportSettingsStore& exportStoreRef)
     : library (lib),
       player (pl),
       goToRecording (std::move (goToRec)),
       openInEditor (std::move (openInEditorFn)),
-      isFileOpenInEditor (std::move (fileOpenFn))
+      isFileOpenInEditor (std::move (fileOpenFn)),
+      exportManager (exportManagerRef),
+      exportStore (exportStoreRef)
 {
     addAndMakeVisible (searchBox);
     searchBox.setTextToShowWhenEmpty ("Search recordings...", juce::Colours::grey);
@@ -570,25 +576,40 @@ void LibraryView::exportSelected()
 
     if (selected.empty()) return;
 
-    chooser = std::make_unique<juce::FileChooser> ("Choose an export folder",
-                                                   juce::File::getSpecialLocation (juce::File::userDocumentsDirectory));
+    // Batch export: one format/quality choice for the whole selection (#23).
+    FfmpegLocator locator;
+    FfmpegInfo info;
+    const bool ffmpegAvailable = locator.locate (info) == EncoderStatus::available;
+
+    const auto choice = runExportOptionsDialog (this, exportStore, (int) selected.size(), ffmpegAvailable);
+    if (! choice.confirmed) return;
+
+    const auto startDir = exportStore.getLastDirectory();
+    chooser = std::make_unique<juce::FileChooser> (
+        "Choose the output folder", startDir);
     chooser->launchAsync (juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectDirectories,
-                          [this, targets = selected] (const juce::FileChooser& fc)
+                          [this, targets = selected, choice] (const juce::FileChooser& fc)
                           {
                               const auto dir = fc.getResult();
                               if (dir == juce::File{}) return;
 
-                              int exported = 0;
-                              for (const auto& item : targets)
-                                  if (item.file.copyFileTo (dir.getChildFile (item.file.getFileName())))
-                                      ++exported;
+                              exportStore.remember (choice.format, choice.quality, dir);
 
-                              if (exported > 0)
-                                  juce::AlertWindow::showMessageBoxAsync (
-                                      juce::MessageBoxIconType::InfoIcon,
-                                      "Export",
-                                      "Copied " + juce::String (exported) + " WAV file"
-                                          + (exported == 1 ? "" : "s") + " to\n" + dir.getFullPathName());
+                              // Each recording uses its OWN timeline/DSP state from
+                              // its sidecar — the manager loads per-recording state.
+                              for (const auto& item : targets)
+                              {
+                                  otoha::ExportRequest request;
+                                  request.sourceFile = item.file;
+                                  request.baseName = item.displayName.isEmpty()
+                                        ? item.file.getFileNameWithoutExtension() : item.displayName;
+                                  request.destinationDirectory = dir;
+                                  request.format = choice.format;
+                                  request.quality = choice.quality;
+                                  exportManager.submit (request);
+                              }
+
+                              showExportProgressWindow (this, exportManager);
                           });
 }
 

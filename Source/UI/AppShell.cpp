@@ -1,15 +1,19 @@
 #include "AppShell.h"
 
 AppShell::AppShell (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl, LibraryService& lib)
-    : library (lib), recorder (rec), player (pl)
+    : library (lib), recorder (rec), player (pl),
+      exportStore (otohaBaseDirectory()),
+      exportManager (juce::File{})   // locator discovers FFmpeg itself
 {
     recordView = std::make_unique<RecordView> (dm, recorder, player, library,
                                                [this] { openCurrentRecordingInEditor(); });
     libraryView = std::make_unique<LibraryView> (library, player,
                                                  [this] { showRecording(); },
                                                  [this] (const otoha::MediaItem& i) { return openInEditor (i); },
-                                                 [this] (const juce::File& f) { return editorView->isEditingFile (f); });
-    editorView  = std::make_unique<EditorView> (player, library, [this] { showLibrary(); });
+                                                 [this] (const juce::File& f) { return editorView->isEditingFile (f); },
+                                                 exportManager, exportStore);
+    editorView  = std::make_unique<EditorView> (player, library, [this] { showLibrary(); },
+                                                exportManager, exportStore);
 
     addChildComponent (*recordView);
     addChildComponent (*libraryView);
