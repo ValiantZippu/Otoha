@@ -10,6 +10,22 @@ product is one loop:
 
 ---
 
+## Status — Milestone 8: Otoha Sound real-time system audio (complete)
+
+Milestone 7 extracted the DSP Core; Milestone 8 points it at **live system audio**, Windows-first:
+
+- **Otoha Sound mode** in the app shell (Studio | Record | **Sound**) — a deliberately separate experience from recording/editing (#40)
+- **SoundEngine**: the SAME `DspChain` processors as Studio (no duplicate DSP, #20), wrapped with a smoothed wet/dry mixer so **Enhance** is one 0–100% control that can never destabilize the chain (#5)
+- **Windows backend** (`WindowsAudioBackend`): user-mode WASAPI shared-mode loopback capture → DSP Core → shared render to the chosen output endpoint. No kernel driver, no FxSound dependency; a virtual-device/APO architecture remains isolated behind the same `AudioBackend` interface for later (#11-#14)
+- **Feedback-loop guard**: capturing and rendering the same endpoint is refused with an understandable error (#41)
+- Format negotiation from endpoint mix formats (32-bit float shared mode), proper Lagrange resampling when rates differ (#15/#16), >2-channel endpoints refused with a clear message rather than silently downmixed (#17)
+- Preallocated buffers only in the audio path; ON/OFF is a flag flip — never a device restart (#4/#19)
+- Output meter (smoothed peak), honest latency estimate from negotiated device periods or "unavailable" (#27), underrun counters (#30)
+- Device profiles persisted to `<Otoha>/Sound/profiles.json` (atomic write), resolved device-bound → Default (#33-#36); default-output change detection via WASAPI notifications
+- Sound presets (**Bass**, **Clarity**) added to the *shared* preset table — one preset engine across Studio and Sound (#6); Enhance panel now iterates the real list
+- Non-Windows platforms get an honest "not implemented" backend — no fake functionality (#52)
+- New headless `sound_engine` test suite: mock-backend live pipeline (1 kHz → Bass/EQ/Limiter → sink), bypass passthrough identity, Enhance monotonicity, limiter cleanliness, diagnostics counters, profile persistence round-trip, preset-table integrity
+
 ## Status — Milestone 7: Otoha DSP Core & Sound architecture (complete)
 
 Milestone 7 is an architecture milestone: the DSP engine is now a reusable,

@@ -63,9 +63,11 @@ public:
         const AudioProfile* fallback = nullptr;
         for (const auto& p : profiles)
         {
-            if (! p.enabled || p.outputDeviceId.empty())
+            if (! p.enabled)
                 continue;
-            if (p.outputDeviceId == deviceId)
+            // The Default profile has an empty device binding; device-bound
+            // profiles always win over it.
+            if (! p.outputDeviceId.empty() && p.outputDeviceId == deviceId)
                 return &p;
             if (p.id == "default")
                 fallback = &p;

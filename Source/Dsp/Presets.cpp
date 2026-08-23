@@ -4,6 +4,13 @@
 
 namespace otoha
 {
+juce::Array<DspPreset> allDspPresets()
+{
+    return { DspPreset::off, DspPreset::natural, DspPreset::voice, DspPreset::vocal,
+             DspPreset::music, DspPreset::acoustic, DspPreset::live, DspPreset::podcast,
+             DspPreset::bass, DspPreset::clarity };
+}
+
 juce::String presetToString (DspPreset p)
 {
     switch (p)
@@ -16,6 +23,8 @@ juce::String presetToString (DspPreset p)
         case DspPreset::acoustic: return "Acoustic";
         case DspPreset::live:     return "Live";
         case DspPreset::podcast:  return "Podcast";
+        case DspPreset::bass:     return "Bass";
+        case DspPreset::clarity:  return "Clarity";
     }
     return "Off";
 }
@@ -29,6 +38,8 @@ DspPreset presetFromString (const juce::String& s)
     if (s.equalsIgnoreCase ("acoustic")) return DspPreset::acoustic;
     if (s.equalsIgnoreCase ("live"))     return DspPreset::live;
     if (s.equalsIgnoreCase ("podcast"))  return DspPreset::podcast;
+    if (s.equalsIgnoreCase ("bass"))     return DspPreset::bass;
+    if (s.equalsIgnoreCase ("clarity"))  return DspPreset::clarity;
     return DspPreset::off;
 }
 
@@ -166,6 +177,30 @@ ProcessingState presetToState (DspPreset p)
             s.compressor.makeupGainDb = 3.0f;
             s.noiseReduction.mode     = NoiseReductionMode::gentle;
             s.noiseReduction.strength = 0.55f;
+            return s;
+        }
+
+        // --- M8: Otoha Sound presets --------------------------------------------
+        // Deliberately minimal: single-purpose tonal characters for live playback.
+        case DspPreset::bass:
+        {
+            auto s = baseEnhance();
+            s.bassAmount    = 0.7f;               // gain-staged lift, limiter protects
+            s.eq.gainsDb[0] = 1.0f;               // gentle shelf support
+            s.stereoWidth   = 0.5f;               // untouched imaging
+            return s;
+        }
+
+        case DspPreset::clarity:
+        {
+            auto s = baseEnhance();
+            s.clarityAmount = 0.65f;              // presence without harshness
+            s.eq.gainsDb[4] = 1.0f;               // slight air
+            s.compressor.enabled      = true;
+            s.compressor.thresholdDb  = -18.0f;
+            s.compressor.ratio        = 1.6f;
+            s.compressor.attackMs     = 20.0f;
+            s.compressor.releaseMs    = 220.0f;
             return s;
         }
     }

@@ -24,12 +24,14 @@ EnhancePanel::EnhancePanel (otoha::ProcessingState& stateRef, std::function<void
         changed();
     };
 
-    for (int i = 0; i <= 7; ++i)
-        presetCombo.addItem (otoha::presetToString ((otoha::DspPreset) i), i + 1);
+    const auto presets = otoha::allDspPresets();
+    for (int i = 0; i < presets.size(); ++i)
+        presetCombo.addItem (otoha::presetToString (presets.getReference (i)), i + 1);
     addAndMakeVisible (presetCombo);
-    presetCombo.onChange = [this]
+    presetCombo.onChange = [this, presets]
     {
-        applyPreset ((otoha::DspPreset) juce::jlimit (0, 7, presetCombo.getSelectedItemIndex()));
+        const auto idx = juce::jlimit (0, presets.size() - 1, presetCombo.getSelectedItemIndex());
+        applyPreset (presets.getReference (idx));
     };
 
     for (auto* b : { &abOriginal, &abEnhanced })

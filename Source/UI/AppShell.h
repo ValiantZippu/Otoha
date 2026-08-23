@@ -10,6 +10,7 @@
 #include "EditorView.h"
 #include "LibraryView.h"
 #include "RecordView.h"
+#include "SoundView.h"
 
 /*
     AppShell — desktop navigation:  Library | Record | Camera | Settings
@@ -35,6 +36,7 @@ private:
     void showLibrary();
     void showRecording();
     void showEditor();
+    void showSound();
 
     LibraryService& library;
     Recorder& recorder;
@@ -42,11 +44,12 @@ private:
     otoha::ExportManager exportManager;
 
     juce::TextButton libraryButton { "Library" }, recordButton { "Record" },
-                     cameraButton { "Camera" }, settingsButton { "Settings" };
+                     soundButton { "Sound" }, cameraButton { "Camera" }, settingsButton { "Settings" };
 
     std::unique_ptr<RecordView> recordView;
     std::unique_ptr<LibraryView> libraryView;
     std::unique_ptr<EditorView> editorView;
+    std::unique_ptr<SoundView> soundView;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AppShell)
 };

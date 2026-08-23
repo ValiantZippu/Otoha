@@ -46,6 +46,7 @@ target_sources(Otoha PRIVATE
     Source/Library/Database.cpp
     Source/Library/LibraryService.cpp
     Source/Library/WaveformCache.cpp
+    Source/Sound/platform/WindowsAudioBackend.cpp
     Source/UI/AppShell.cpp
     Source/UI/EnhancePanel.cpp
     Source/UI/ExportUi.cpp
@@ -121,6 +122,16 @@ target_sources(otoha_dspcore_tests PRIVATE
 
 target_link_libraries(otoha_dspcore_tests PRIVATE juce::juce_audio_basics)
 
+# --- Milestone 8: Otoha Sound engine (mock-backend, no hardware) ---------------
+juce_add_console_app(otoha_sound_tests PRODUCT_NAME "otoha_sound_tests")
+target_sources(otoha_sound_tests PRIVATE
+    Tests/SoundEngineTests.cpp
+    Source/Dsp/Core/Processors.cpp
+    Source/Dsp/DspChain.cpp
+    Source/Dsp/Presets.cpp)
+
+target_link_libraries(otoha_sound_tests PRIVATE juce::juce_audio_basics)
+
 juce_add_console_app(otoha_export_tests PRODUCT_NAME "otoha_export_tests")
 target_sources(otoha_export_tests PRIVATE
     Tests/ExportTests.cpp
@@ -164,4 +175,5 @@ add_test(NAME library COMMAND otoha_library_tests)
 add_test(NAME edit_engine COMMAND otoha_edit_tests)
 add_test(NAME dsp_engine COMMAND otoha_dsp_tests)
 add_test(NAME dsp_core COMMAND otoha_dspcore_tests)
+add_test(NAME sound_engine COMMAND otoha_sound_tests)
 add_test(NAME export_system COMMAND otoha_export_tests)
