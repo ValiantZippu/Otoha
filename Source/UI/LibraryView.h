@@ -3,6 +3,8 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 
 #include "../Audio/Player.h"
+#include "../Export/ExportManager.h"
+#include "../Export/ExportPresets.h"
 #include "../Library/LibraryService.h"
 
 /*
@@ -31,7 +33,9 @@ public:
     LibraryView (LibraryService& library, Player& player,
                  std::function<void()> goToRecording,
                  OpenInEditorFn openInEditor,
-                 IsFileOpenFn isFileOpenInEditor);
+                 IsFileOpenFn isFileOpenInEditor,
+                 otoha::ExportManager& exportManager,
+                 otoha::ExportSettingsStore& exportStore);
     ~LibraryView() override;
 
     void paint (juce::Graphics&) override;
@@ -76,6 +80,8 @@ private:
     std::function<void()> goToRecording;   // empty-state [RECORD] button
     OpenInEditorFn openInEditor;
     IsFileOpenFn isFileOpenInEditor;       // delete-safety guard
+    otoha::ExportManager& exportManager;
+    otoha::ExportSettingsStore& exportStore;
 
     std::vector<otoha::MediaItem> items;
 

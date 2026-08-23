@@ -10,6 +10,34 @@ product is one loop:
 
 ---
 
+## Status — Milestone 6: FFmpeg export & batch export (complete)
+
+Milestone 5 built the pipeline; Milestone 6 gives it real-world outputs:
+
+- **Export service** (`ExportManager`): UI-free queue, one job at a time on a background worker, per-job status/progress/cancel/retry
+- **Formats**: WAV + FLAC natively (lossless, never routed through FFmpeg); M4A/AAC, Opus, MP3 via an external FFmpeg binary after Otoha's own DSP
+- **FFmpeg strategy**: bundled-next-to-exe → user-configured → validated PATH; version-checked (4.x–7.x); unavailable = compressed export gracefully off, lossless always works
+- **Centralized presets**: Lossless WAV/FLAC, M4A Small/Standard/High, Opus S/Std/High, MP3 S/Std/High (`ExportPresets.cpp` only)
+- **Single & batch flows** from editor/Library: options dialog → folder picker → queued background jobs with overall progress, current file, cancel and summary; failure isolation with per-job retry
+- **Per-recording state**: each batch item uses its own sidecar timeline+DSP unless explicitly overridden; naming/collision policies (Keep Both / Replace / Skip) with sanitized Unicode-safe names
+- **Crash safety**: unique temp files, verify-then-move into place, temps cleaned on success/failure/cancellation; sources never touched
+
+## Status — Milestone 5: DSP & Enhance (complete)
+
+Milestone 4 made editing safe; Milestone 5 makes recordings sound better:
+
+- **One DSP chain, two consumers** — real-time preview and offline rendering share the exact same processors and `ProcessingState` (no preview/export duplication)
+- Explicit order, never UI-driven: **Noise Reduction → EQ → Compressor → Limiter**
+- **EQ**: 5-band (shelves + 3 peaking biquads), neutral by default — enabling DSP never colors audio by itself
+- **Compressor**: linked peak detector, hard-knee gain computer with smoothed gain; defaults bypassed or gentle
+- **Limiter**: final stage, instant attack / exponential release, conservative −1 dBFS ceiling; silence stays silent
+- **Noise reduction**: 85 Hz high-pass + downward expander tuned per mode (Off/Gentle/Strong); modular for future upgrades
+- **One-tap Enhance** plus centralized presets: Natural, Voice, Vocal, Music, Acoustic, Live, Podcast (`Presets.cpp` only — tune without touching the engine)
+- **A/B Original/Enhanced** flips a bypass flag live — no reloads, no re-renders; smoothing avoids clicks
+- Processing state persists in the edit sidecar; preset changes show `*` when modified; Reset returns to neutral/bypassed
+- Export renders through the same chain into WAV or FLAC with progress + cancellation; original recording always untouched
+- Headless `dsp_engine` tests: bypass identity, neutral EQ unity, compressor reduction/no-runaway, limiter ceiling & silence, NR stability/monotonic strength, determinism, stereo integrity, all presets at 44.1/48 kHz
+
 ## Status — Milestone 4: lightweight editor (complete)
 
 Milestone 3 gave Otoha a memory; Milestone 4 gives it a small pair of scissors:
@@ -60,7 +88,7 @@ Milestone 1 laid the vertical slice; Milestone 2 makes it feel like a real recor
 | Language   | C++20                                             |
 | App/UI/audio | [JUCE 8](https://juce.com) (fetched automatically by CMake) |
 | Build      | CMake ≥ 3.22 + system SQLite dev package (`libsqlite3-dev` on Debian/Ubuntu; bundled on macOS) |
-| Planned    | FFmpeg (video + codecs) — added in later milestones, not stubbed now |
+| Export     | FFmpeg binary discovered/bundled externally (4.x–7.x); optional — lossless export works without it |
 
 ## Building
 
@@ -132,7 +160,9 @@ Source/
 ├── App/          entry point + main window
 ├── Audio/        Recorder (capture + state machine), Player (playback)
 ├── Core/         device-independent helpers (naming, duration math)
+├── Dsp/          ProcessingState, Presets, DspChain (shared preview+export)
 ├── Editor/       AudioDocument (clip timeline + undo), TimelineSource, Renderer
+├── Export/       ExportManager (queue), AudioExporter, FfmpegSupport, presets, naming
 ├── Library/      Database (SQLite), LibraryService, WaveformCache, model
 └── UI/           AppShell (nav), LibraryView, RecordView
 Tests/            headless test suites (WAV, state machine, support, library)
@@ -153,6 +183,8 @@ On-disk layout:
 - [x] **Phase 2 — Recording UX:** engine-owned state machine, pause/resume, seek, export/delete, error handling, permissions hook
 - [x] **Phase 3 — Library:** SQLite metadata, library UI, search/sort/rename/favorites, background waveforms, scan recovery
 - [x] **Phase 4 — Editor:** non-destructive clip timeline, cut/copy/paste/ripple/trim, snapshot undo, save/export render
+- [x] **Phase 5 — DSP:** shared chain (NR→EQ→Comp→Limiter), Enhance presets, A/B preview, processed export
+- [x] **Phase 6 — Export:** WAV/FLAC/M4A/Opus/MP3 via shared renderer + external FFmpeg, batch queue, progress/cancel/retry
 - [ ] **Phase 3 — Library:** SQLite metadata, library UI, search/sort/rename/favorites
 - [ ] **Phase 4 — Editor:** selection, cut/copy/paste, ripple delete, trim, undo/redo (non-destructive edit model)
 - [ ] **Phase 5 — DSP:** EQ, compressor, limiter, noise reduction, de-esser, one-tap Enhance with A/B

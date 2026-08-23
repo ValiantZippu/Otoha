@@ -1,5 +1,7 @@
 #include "TimelineRenderer.h"
 
+#include "../Dsp/DspChain.h"
+
 namespace otoha
 {
 TimelineRenderer::TimelineRenderer (std::shared_ptr<const AudioDocument> document)
@@ -12,7 +14,12 @@ juce::int64 TimelineRenderer::getRenderedLengthSamples() const
     return doc != nullptr ? doc->totalSamples() : 0;
 }
 
-bool TimelineRenderer::renderToWav (const juce::File& destination, juce::String& errorOut) const
+bool TimelineRenderer::renderToFile (juce::AudioFormat& format,
+                                     const juce::File& destination,
+                                     juce::String& errorOut,
+                                     const ProcessingState* dsp,
+                                     const std::atomic<bool>* cancelFlag,
+                                     const std::function<bool (float)>& progress) const
 {
     if (doc == nullptr || doc->getClips().empty())
     {
@@ -29,7 +36,7 @@ bool TimelineRenderer::renderToWav (const juce::File& destination, juce::String&
 
     // Render into a temp sibling so a failed write can never damage the target.
     const auto temp = parent.getNonexistentChildFile (
-        destination.getFileNameWithoutExtension() + " saving", ".wav");
+        destination.getFileNameWithoutExtension() + " saving", ".tmp");
 
     juce::FileOutputStream stream (temp);
     if (! stream.openedOk())
@@ -38,13 +45,14 @@ bool TimelineRenderer::renderToWav (const juce::File& destination, juce::String&
         return false;
     }
 
-    juce::WavAudioFormat wavFormat;
+    const int bitsPerSample = format.getFileExtensions().contains ("flac") ? 16 : 24;
+
     std::unique_ptr<juce::AudioFormatWriter> writer (
-        wavFormat.createWriterFor (&stream,
-                                   doc->getSampleRate(),
-                                   (unsigned int) juce::jmax (1, doc->getNumChannels()),
-                                   24u /* bit depth: preserve studio-grade headroom */,
-                                   {}, 0));
+        format.createWriterFor (&stream,
+                                doc->getSampleRate(),
+                                (unsigned int) juce::jmax (1, doc->getNumChannels()),
+                                (unsigned int) bitsPerSample,
+                                {}, 0));
 
     if (writer == nullptr)
     {
@@ -53,19 +61,39 @@ bool TimelineRenderer::renderToWav (const juce::File& destination, juce::String&
         return false;
     }
 
+    // Offline DSP instance: same definition, same ProcessingState as preview.
+    DspChain chain;
+    if (dsp != nullptr && dsp->enabled)
+    {
+        chain.prepare (doc->getSampleRate(), doc->getNumChannels());
+        chain.setParameters (*dsp);
+    }
+
     constexpr int chunkFrames = 1 << 16;
     const int channels = juce::jmax (1, doc->getNumChannels());
     juce::AudioBuffer<float> chunk (channels, chunkFrames);
-
+    const float total = (float) doc->totalSamples();
     juce::int64 rendered = 0;
-    const auto total = doc->totalSamples();
 
-    while (rendered < total)
+    while (rendered < (juce::int64) total)
     {
-        const int frames = (int) juce::jmin ((juce::int64) chunkFrames, total - rendered);
+        if (cancelFlag != nullptr && cancelFlag->load())
+        {
+            errorOut = "Export cancelled.";
+            writer.reset();
+            temp.deleteFile();          // never leave a partial file behind
+            return false;
+        }
+
+        const int frames = (int) juce::jmin ((juce::int64) chunkFrames,
+                                             (juce::int64) total - rendered);
         float* ptrs[2] = { chunk.getWritePointer (0),
                            channels > 1 ? chunk.getWritePointer (1) : nullptr };
-        doc->readRange (rendered, frames, ptrs, channels);
+
+        doc->readRange (rendered, frames, ptrs, channels);   // timeline
+
+        if (dsp != nullptr && dsp->enabled)
+            chain.process (ptrs, frames);                    // DSP chain
 
         if (! writer->writeFromFloatArrays (ptrs, channels, frames))
         {
@@ -76,12 +104,20 @@ bool TimelineRenderer::renderToWav (const juce::File& destination, juce::String&
             temp.deleteFile();
             return false;
         }
+
         rendered += frames;
+        if (progress != nullptr && ! progress (rendered / total))
+        {
+            errorOut = "Export cancelled.";
+            writer.reset();
+            temp.deleteFile();
+            return false;
+        }
     }
 
-    writer.reset();          // finalises the header
+    writer.reset();   // finalises headers
 
-    // Verify before replacing: size must exceed an empty RIFF header.
+    // Verify before replacing.
     if (! temp.existsAsFile() || temp.getSize() <= 44)
     {
         errorOut = "The saved file came out empty — nothing was changed.\n"
@@ -90,16 +126,29 @@ bool TimelineRenderer::renderToWav (const juce::File& destination, juce::String&
         return false;
     }
 
+    // Match the extension the user asked for.
+    auto finalTemp = temp.withFileExtension (destination.getFileExtension());
+    if (! temp.moveFileTo (finalTemp))
+        finalTemp = temp;
+
     if (destination.existsAsFile())
         destination.deleteFile();
 
-    if (! temp.moveFileTo (destination))
+    if (! finalTemp.moveFileTo (destination))
     {
         errorOut = "Couldn't put the saved file in place:\n" + destination.getFullPathName();
-        temp.deleteFile();
+        finalTemp.deleteFile();
         return false;
     }
 
     return true;
+}
+
+bool TimelineRenderer::renderToWav (const juce::File& destination, juce::String& errorOut,
+                                    const ProcessingState* dsp,
+                                    const std::atomic<bool>* cancelFlag) const
+{
+    juce::WavAudioFormat wav;
+    return renderToFile (wav, destination, errorOut, dsp, cancelFlag, {});
 }
 } // namespace otoha

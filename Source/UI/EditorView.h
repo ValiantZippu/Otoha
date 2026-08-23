@@ -4,9 +4,13 @@
 #include <cstdint>
 
 #include "../Audio/Player.h"
+#include "../Dsp/DspPreviewSource.h"
 #include "../Editor/AudioDocument.h"
+#include "../Export/ExportManager.h"
+#include "../Export/ExportPresets.h"
 #include "../Library/LibraryModel.h"
 #include "../Library/LibraryService.h"
+#include "EnhancePanel.h"
 
 /*
     EditorView — select part of a recording → make a small edit → preview → save.
@@ -20,7 +24,8 @@ class EditorView : public juce::Component,
                    private juce::Timer
 {
 public:
-    EditorView (Player& player, LibraryService& library, std::function<void()> backToLibrary);
+    EditorView (Player& player, LibraryService& library, std::function<void()> backToLibrary,
+                otoha::ExportManager& exportManager, otoha::ExportSettingsStore& exportStore);
 
     /** Opens a media item in the editor (decodes it, restores autosave if present). */
     bool openItem (const otoha::MediaItem& item, juce::String& errorOut);
@@ -64,12 +69,19 @@ private:
 
     void refreshButtonsAndTitle();
 
+    /** The state actually audible right now: processing with the A/B switch
+        applied ("Original" previews a bypassed chain). Export never uses this. */
+    otoha::ProcessingState effectiveProcessing() const;
+    void dspChanged();
+
     class WaveformDisplay;
     std::unique_ptr<WaveformDisplay> wave;
 
     Player& player;
     LibraryService& library;
     std::function<void()> backToLibrary;
+    otoha::ExportManager& exportManager;
+    otoha::ExportSettingsStore& exportStore;
 
     std::shared_ptr<otoha::AudioDocument> doc;
     otoha::AudioClipboard clipboard;
@@ -77,6 +89,8 @@ private:
     bool playingSelection = false;
     bool editorActive = false;
     juce::uint32 loadedSourceVersion = 0xFFFFFFFF;   // document version behind the transport
+    DspPreviewSource* activePreview = nullptr;       // owned by the Player's unique_ptr
+    bool enhancePanelBuilt = false;
 
     juce::TextButton backButton { "<-" }, menuButton { "..." };
     juce::Label titleLabel;
@@ -89,6 +103,7 @@ private:
         enhanceButton { "Enhance" }, exportButton { "Export" }, saveButton { "Save" };
 
     juce::Label timeLabel;   // cursor / selection readout
+    std::unique_ptr<EnhancePanel> enhancePanel;
 
     std::unique_ptr<juce::FileChooser> chooser;
 

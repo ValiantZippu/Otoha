@@ -1,17 +1,23 @@
 #pragma once
 
-#include <juce_audio_formats/juce_audio_formats.h>
-
+#include <atomic>
+#include <functional>
 #include <memory>
 
+#include <juce_audio_formats/juce_audio_formats.h>
+
+#include "../Dsp/ProcessingState.h"
 #include "AudioDocument.h"
 
 /*
-    TimelineRenderer — renders the edited timeline to a WAV file safely:
-        temp file → chunked write → verify size → atomic-ish move into place.
+    TimelineRenderer — the offline half of the shared DSP pipeline:
 
-    The pipeline (source → edit timeline → [DSP later] → renderer → output)
-    is deliberately the shape the Enhance milestone will plug into.
+        source -> edit timeline -> [DSP chain] -> renderer -> output
+
+    The same DspChain definition used by real-time preview processes each
+    chunk here; there is no separate export algorithm. Supports cancellation
+    (checked between chunks) and never touches `destination` unless the whole
+    render succeeded.
 */
 namespace otoha
 {
@@ -22,8 +28,20 @@ public:
 
     juce::int64 getRenderedLengthSamples() const;
 
-    /** Never touches `destination` unless the whole render succeeded. */
-    bool renderToWav (const juce::File& destination, juce::String& errorOut) const;
+    /** Renders through `format` (WAV, FLAC, ...). Pass a ProcessingState to
+        include processing (only meaningful when state.enabled). */
+    bool renderToFile (juce::AudioFormat& format,
+                       const juce::File& destination,
+                       juce::String& errorOut,
+                       const ProcessingState* dsp = nullptr,
+                       const std::atomic<bool>* cancelFlag = nullptr,
+                       const std::function<bool (float progress01)>& progress = {}) const;
+
+    /** WAV convenience kept for existing callers. */
+    bool renderToWav (const juce::File& destination,
+                      juce::String& errorOut,
+                      const ProcessingState* dsp = nullptr,
+                      const std::atomic<bool>* cancelFlag = nullptr) const;
 
 private:
     std::shared_ptr<const AudioDocument> doc;

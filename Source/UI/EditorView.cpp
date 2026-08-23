@@ -3,6 +3,8 @@
 #include "../Core/RecordingSupport.h"
 #include "../Editor/TimelineRenderer.h"
 #include "../Editor/TimelineSource.h"
+#include "../Export/FfmpegSupport.h"
+#include "ExportUi.h"
 
 #include <algorithm>
 #include <cmath>
@@ -254,8 +256,11 @@ private:
 // =============================================================================
 // EditorView
 // =============================================================================
-EditorView::EditorView (Player& pl, LibraryService& lib, std::function<void()> back)
-    : player (pl), library (lib), backToLibrary (std::move (back))
+EditorView::EditorView (Player& pl, LibraryService& lib, std::function<void()> back,
+                        otoha::ExportManager& exportManagerRef,
+                        otoha::ExportSettingsStore& exportStoreRef)
+    : player (pl), library (lib), backToLibrary (std::move (back)),
+      exportManager (exportManagerRef), exportStore (exportStoreRef)
 {
     addAndMakeVisible (backButton);
     backButton.onClick = [this]
@@ -324,7 +329,35 @@ EditorView::EditorView (Player& pl, LibraryService& lib, std::function<void()> b
     exportButton.onClick       = [this] { exportAs(); };
     saveButton.onClick         = [this] { saveChanges(); };
 
-    enhanceButton.setEnabled (false);   // Milestone 5
+    // Enhance toggles the DSP panel; the panel drives ProcessingState only.
+    enhanceButton.setClickingTogglesState (true);
+    enhanceButton.onClick = [this]
+    {
+        if (! isOpen())
+        {
+            enhanceButton.setToggleState (false, juce::dontSendNotification);
+            return;
+        }
+
+        if (! enhancePanelBuilt)
+        {
+            enhancePanel = std::make_unique<EnhancePanel> (doc->processing, [this] { dspChanged(); });
+            addChildComponent (*enhancePanel);
+            enhancePanelBuilt = true;
+        }
+
+        const bool show = enhanceButton.getToggleState();
+        if (show && ! doc->processing.enabled)
+        {
+            // Sensible first Enhance so pressing the button does something musical.
+            doc->processing = otoha::presetToState (otoha::DspPreset::natural);
+            doc->autosaveState();
+            enhancePanel->resized();
+        }
+        enhancePanel->setVisible (show);
+        enhancePanel->resized();
+        dspChanged();
+    };
 
     refreshButtonsAndTitle();
     startTimerHz (30);
@@ -403,6 +436,12 @@ void EditorView::resized()
     undoButton.setBounds (row2.removeFromRight (72).reduced (2, 3));
 
     wave->setBounds (bounds.reduced (16, 6));
+
+    // Enhance panel overlays the right side of the waveform when open.
+    if (enhancePanel != nullptr && enhancePanel->isVisible())
+        enhancePanel->setBounds (wave->getBounds()
+                                     .removeFromRight (340)
+                                     .withSizeKeepingCentre (320, wave->getHeight() - 20));
 }
 
 bool EditorView::keyPressed (const juce::KeyPress& key)
@@ -463,13 +502,42 @@ void EditorView::selectionChanged()
 // =============================================================================
 // Transport
 // =============================================================================
+otoha::ProcessingState EditorView::effectiveProcessing() const
+{
+    auto state = doc != nullptr ? doc->processing : otoha::ProcessingState {};
+
+    // A/B: "Original" previews the bypassed chain without touching the saved state.
+    if (enhancePanel != nullptr && ! enhancePanel->previewingEnhanced())
+        state.enabled = false;
+
+    return state;
+}
+
+void EditorView::dspChanged()
+{
+    // Live chain update: same source, no reload, no re-render. Smoothing in the
+    // chain keeps parameter moves click-free.
+    if (activePreview != nullptr)
+        activePreview->setParameters (effectiveProcessing());
+
+    doc->autosaveState();          // processing state persists with the edit state
+    refreshButtonsAndTitle();
+}
+
 void EditorView::ensurePlaybackSource()
 {
     if (doc == nullptr || loadedSourceVersion == doc->getVersion())
         return;
 
     stopPlayback();
-    player.loadCustomSource (std::make_unique<TimelineSource> (doc), doc->getSampleRate());
+
+    auto preview = std::make_unique<DspPreviewSource> (
+        std::make_unique<TimelineSource> (doc), doc->getSampleRate());
+    preview->setUpstreamMono (doc->getNumChannels() == 1);
+    preview->setParameters (effectiveProcessing());
+
+    activePreview = preview.get();   // Player owns it; editor holds a safe raw view
+    player.loadCustomSource (std::move (preview), doc->getSampleRate());
     loadedSourceVersion = doc->getVersion();
 }
 
@@ -568,6 +636,7 @@ void EditorView::redo()
 void EditorView::afterEditRebuild()
 {
     loadedSourceVersion = 0xFFFFFFFF;   // stale timeline — rebuilt on next Play
+    activePreview = nullptr;
     doc->autosaveState();               // tiny JSON, never audio data
     wave->rebuildPeaks();
     wave->fitAll();
@@ -591,7 +660,8 @@ void EditorView::saveChanges()
                                  .getChildFile (destName);
 
     juce::String error;
-    if (! renderer.renderToWav (destination, error))
+    // Export path = same pipeline as preview: timeline -> DSP -> renderer.
+    if (! renderer.renderToWav (destination, error, &doc->processing))
     {
         juce::AlertWindow::showMessageBoxAsync (juce::MessageBoxIconType::WarningIcon,
                                                 "Couldn't save your changes", error);
@@ -617,25 +687,34 @@ void EditorView::exportAs()
 {
     if (! isOpen()) return;
 
-    chooser = std::make_unique<juce::FileChooser> ("Export edited recording as WAV",
-                                                   juce::File::getSpecialLocation (juce::File::userDocumentsDirectory)
-                                                       .getChildFile (item.displayName + ".wav"),
-                                                   "*.wav");
-    chooser->launchAsync (juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::canSelectFiles,
-                          [this] (const juce::FileChooser& fc)
-                          {
-                              const auto target = fc.getResult();
-                              if (target == juce::File{}) return;
+    // Export = current timeline + current DSP state through the shared service.
+    FfmpegLocator locator;
+    FfmpegInfo info;
+    const bool ffmpegAvailable = locator.locate (info) == EncoderStatus::available;
 
-                              const otoha::TimelineRenderer renderer (doc);
-                              juce::String error;
-                              if (! renderer.renderToWav (target, error))
-                                  juce::AlertWindow::showMessageBoxAsync (
-                                      juce::MessageBoxIconType::WarningIcon, "Export failed", error);
-                              else
-                                  juce::AlertWindow::showMessageBoxAsync (
-                                      juce::MessageBoxIconType::InfoIcon, "Exported",
-                                      "Exported to:\n" + target.getFullPathName());
+    const auto choice = runExportOptionsDialog (this, exportStore, 1, ffmpegAvailable);
+    if (! choice.confirmed) return;
+
+    const auto startDir = exportStore.getLastDirectory();
+    chooser = std::make_unique<juce::FileChooser> ("Choose the output folder", startDir);
+    chooser->launchAsync (juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectDirectories,
+                          [this, choice] (const juce::FileChooser& fc)
+                          {
+                              const auto dir = fc.getResult();
+                              if (dir == juce::File{}) return;
+
+                              exportStore.remember (choice.format, choice.quality, dir);
+
+                              otoha::ExportRequest request;
+                              request.sourceFile = item.file;
+                              request.openDocument = doc;      // live timeline + live DSP
+                              request.baseName = item.displayName;
+                              request.destinationDirectory = dir;
+                              request.format = choice.format;
+                              request.quality = choice.quality;
+
+                              exportManager.submit (request);
+                              showExportProgressWindow (this, exportManager);
                           });
 }
 
@@ -675,8 +754,10 @@ void EditorView::closeEditor()
 {
     stopPlayback();
     player.unload();               // release the timeline from the transport
+    activePreview = nullptr;
     editorActive = false;
     doc = nullptr;
+    if (enhancePanel) { enhancePanel->setVisible (false); }
     loadedSourceVersion = 0xFFFFFFFF;
     refreshButtonsAndTitle();
     wave->repaint();
