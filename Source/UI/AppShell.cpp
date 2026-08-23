@@ -1,7 +1,8 @@
 #include "AppShell.h"
 
-AppShell::AppShell (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl, LibraryService& lib)
-    : library (lib), recorder (rec), player (pl),
+AppShell::AppShell (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl, LibraryService& lib,
+                    otoha::AppSettings* appSettings)
+    : library (lib), recorder (rec), player (pl), settings (appSettings),
       exportStore (otohaBaseDirectory()),
       exportManager (juce::File{})   // locator discovers FFmpeg itself
 {
@@ -14,7 +15,8 @@ AppShell::AppShell (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl, Lib
                                                  exportManager, exportStore);
     editorView  = std::make_unique<EditorView> (player, library, [this] { showLibrary(); },
                                                 exportManager, exportStore);
-    soundView   = std::make_unique<SoundView> (otohaBaseDirectory());
+    soundView   = std::make_unique<SoundView> (otohaBaseDirectory(), settings,
+                                               settings != nullptr && settings->safeModeSession);
 
     addChildComponent (*recordView);
     addChildComponent (*libraryView);
@@ -44,9 +46,27 @@ AppShell::AppShell (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl, Lib
     // Edit button. Sound lives in its own section (#40) — never mixed into Studio.
     recordButton.setToggleState (true, juce::dontSendNotification);
     recordView->setVisible (true);
-}
 
-void AppShell::resized()
+    // --- first launch (#3): one short screen before anything else -------------
+    if (settings != nullptr && ! settings->firstLaunchComplete)
+    {
+        onboarding = std::make_unique<OnboardingView>();
+        onboarding->onFinished = [this] (bool enhanceOn, const juce::String& presetName)
+        {
+            if (settings != nullptr)
+            {
+                settings->firstLaunchComplete = true;
+                saveAppSettings (*settings, otoha::defaultSettingsDirectory());
+            }
+            soundView->applyFirstLaunchChoices (enhanceOn, presetName);
+
+            juce::Component::SafePointer<AppShell> safeSelf { this };
+            onboarding.reset();          // remove overlay
+            if (safeSelf != nullptr) repaint();
+        };
+        addAndMakeVisible (*onboarding);  // stays on top of all views
+    }
+}void AppShell::resized()
 {
     auto bounds = getLocalBounds();
 
@@ -63,8 +83,11 @@ void AppShell::resized()
 
     recordView->setBounds  (bounds);
     libraryView->setBounds (bounds);
-    editorView->setBounds  (bounds);
+    editorView->setBounds (bounds);
     soundView->setBounds   (bounds);
+
+    if (onboarding != nullptr)
+        onboarding->setBounds (getLocalBounds());   // full-screen overlay while visible
 }
 
 void AppShell::showLibrary()

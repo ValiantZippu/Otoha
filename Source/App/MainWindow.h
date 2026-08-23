@@ -2,6 +2,7 @@
 
 #include "../Audio/Player.h"
 #include "../Audio/Recorder.h"
+#include "../Core/AppSettings.h"
 #include "../Library/LibraryService.h"
 #include "../UI/AppShell.h"
 
@@ -13,7 +14,8 @@ class MainWindow : public juce::DocumentWindow
 {
 public:
     MainWindow (juce::String name, juce::AudioDeviceManager& deviceManager,
-                Recorder& recorder, Player& player, LibraryService& library);
+                Recorder& recorder, Player& player, LibraryService& library,
+                otoha::AppSettings* appSettings = nullptr);
 
     void closeButtonPressed() override;
 

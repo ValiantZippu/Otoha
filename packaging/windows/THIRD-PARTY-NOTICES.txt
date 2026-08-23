@@ -1,0 +1,37 @@
+Otoha third-party notices
+=========================
+
+This application incorporates the following third-party software.
+Full license texts are available in the source repository (docs/licensing.md).
+
+JUCE 8 (pinned: 8.0.8)
+----------------------
+Website: https://juce.com
+Usage:   application framework, audio device I/O, GUI, DSP containers.
+License: dual-licensed under the GNU AGPL v3 and a commercial JUCE license.
+         Distributed builds of Otoha must comply with one of the two options;
+         the distribution model must be confirmed before public release
+         (see docs/licensing.md).
+
+SQLite
+------
+Website: https://sqlite.org
+Usage:   library metadata database (Source/Library).
+License: public domain. No attribution obligations, notices kept as good
+         practice.
+
+FFmpeg (optional runtime dependency)
+------------------------------------
+Website: https://ffmpeg.org
+Usage:   Studio's compressed export invokes an FFmpeg executable as an
+         external process when present on the system. Otoha does not link,
+         bundle, or distribute FFmpeg binaries in this release; users who
+         install FFmpeg do so under FFmpeg's own license (LGPL/GPL depending
+         on that build's configuration).
+Note:    if a future release bundles an FFmpeg binary, its exact build flags
+         determine LGPL/GPL obligations and this file must be updated first.
+
+Not used, not copied
+--------------------
+FxSound and ViPER4Android were studied as product inspiration only; no code,
+drivers, or binaries from either project are included or linked.

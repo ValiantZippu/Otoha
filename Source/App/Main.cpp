@@ -1,3 +1,4 @@
+#include "../Core/AppSettings.h"
 #include "MainWindow.h"
 
 #include <cmath>
@@ -15,8 +16,16 @@ public:
     const juce::String getApplicationVersion() override { return OTOHA_VERSION; }
     bool moreThanOneInstanceAllowed() override          { return true; }
 
-    void initialise (const juce::String&) override
+    void initialise (const juce::String& commandLine) override
     {
+        // --- configuration: load, migrate, stamp (#34/#42) ----------------------
+        // Startup never blocks on network or auth; a missing/corrupt settings
+        // file simply means defaults.
+        appSettings = std::make_unique<otoha::AppSettings>();
+        otoha::loadAppSettings (*appSettings, otoha::defaultSettingsDirectory());
+        appSettings->safeModeSession = commandLine.containsIgnoreCase ("--safe-mode");
+        appSettings->lastRunVersion = OTOHA_VERSION;
+        saveAppSettings (*appSettings, otoha::defaultSettingsDirectory());
         // Open the default configuration first, then negotiate a sample rate:
         // prefer 48 kHz, but never assume the hardware supports it.
         auto setup = deviceManager.getAudioDeviceSetup();
@@ -51,7 +60,8 @@ public:
         else if (library->performStartupScan().recovered > 0)
             ; // recovered recordings are simply visible in the Library — no fanfare needed
 
-        window = std::make_unique<MainWindow> ("Otoha", deviceManager, *recorder, *player, *library);
+        window = std::make_unique<MainWindow> ("Otoha", deviceManager, *recorder, *player, *library,
+                                               appSettings.get());
     }
 
     void shutdown() override
@@ -67,6 +77,7 @@ public:
 
 private:
     juce::AudioDeviceManager deviceManager;
+    std::unique_ptr<otoha::AppSettings> appSettings;
     std::unique_ptr<Recorder> recorder;
     std::unique_ptr<Player> player;
     std::unique_ptr<LibraryService> library;
