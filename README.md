@@ -10,6 +10,35 @@ product is one loop:
 
 ---
 
+## Status — Milestone 7: Otoha DSP Core & Sound architecture (complete)
+
+Milestone 7 is an architecture milestone: the DSP engine is now a reusable,
+platform-independent core that will power both Studio and the future Otoha Sound.
+
+- **Otoha DSP Core** (`Source/Dsp/Core`): processor interface, `ProcessingContext`,
+  block-based `AudioBlock`, and every processor behind one `DspProcessor` contract —
+  depends only on juce_core + juce_audio_basics (no UI, Library, Editor, FFmpeg,
+  filesystem, or platform audio)
+- **Processors**: NoiseReduction, EQ, Bass, Clarity, Compressor, Limiter, Gain,
+  StereoWidth, Meter tap; real-time-safe `process()`, control-thread `prepare()`,
+  smoothed parameters so slider moves never click
+- **Studio facade** (`DspChain`): composes the core in one explicit code-defined order
+  (NoiseReduction → EQ → Bass → Clarity → Compressor → Limiter → Meter); preview and
+  export still share it unchanged
+- **New parameters** in `ProcessingState`: bassAmount, clarityAmount, stereoWidth,
+  input/output gain — neutral defaults, backwards-compatible sidecar serialization
+- **Platform layer** (`Source/Platform`): `AudioBackend` interface for live audio,
+  `MockAudioBackend` proving the pipeline end to end without drivers or hardware,
+  and `ProfileManager` device profiles (device-bound → default → none resolution;
+  automatic switching deliberately not activated yet)
+- **Docs**: `docs/architecture.md`, `dsp.md`, `audio-backends.md`, `profiles.md`,
+  `licensing.md` (incl. FFmpeg distribution considerations and explicit no-copy
+  statements re FxSound / ViPER4Android)
+- **Tests**: new headless `dsp_core` suite runs the core with no other project module
+  linked — bypass identity, M5 regressions, new processors, mono/stereo integrity,
+  mock-backend end-to-end pipeline, profile resolution
+- No virtual audio drivers, system capture, or OS routing implemented — architecture only
+
 ## Status — Milestone 6: FFmpeg export & batch export (complete)
 
 Milestone 5 built the pipeline; Milestone 6 gives it real-world outputs:

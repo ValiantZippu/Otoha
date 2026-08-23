@@ -73,6 +73,13 @@ struct ProcessingState
     LimiterParams         limiter;
     NoiseReductionParams  noiseReduction;
 
+    // --- M7 additions (neutral defaults: enabling DSP never colors audio) ----
+    float bassAmount   = 0.0f;    // 0..1, low-shelf lift up to +6 dB @ 90 Hz
+    float clarityAmount = 0.0f;   // 0..1, presence lift up to +4.5 dB @ 3.5 kHz
+    float stereoWidth  = 0.5f;    // 0..1 where 0.5 == normal stereo
+    float inputGainDb  = 0.0f;
+    float outputGainDb = 0.0f;
+
     // --- serialization -------------------------------------------------------
     juce::var toJSON() const
     {
@@ -104,6 +111,12 @@ struct ProcessingState
         nrObj->setProperty ("mode", noiseReductionToString (noiseReduction.mode));
         nrObj->setProperty ("strength", (double) noiseReduction.strength);
         root->setProperty ("noiseReduction", juce::var (nrObj));
+
+        root->setProperty ("bassAmount", (double) bassAmount);
+        root->setProperty ("clarityAmount", (double) clarityAmount);
+        root->setProperty ("stereoWidth", (double) stereoWidth);
+        root->setProperty ("inputGainDb", (double) inputGainDb);
+        root->setProperty ("outputGainDb", (double) outputGainDb);
 
         return juce::var (root);
     }
@@ -137,6 +150,13 @@ struct ProcessingState
         const auto nrVar = v.getProperty ("noiseReduction", {});
         s.noiseReduction.mode     = noiseReductionFromString (nrVar.getProperty ("mode", "off").toString());
         s.noiseReduction.strength = (float) (double) nrVar.getProperty ("strength", 0.5);
+
+        // M7 fields default to neutral when absent (older sidecars stay valid).
+        s.bassAmount    = (float) (double) v.getProperty ("bassAmount", 0.0);
+        s.clarityAmount = (float) (double) v.getProperty ("clarityAmount", 0.0);
+        s.stereoWidth   = (float) (double) v.getProperty ("stereoWidth", 0.5);
+        s.inputGainDb   = (float) (double) v.getProperty ("inputGainDb", 0.0);
+        s.outputGainDb  = (float) (double) v.getProperty ("outputGainDb", 0.0);
 
         return s;
     }
