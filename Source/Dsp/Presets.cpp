@@ -176,18 +176,30 @@ bool stateDiffersFromPreset (const ProcessingState& state, DspPreset p)
 {
     const auto canonical = presetToState (p);
 
+    if (state.enabled                 != canonical.enabled
+        || state.limiterEngaged       != canonical.limiterEngaged
+        || state.compressor.enabled   != canonical.compressor.enabled
+        || std::abs (state.compressor.thresholdDb  - canonical.compressor.thresholdDb)  > 0.01f
+        || std::abs (state.compressor.ratio        - canonical.compressor.ratio)        > 0.01f
+        || std::abs (state.compressor.attackMs     - canonical.compressor.attackMs)     > 0.01f
+        || std::abs (state.compressor.releaseMs    - canonical.compressor.releaseMs)    > 0.01f
+        || std::abs (state.compressor.makeupGainDb - canonical.compressor.makeupGainDb) > 0.01f
+        || state.limiter.enabled      != canonical.limiter.enabled
+        || std::abs (state.limiter.ceilingDb - canonical.limiter.ceilingDb) > 0.01f
+        || std::abs (state.limiter.releaseMs - canonical.limiter.releaseMs) > 0.01f
+        || state.noiseReduction.mode  != canonical.noiseReduction.mode
+        || std::abs (state.noiseReduction.strength - canonical.noiseReduction.strength) > 0.01f)
+        return true;
+
     for (int i = 0; i < 5; ++i)
         if (std::abs (state.eq.gainsDb[i] - canonical.eq.gainsDb[i]) > 0.01f)
             return true;
 
-    return state.enabled                 != canonical.enabled
-        || state.compressor.enabled      != canonical.compressor.enabled
-        || std::abs (state.compressor.thresholdDb - canonical.compressor.thresholdDb) > 0.01f
-        || std::abs (state.compressor.ratio       != canonical.compressor.ratio ? 1.0f : 0.0f) > 0.01f
-        || std::abs (state.compressor.makeupGainDb - canonical.compressor.makeupGainDb) > 0.01f
-        || state.limiter.enabled         != canonical.limiter.enabled
-        || std::abs (state.limiter.ceilingDb - canonical.limiter.ceilingDb) > 0.01f
-        || state.noiseReduction.mode     != canonical.noiseReduction.mode
-        || std::abs (state.noiseReduction.strength - canonical.noiseReduction.strength) > 0.01f;
+    // M7 parameters participate in "(Modified)" detection too.
+    return std::abs (state.bassAmount    - canonical.bassAmount)    > 0.005f
+        || std::abs (state.clarityAmount - canonical.clarityAmount) > 0.005f
+        || std::abs (state.stereoWidth   - canonical.stereoWidth)   > 0.005f
+        || std::abs (state.inputGainDb   - canonical.inputGainDb)   > 0.01f
+        || std::abs (state.outputGainDb  - canonical.outputGainDb)  > 0.01f;
 }
 } // namespace otoha

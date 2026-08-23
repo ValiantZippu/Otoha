@@ -31,6 +31,7 @@ target_sources(Otoha PRIVATE
     Source/Audio/Player.cpp
     Source/Audio/Recorder.cpp
     Source/Core/RecordingSupport.cpp
+    Source/Dsp/Core/Processors.cpp
     Source/Dsp/DspChain.cpp
     Source/Dsp/Presets.cpp
     Source/Dsp/SampleRateConverter.cpp
@@ -90,8 +91,10 @@ target_sources(otoha_tests PRIVATE Tests/WavRoundTripTest.cpp)
 juce_add_console_app(otoha_edit_tests PRODUCT_NAME "otoha_edit_tests")
 target_sources(otoha_edit_tests PRIVATE
     Tests/EditEngineTests.cpp
+    Source/Dsp/Core/Processors.cpp
     Source/Dsp/DspChain.cpp
     Source/Dsp/Presets.cpp
+    Source/Dsp/SampleRateConverter.cpp
     Source/Editor/AudioDocument.cpp
     Source/Editor/TimelineRenderer.cpp)
 
@@ -101,16 +104,28 @@ target_link_libraries(otoha_edit_tests PRIVATE
 juce_add_console_app(otoha_dsp_tests PRODUCT_NAME "otoha_dsp_tests")
 target_sources(otoha_dsp_tests PRIVATE
     Tests/DspEngineTests.cpp
+    Source/Dsp/Core/Processors.cpp
     Source/Dsp/DspChain.cpp
     Source/Dsp/Presets.cpp)
 
 target_link_libraries(otoha_dsp_tests PRIVATE
     juce::juce_audio_basics)
 
+# --- Milestone 7: DSP Core + Otoha Sound platform abstractions ----------------
+# Deliberately minimal linkage: proves the DSP Core needs no UI / Library /
+# Editor / FFmpeg / platform-audio dependencies to run.
+juce_add_console_app(otoha_dspcore_tests PRODUCT_NAME "otoha_dspcore_tests")
+target_sources(otoha_dspcore_tests PRIVATE
+    Tests/DspCoreTests.cpp
+    Source/Dsp/Core/Processors.cpp)
+
+target_link_libraries(otoha_dspcore_tests PRIVATE juce::juce_audio_basics)
+
 juce_add_console_app(otoha_export_tests PRODUCT_NAME "otoha_export_tests")
 target_sources(otoha_export_tests PRIVATE
     Tests/ExportTests.cpp
     Source/Core/RecordingSupport.cpp
+    Source/Dsp/Core/Processors.cpp
     Source/Dsp/DspChain.cpp
     Source/Dsp/Presets.cpp
     Source/Dsp/SampleRateConverter.cpp
@@ -148,4 +163,5 @@ add_test(NAME support COMMAND otoha_support_tests)
 add_test(NAME library COMMAND otoha_library_tests)
 add_test(NAME edit_engine COMMAND otoha_edit_tests)
 add_test(NAME dsp_engine COMMAND otoha_dsp_tests)
+add_test(NAME dsp_core COMMAND otoha_dspcore_tests)
 add_test(NAME export_system COMMAND otoha_export_tests)
