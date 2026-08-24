@@ -1,14 +1,61 @@
 # Otoha
 
-**A simple place to record, enhance, edit, and keep your audio and video.**
+**Simple, open-source recording and audio enhancement.**
 
-Otoha is a free, open-source, cross-platform recording app for desktop and mobile.
-It is deliberately **not** a DAW, not Audacity, and not a multitrack editor. The whole
-product is one loop:
+> **Record. Edit. Enhance. Export.**
 
-> **Record something → make it sound good → make small edits → organize it → export it.**
+Otoha is a free, open-source audio app for desktop and mobile. It is
+deliberately **not** a DAW — it's a focused modern utility that happens to
+have serious audio processing underneath.
+
+## Features
+
+* **Recording** — countdown, live input meter, clipping warning, crash-safe lossless capture
+* **Library** — search, sort, rename, duplicate, drag-and-drop import
+* **Waveform editing** — select, cut/copy/paste, ripple delete, undo/redo, zoom, autosave recovery
+* **Enhance** — one-tap presets: noise reduction, EQ, bass, clarity, compressor, limiter, with A-B compare
+* **Export** — WAV/FLAC lossless; M4A/Opus/MP3 via your installed FFmpeg; batch export
+* **Windows Sound** — enhance *all* system playback in real time, with per-device profiles
+* **Portable projects** (`.otoha`) that move between machines
+
+## Platforms
+
+| Platform | Status | Notes |
+|---|---|---|
+| Windows 10+ (x64) | Stable | Installer + Sound. Unsigned builds may trigger SmartScreen. |
+| Linux (x64) | Experimental | Tarball + desktop entry |
+| Android | In preparation | Core ready; build not distributed yet |
+| macOS | Experimental | Builds from source; no bundle yet |
+| iOS | Not distributed | Core is portable |
+
+## Installation
+
+Grab `Otoha-<version>-Windows-x64.exe` from
+[Releases](../../releases), install, launch, press Record. Full guide:
+[docs/user-guide.md](docs/user-guide.md). Verify downloads with the published
+SHA-256 checksums.
+
+## Building & contributing
+
+From source: [BUILDING.md](BUILDING.md) · Architecture: [ARCHITECTURE.md](ARCHITECTURE.md) ·
+Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
+
+## License
+
+AGPL-3.0-or-later — see [LICENSE.md](LICENSE.md) and
+docs/licensing.md for the dependency audit. Your recordings stay on your
+device, always: [docs/privacy.md](docs/privacy.md).
 
 ---
+
+## Development milestone log
+
+## Status — Milestone 16: packaging & release engineering (code complete)
+
+- Build metadata (`BuildInfo.h`: version/commit/date/type) baked in via CMake, shown on About (#3/#4).
+- Release pipeline: tag-triggered GitHub Actions building Linux tarball + Windows installer with test gates and optional Authenticode signing via secrets; predictable artifact names `Otoha-<ver>-<Platform>-x64` (#39/#40).
+- App icon (single-shape SVG), Linux `.desktop` + packaging script (#24/#27/#28).
+- Community/legal set: LICENSE.md (AGPLv3 decision + vendoring checklist), CHANGELOG.md, SECURITY.md, CONTRIBUTING.md, docs/privacy.md, docs/user-guide.md, docs/release-matrix.md, docs/android-release.md, issue templates.
 
 ## Status — Milestone 15: QA, stress testing & reliability (code complete)
 
