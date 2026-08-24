@@ -13,11 +13,13 @@
 #include "../Source/Audio/RecorderPhase.h"
 #include "../Source/Core/OtohaError.h"
 #include "../Source/Core/PlatformCapabilities.h"
+#include "../Source/Dsp/DspChain.h"
 #include "../Source/Editor/AudioDocument.h"
 #include "../Source/Editor/ProjectFormat.h"
 
 #include <cmath>
 #include <cstdio>
+#include <limits>
 
 namespace
 {
@@ -176,6 +178,27 @@ int main()
         }
 
         dir.deleteRecursively();
+    }
+
+    // --- #12 DSP NaN/Inf guard -------------------------------------------------
+    {
+        DspChain chain;
+        chain.prepare (48000.0, 2);
+        chain.setParameters (ProcessingState {});   // neutral defaults
+
+        float left[8]  = { 0.1f, 0.2f, std::numeric_limits<float>::quiet_NaN(), 0.4f,
+                           std::numeric_limits<float>::infinity(), 0.5f, 0.6f, 0.7f };
+        float right[8] = { 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f };
+        float* chans[2] = { left, right };
+
+        chain.process (chans, 8);
+
+        bool allFinite = true;
+        for (float s : left)  allFinite &= std::isfinite (s);
+        for (float s : right) allFinite &= std::isfinite (s);
+        ok = expect (allFinite, "chain output contains no NaN/Inf after the guard");
+        ok = expect (chain.invalidSampleCount() >= 2,
+                     "guard counted the invalid input samples");
     }
 
     otoha::log::info ("cross-platform suite finished");   // smoke-test the logger

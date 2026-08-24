@@ -1,5 +1,7 @@
 #include "DspChain.h"
 
+#include <cmath>
+
 namespace otoha
 {
 DspChain::DspChain()
@@ -52,6 +54,22 @@ void DspChain::process (float* const* channels, int numFrames)
 
     for (auto& processor : chain)
         processor->process (block);
+
+    // M12 #12: fail safely. A NaN/Inf from any processor is replaced with
+    // silence at the chain boundary and counted — never propagated into the
+    // renderer/export. Real-time safe: branch + relaxed atomic only.
+    for (int ch = 0; ch < preparedChannelCount; ++ch)
+    {
+        float* data = channels[ch];
+        for (int i = 0; i < numFrames; ++i)
+        {
+            if (! std::isfinite (data[i]))
+            {
+                data[i] = 0.0f;
+                invalidSamples.fetch_add (1, std::memory_order_relaxed);
+            }
+        }
+    }
 }
 
 DspChain::Meters DspChain::getMeters() const

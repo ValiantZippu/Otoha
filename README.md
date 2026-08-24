@@ -10,6 +10,19 @@ product is one loop:
 
 ---
 
+## Status — Milestone 13: Cross-platform completion & hardening (code complete)
+
+M13 finishes the shared architecture: audits, edge-case hardening, CI, and developer docs. Pure code this pass; platform hardware items are reported honestly.
+
+- **Architecture & leakage audit** — zero Windows/platform APIs outside `Source/Sound/platform/`; dependency direction documented in **ARCHITECTURE.md** with the thread-ownership table (#3/#4/#8).
+- **DSP NaN/Inf guard (#12)** — `DspChain` sanitizes chain output in real time and counts invalid samples (`invalidSampleCount()`); tested headlessly.
+- **Timeline edge cases (#14/#15)** — delete-at-start/end/all, zero-length ops, oversized selections, paste at begin/end, undo/redo invalidation: all specified in tests; empty-timeline state remains unreachable by design.
+- **Centralized `AppState` (#6) + typed `EventBroadcaster` (#7)** — single observation point for UI; audio engine never calls widgets.
+- **CI (#57/#58)** — GitHub Actions runs every headless core suite on Linux as a blocking gate (`.github/workflows/ci.yml`).
+- **BUILDING.md (#56)** — honest per-platform build matrix; untested platforms marked NOT TESTED, never assumed.
+
+---
+
 ## Status — Milestone 12: Cross-platform core & Android architecture (code complete)
 
 Milestone 12 formalizes the split between the shared core and platform layers, and lays down the honest Android/mobile architecture (pure code this pass; see docs/cross-platform.md):

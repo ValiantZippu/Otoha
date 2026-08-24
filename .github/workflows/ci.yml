@@ -1,0 +1,41 @@
+# Otoha CI — core regression gate (M13 #57/#58).
+#
+# Scope: the platform-independent suites build and run on ubuntu-latest.
+# A failure here BLOCKS the build. Platform-specific builds (Windows GUI app,
+# Android, Apple) are added when runners/config exist — they are reported,
+# never silently skipped.
+
+name: core-tests
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop]
+
+jobs:
+  linux-core:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install JUCE Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pkg-config libsqlite3-dev libasound2-dev libfreetype6-dev \
+            libfontconfig1-dev libx11-dev libxext-dev libxrandr-dev libxi-dev \
+            libgl1-mesa-dev libcurl4-openssl-dev
+
+      - name: Configure (headless test targets only)
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build headless suites
+        run: |
+          cmake --build build --target \
+            otoha_tests otoha_state_tests otoha_support_tests \
+            otoha_edit_tests otoha_dsp_tests otoha_dspcore_tests \
+            otoha_xplat_tests -j
+
+      - name: Run core tests (blocking — #58)
+        run: ctest --test-dir build -R "wav_round_trip|state_machine|support|edit_engine|dsp_engine|dsp_core|cross_platform" --output-on-failure
