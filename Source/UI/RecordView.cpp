@@ -301,7 +301,7 @@ void RecordView::resized()
 bool RecordView::keyPressed (const juce::KeyPress& key)
 {
     if (key.isKeyCode (juce::KeyPress::spaceKey))  { playPauseClicked();      return true; }
-    if (key.isKeyCode (juce::KeyPress ('r')))     { recordButtonClicked();   return true; }
+    if (key == juce::KeyPress ('r'))              { recordButtonClicked();   return true; }
     if (key.isKeyCode (juce::KeyPress::escapeKey) && counting) { cancelCountdown(); return true; }
     return false;
 }

@@ -58,6 +58,7 @@ private:
     void exportDiagnosticsReport();
     void updateStatusText();
     void applyPresetSelection();
+    void timerCallback() override;
 
     // Backend: Windows gets the real thing; everyone else an honest stub.
     #if JUCE_WINDOWS
