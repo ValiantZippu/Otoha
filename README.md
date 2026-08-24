@@ -10,6 +10,22 @@ product is one loop:
 
 ---
 
+## Status — Milestone 12: Cross-platform core & Android architecture (code complete)
+
+Milestone 12 formalizes the split between the shared core and platform layers, and lays down the honest Android/mobile architecture (pure code this pass; see docs/cross-platform.md):
+
+- **Shared core audit** — timeline, DSP chain, renderer/export, library, waveform, presets and settings confirmed free of any Windows includes; Windows code stays confined to `Source/Sound/platform/`.
+- **`.otoha` project container** (`Source/Editor/ProjectFormat.*`) — directory-based (`project.json` + `audio/` + `waveform/`), `formatVersion` envelope with a migration seam, atomic writes; newer formats refuse gracefully.
+- **Capability system** (`Source/Core/PlatformCapabilities.h`) — one honest table per platform (Windows Sound/tray/startup = true; Android system-wide = impossible, never faked; background recording not claimed until hardware-tested).
+- **Shared error model** (`Source/Core/OtohaError.h`) — 8 categories translated to jargon-free desktop/mobile wording (#64/#65).
+- **Recorder lifecycle** (`Source/Audio/RecorderPhase.h`) — Preparing→Countdown→Recording→…→Complete/Error state machine shared by all platforms, alongside the untouched audio-transport truth.
+- **Logical paths** (`Source/Core/AppPaths.h`) and **structured logging** (`Source/Core/OtohaLog.h`, release-stripped debug, no audio/secret logging).
+- **Android recording design documented** — JUCE AAudio/OpenSL input → shared recorder → crash-safe lossless writer; record-time-only permission flow, foreground-service background policy, share sheet/document picker for export/import.
+- Fixed a real pre-existing compile bug: duplicate `sourceFileForTest()` declaration in `AudioDocument.h`.
+- New `otoha_xplat_tests` suite (phases, capabilities, errors, project roundtrip); see Tests/CrossPlatformTests.cpp.
+
+---
+
 ## Status — Milestone 11: Studio v1 cohesion (complete)
 
 Milestones 1–8 already delivered the Studio mechanics; Milestone 11 closed the remaining cohesion gaps without rewriting working systems:

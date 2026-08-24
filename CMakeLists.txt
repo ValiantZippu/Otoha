@@ -36,6 +36,7 @@ target_sources(Otoha PRIVATE
     Source/Dsp/Presets.cpp
     Source/Dsp/SampleRateConverter.cpp
     Source/Editor/AudioDocument.cpp
+    Source/Editor/ProjectFormat.cpp
     Source/Editor/TimelineRenderer.cpp
     Source/Editor/TimelineSource.cpp
     Source/Export/AudioExporter.cpp
@@ -46,7 +47,6 @@ target_sources(Otoha PRIVATE
     Source/Library/Database.cpp
     Source/Library/LibraryService.cpp
     Source/Library/WaveformCache.cpp
-    Source/Sound/platform/WindowsAudioBackend.cpp
     Source/UI/AppShell.cpp
     Source/UI/EditorView.cpp
     Source/UI/EnhancePanel.cpp
@@ -57,15 +57,33 @@ target_sources(Otoha PRIVATE
     Source/UI/RecordView.cpp
     Source/UI/SoundView.cpp)
 
+# M12: the WASAPI Sound backend is Windows-only; other platforms build the app
+# (Studio + honest unsupported-Sound placeholder) without it.
+if(WIN32)
+    target_sources(Otoha PRIVATE Source/Sound/platform/WindowsAudioBackend.cpp)
+endif()
+
 target_include_directories(Otoha PRIVATE ${SQLite3_INCLUDE_DIRS})
 target_link_libraries(Otoha PRIVATE ${SQLite3_LIBRARIES})
+
+# OTOHA_PLATFORM_* feeds PlatformCapabilities::current() (#50).
+if(WIN32)
+    set(OTOHA_PLATFORM_DEFINE OTOHA_PLATFORM_WINDOWS=1)
+elif(APPLE)
+    set(OTOHA_PLATFORM_DEFINE OTOHA_PLATFORM_MACOS=1)
+elseif(ANDROID)
+    set(OTOHA_PLATFORM_DEFINE OTOHA_PLATFORM_ANDROID=1)
+else()
+    set(OTOHA_PLATFORM_DEFINE OTOHA_PLATFORM_LINUX=1)
+endif()
 
 target_compile_definitions(Otoha PRIVATE
     JUCE_WEB_BROWSER=0
     JUCE_USE_CURL=0
     JUCE_JACK=0
     JUCE_MODAL_LOOPS_PERMITTED=0
-    OTOHA_VERSION="${PROJECT_VERSION}")
+    OTOHA_VERSION="${PROJECT_VERSION}"
+    ${OTOHA_PLATFORM_DEFINE})
 
 target_link_libraries(Otoha PRIVATE
     juce::juce_gui_basics
@@ -174,6 +192,21 @@ target_sources(otoha_release_tests PRIVATE
 target_compile_definitions(otoha_release_tests PRIVATE OTOHA_VERSION="${PROJECT_VERSION}")
 target_link_libraries(otoha_release_tests PRIVATE juce::juce_audio_basics)
 
+# --- Milestone 12: cross-platform shared core ---------------------------------
+# Proves the shared modules (recorder phases, capabilities, error model, .otoha
+# project format) are headless and platform-independent — no Windows code, no UI.
+juce_add_console_app(otoha_xplat_tests PRODUCT_NAME "otoha_xplat_tests")
+target_sources(otoha_xplat_tests PRIVATE
+    Tests/CrossPlatformTests.cpp
+    Source/Editor/AudioDocument.cpp
+    Source/Editor/ProjectFormat.cpp
+    Source/Dsp/Core/Processors.cpp
+    Source/Dsp/DspChain.cpp
+    Source/Dsp/Presets.cpp
+    Source/Dsp/SampleRateConverter.cpp)
+
+target_link_libraries(otoha_xplat_tests PRIVATE juce::juce_audio_formats)
+
 foreach(OTOHA_TEST_TARGET otoha_tests otoha_state_tests otoha_support_tests)
     target_compile_definitions(${OTOHA_TEST_TARGET} PRIVATE
         JUCE_WEB_BROWSER=0
@@ -193,3 +226,4 @@ add_test(NAME dsp_core COMMAND otoha_dspcore_tests)
 add_test(NAME sound_engine COMMAND otoha_sound_tests)
 add_test(NAME export_system COMMAND otoha_export_tests)
 add_test(NAME release_hardening COMMAND otoha_release_tests)
+add_test(NAME cross_platform COMMAND otoha_xplat_tests)
