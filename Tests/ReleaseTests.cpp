@@ -62,6 +62,9 @@ std::vector<float> sine (float amp = 0.5f)
     return v;
 }
 
+// No-arg wrapper so `sine` can sit in a table of `vector<float>(*)()`.
+std::vector<float> sineDflt() { return sine(); }
+
 std::vector<float> sweep()
 {
     std::vector<float> v ((size_t) frames);
@@ -162,7 +165,7 @@ int main()
     {
         struct NamedSignal { const char* name; std::vector<float> (*fn)(); };
         const NamedSignal signals[] = {
-            { "silence",   &silence }, { "impulse", &impulse }, { "sine", &sine },
+            { "silence",   &silence }, { "impulse", &impulse }, { "sineDflt", &sineDflt },
             { "sweep",     &sweep },   { "pink noise", &pinkNoise },
         };
 

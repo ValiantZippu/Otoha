@@ -159,7 +159,7 @@ private:
                 case JobStatus::State::skipped:
                     ++done; sum += 1.0f; break;
                 default:
-                    ++waitingOrActive; sum += s.progress.load(); break;
+                    ++waitingOrActive; sum += s.progress; break;
             }
         }
 

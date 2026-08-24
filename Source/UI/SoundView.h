@@ -3,6 +3,7 @@
 #include "../App/AppLifecycle.h"
 #include "../Core/AppSettings.h"
 #include "../Dsp/UserPresets.h"
+#include "../Platform/DeviceProfiles.h"   // platform::ProfileManager
 #include "../Sound/SoundEngine.h"
 #include "../Sound/platform/UnsupportedAudioBackend.h"
 #include "../Sound/platform/WindowsAudioBackend.h"

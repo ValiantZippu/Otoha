@@ -9,6 +9,7 @@
 #include "../Source/Export/ExportManager.h"
 #include "../Source/Export/ExportPresets.h"
 #include "../Source/Export/Naming.h"
+#include "../Source/Dsp/Presets.h"
 
 #include <cstdio>
 
@@ -25,17 +26,15 @@ bool expect (bool condition, const char* message)
 
 juce::File writeTestWav (const juce::File& dir, const juce::String& name, double rate = 48000.0)
 {
-    static thread_local juce::AudioFormatManager formats;
-    if (formats.getNumKnownFormats() == 0)
-        formats.registerBasicFormats();
+    juce::WavAudioFormat wavFormat;
 
     const auto file = dir.getChildFile (name);
-    std::unique_ptr<juce::FileOutputStream> stream (file.createOutputStream());
+    auto stream = file.createOutputStream();
     if (stream == nullptr) return {};
 
-    auto* wav = static_cast<juce::WavAudioFormat*> (formats.findFormatForExtension ("wav"));
+    auto* wav = &wavFormat;
     std::unique_ptr<juce::AudioFormatWriter> writer (
-        wav->createWriterFor (stream.release(), rate, 1, 16, {}, 0));
+        wav->createWriterFor (stream, rate, 1, 16, {}, 0));
     if (writer == nullptr) return {};
 
     juce::AudioBuffer<float> silence (1, (int) rate);   // one second

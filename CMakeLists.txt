@@ -105,7 +105,8 @@ target_link_libraries(Otoha PRIVATE
     juce::juce_gui_basics
     juce::juce_audio_devices
     juce::juce_audio_formats
-    juce::juce_audio_utils)
+    juce::juce_audio_utils
+    juce::juce_data_structures)   # PropertiesFile (ExportPresets)
 
 juce_generate_juce_header(Otoha)
 
@@ -189,6 +190,7 @@ target_sources(otoha_export_tests PRIVATE
 target_include_directories(otoha_export_tests PRIVATE ${SQLite3_INCLUDE_DIRS})
 target_link_libraries(otoha_export_tests PRIVATE
     juce::juce_audio_formats
+    juce::juce_data_structures   # PropertiesFile (ExportPresets)
     ${SQLite3_LIBRARIES})
 
 juce_add_console_app(otoha_state_tests PRODUCT_NAME "otoha_state_tests")

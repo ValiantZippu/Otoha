@@ -22,14 +22,14 @@
 namespace otoha::theme
 {
 // --- palette -----------------------------------------------------------------
-inline juce::Colour background()      { return { 0xff000000 }; }   // true AMOLED black
-inline juce::Colour card()            { return { 0xff141414 }; }   // cards, secondary buttons
-inline juce::Colour cardAccent()      { return { 0xff2a1620 }; }   // primary-action background
-inline juce::Colour sakura()          { return { 0xffff9ecf }; }   // THE accent
+inline juce::Colour background()      { return juce::Colour (0xff000000); }   // true AMOLED black
+inline juce::Colour card()            { return juce::Colour (0xff141414); }   // cards, secondary buttons
+inline juce::Colour cardAccent()      { return juce::Colour (0xff2a1620); }   // primary-action background
+inline juce::Colour sakura()          { return juce::Colour (0xffff9ecf); }   // THE accent
 inline juce::Colour textPrimary()     { return juce::Colours::white; }
-inline juce::Colour textMuted()       { return { 0xff8a7a82 }; }   // warm grey-sakura
-inline juce::Colour textSoft()        { return { 0xffd8c7ce }; }   // soft rose for dark panels
-inline juce::Colour clipRed()         { return { 0xffff5a7e }; }   // clipping / error states
+inline juce::Colour textMuted()       { return juce::Colour (0xff8a7a82); }   // warm grey-sakura
+inline juce::Colour textSoft()        { return juce::Colour (0xffd8c7ce); }   // soft rose for dark panels
+inline juce::Colour clipRed()         { return juce::Colour (0xffff5a7e); }   // clipping / error states
 
 inline constexpr int cornerRadius = 8;       // restrained rounding, never bubbly
 inline constexpr int edgePadding  = 24;      // screen margins

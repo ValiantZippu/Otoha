@@ -30,7 +30,7 @@ juce::int64 ExportManager::submit (const ExportRequest& request)
 
     const std::unique_lock<std::mutex> lk (lock);
     allJobs.push_back (job);
-    pending.push_back (*job);
+    pending.push_back (job);
     wakeWorker.notify_one();
     return job->id;
 }
@@ -43,7 +43,7 @@ void ExportManager::cancelAll()
         // Waiting jobs: cancel immediately and drop from the queue.
         while (! pending.empty())
         {
-            const auto jobId = pending.front().id;
+            const auto jobId = pending.front()->id;
             pending.pop_front();
 
             for (auto& j : allJobs)
@@ -69,9 +69,9 @@ bool ExportManager::cancelJob (juce::int64 jobId)
 
     for (auto it = pending.begin(); it != pending.end(); ++it)
     {
-        if (it->id == jobId)
+        if ((*it)->id == jobId)
         {
-            it->cancelFlag.store (true);
+            (*it)->cancelFlag.store (true);
             pending.erase (it);
             found = true;
             break;
@@ -82,7 +82,7 @@ bool ExportManager::cancelJob (juce::int64 jobId)
         if (j->id == jobId)
         {
             if (std::find_if (pending.begin(), pending.end(),
-                              [jobId] (const Job& p) { return p.id == jobId; }) == pending.end())
+                              [jobId] (const std::shared_ptr<Job>& p) { return p->id == jobId; }) == pending.end())
                 j->cancelFlag.store (true);   // active job stops on its next poll
             else
                 j->state = JobStatus::State::cancelled;
@@ -106,7 +106,7 @@ bool ExportManager::retryJob (juce::int64 jobId)
             j->progress = 0.0f;
             j->errorText = {};
             j->cancelFlag.store (false);
-            pending.push_back (*j);
+            pending.push_back (j);
             wakeWorker.notify_one();
             return true;
         }
@@ -158,8 +158,7 @@ void ExportManager::workerLoop()
 {
     for (;;)
     {
-        Job jobCopy;
-        bool have = false;
+        std::shared_ptr<Job> job;
 
         {
             std::unique_lock<std::mutex> lk (lock);
@@ -170,40 +169,31 @@ void ExportManager::workerLoop()
             if (pending.empty())
                 continue;
 
-            jobCopy = pending.front();
+            job = pending.front();
             pending.pop_front();
 
             // Reflect "active" state on the shared record.
-            for (auto& j : allJobs)
-                if (j->id == jobCopy.id)
-                {
-                    j->state = JobStatus::State::rendering;
-                    j->progress = 0.0f;
-                }
+            job->state = JobStatus::State::rendering;
+            job->progress = 0.0f;
         }
 
-        const bool ok = jobCopy.cancelFlag.load() ? false : runJob (jobCopy);
+        const bool ok = job->cancelFlag.load() ? false : runJob (*job);
 
         {
             const std::unique_lock<std::mutex> lk (lock);
-            for (auto& j : allJobs)
+
+            if (job->cancelFlag.load())
+                job->state = JobStatus::State::cancelled;
+            else if (! ok)
+                job->state = JobStatus::State::failed;
+            else
             {
-                if (j->id != jobCopy.id)
-                    continue;
-
-                if (jobCopy.cancelFlag.load())
-                    j->state = JobStatus::State::cancelled;
-                else if (! ok)
-                    j->state = JobStatus::State::failed;
-                else
-                    j->state = JobStatus::State::completed;
-
-                j->progress = ok ? 1.0f : j->progress.load();
-                j->outputFile = ok ? resolveDestination (jobCopy.request.destinationDirectory,
-                                                         jobCopy.request.baseName,
-                                                         jobCopy.request.format,
-                                                         CollisionPolicy::replace)
-                                   : juce::File{};
+                job->state = JobStatus::State::completed;
+                job->progress = 1.0f;
+                job->outputFile = resolveDestination (job->request.destinationDirectory,
+                                                      job->request.baseName,
+                                                      job->request.format,
+                                                      CollisionPolicy::replace);
             }
         }
     }
@@ -255,13 +245,8 @@ bool ExportManager::runJob (Job& job)
 
     if (doc == nullptr)
     {
-        const std::unique_lock<std::mutex> lk (lock);
-        for (auto& j : allJobs)
-            if (j->id == job.id)
-            {
-                j->errorText = "Couldn't read this recording.\nThe file may be missing or damaged.";
-                j->progress = 0.0f;
-            }
+        job.errorText = "Couldn't read this recording.\nThe file may be missing or damaged.";
+        job.progress = 0.0f;
         return false;
     }
 
@@ -271,13 +256,8 @@ bool ExportManager::runJob (Job& job)
                                                  job.request.collision);
     if (destination == juce::File{})
     {
-        const std::unique_lock<std::mutex> lk (lock);
-        for (auto& j : allJobs)
-            if (j->id == job.id)
-            {
-                j->state = JobStatus::State::skipped;
-                j->progress = 1.0f;
-            }
+        job.state = JobStatus::State::skipped;
+        job.progress = 1.0f;
         return true;
     }
 
@@ -296,12 +276,9 @@ bool ExportManager::runJob (Job& job)
 
     if (needsFfmpeg && encoderStatus != EncoderStatus::available)
     {
-        const std::unique_lock<std::mutex> lk (lock);
-        for (auto& j : allJobs)
-            if (j->id == job.id)
-                j->errorText = encoderStatus == EncoderStatus::unsupported
-                    ? "This FFmpeg build can't encode this format."
-                    : "Compressed export isn't available right now.\nWAV export is still available.";
+        job.errorText = encoderStatus == EncoderStatus::unsupported
+            ? "This FFmpeg build can't encode this format."
+            : "Compressed export isn't available right now.\nWAV export is still available.";
         return false;
     }
 
@@ -322,12 +299,7 @@ bool ExportManager::runJob (Job& job)
         error);
 
     if (! ok && ! job.cancelFlag.load())
-    {
-        const std::unique_lock<std::mutex> lk (lock);
-        for (auto& j : allJobs)
-            if (j->id == job.id)
-                j->errorText = error;
-    }
+        job.errorText = error;
 
     return ok;
 }

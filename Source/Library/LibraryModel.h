@@ -58,15 +58,19 @@ struct MediaItem
 };
 
 /** Compact friendly date for list rows: "Today", "Yesterday", otherwise a short date. */
+inline int localDayNumber (const juce::Time& t)
+{
+    return t.getYear() * 372 + t.getMonth() * 31 + t.getDayOfMonth();
+}
+
 inline juce::String friendlyRelativeDate (const juce::Time& t, const juce::Time& now = juce::Time::getCurrentTime())
 {
-    const int daysDelta = (int) juce::roundToInt (std::floor ((now.getStartOfDay().toMilliseconds()
-                                                              - t.getStartOfDay().toMilliseconds()) / 86400000.0));
+    const int daysDelta = localDayNumber (now) - localDayNumber (t);
 
     if (daysDelta <= 0)  return "Today";
     if (daysDelta == 1)  return "Yesterday";
     if (daysDelta < 7)   return juce::String (daysDelta) + " days ago";
 
-    return t.toString ("%d %b %Y");
+    return t.formatted ("%d %b %Y");
 }
 } // namespace otoha

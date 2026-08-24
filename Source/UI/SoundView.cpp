@@ -286,12 +286,11 @@ void SoundView::handleDeviceChange()
 
     // Rebuild the stream: stop -> init -> prepare DSP -> start (#8).
     auto cfg = backend.getStreamConfig();
-    otoha::dsp::ProcessingContext ctx;
-    ctx.sampleRate   = cfg.sampleRate   > 0 ? cfg.sampleRate   : 48000.0;
-    ctx.numChannels  = cfg.numChannels  > 0 ? cfg.numChannels  : 2;
-    ctx.maxBlockSize = cfg.maxBlockSize > 0 ? cfg.maxBlockSize : 512;
+    if (cfg.sampleRate   <= 0) cfg.sampleRate   = 48000.0;
+    if (cfg.numChannels  <= 0) cfg.numChannels  = 2;
+    if (cfg.maxBlockSize <= 0) cfg.maxBlockSize = 512;
 
-    if (! backend.initialize (ctx))
+    if (! backend.initialize (cfg))
     {
         const auto status = backend.getStatus();
         latencyLabel.setText (juce::String (status.message), juce::dontSendNotification);
@@ -310,11 +309,7 @@ void SoundView::handleDeviceChange()
         return;
     }
 
-    engine.prepare (backend.getStreamConfig().numChannels > 0
-                        ? otoha::dsp::ProcessingContext { backend.getStreamConfig().sampleRate,
-                                                          backend.getStreamConfig().numChannels,
-                                                          backend.getStreamConfig().maxBlockSize }
-                        : ctx);
+    engine.prepare (otoha::dsp::ProcessingContext { cfg.sampleRate, cfg.numChannels, cfg.maxBlockSize });
 
     backend.setProcessStage ([this] (otoha::dsp::AudioBlock& b)
                              { engine.process (b.channelData, b.numChannels, b.numFrames); });
@@ -487,7 +482,7 @@ void SoundView::exportDiagnosticsReport()
     in.safeMode         = safeMode;
 
     chooser = std::make_unique<juce::FileChooser> ("Save diagnostics report",
-                                                   juce::File::getUserDocumentsDirectory()
+                                                   juce::File::getSpecialLocation (juce::File::userDocumentsDirectory)
                                                        .getChildFile ("Otoha-Diagnostics.txt"),
                                                    "*.txt");
     chooser->launchAsync (juce::FileBrowserComponent::saveMode

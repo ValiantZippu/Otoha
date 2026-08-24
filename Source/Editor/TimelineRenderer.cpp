@@ -38,8 +38,8 @@ bool TimelineRenderer::renderToFile (juce::AudioFormat& format,
     const auto temp = parent.getNonexistentChildFile (
         destination.getFileNameWithoutExtension() + " saving", ".tmp");
 
-    juce::FileOutputStream stream (temp);
-    if (! stream.openedOk())
+    auto stream = std::make_unique<juce::FileOutputStream> (temp);
+    if (stream == nullptr || ! stream->openedOk())
     {
         errorOut = "Couldn't start writing the file.\nCheck storage space and permissions.";
         return false;
@@ -47,8 +47,9 @@ bool TimelineRenderer::renderToFile (juce::AudioFormat& format,
 
     const int bitsPerSample = format.getFileExtensions().contains ("flac") ? 16 : 24;
 
+    // createWriterFor takes ownership of the stream on success (JUCE 6+ API).
     std::unique_ptr<juce::AudioFormatWriter> writer (
-        format.createWriterFor (&stream,
+        format.createWriterFor (stream,
                                 doc->getSampleRate(),
                                 (unsigned int) juce::jmax (1, doc->getNumChannels()),
                                 (unsigned int) bitsPerSample,

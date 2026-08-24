@@ -93,7 +93,7 @@ int main()
             {
                 otoha::DspChain chain;
                 chain.prepare (rate, channels);
-                chain.setParameters ({})
+                chain.setParameters ({});
 
                 for (int size : sizes)
                 {

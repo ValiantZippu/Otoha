@@ -20,8 +20,7 @@ bool expect (bool condition, const char* message)
 
 int main()
 {
-    juce::AudioFormatManager formats;
-    formats.registerBasicFormats();
+    juce::WavAudioFormat wavFormat;
 
     const auto file = juce::File::createTempFile ("otoha_roundtrip.wav");
 
@@ -33,12 +32,12 @@ int main()
 
     // --- write ---------------------------------------------------------------
     {
-        std::unique_ptr<juce::FileOutputStream> stream (file.createOutputStream());
+        auto stream = file.createOutputStream();
         if (! expect (stream != nullptr, "could not open temp file for writing"))
             return 1;
 
         std::unique_ptr<juce::AudioFormatWriter> writer (
-            formats.findFormatForExtension ("wav")->createWriterFor (stream.release(),
+            wavFormat.createWriterFor (stream,
                                                                      sampleRate,
                                                                      numChannels,
                                                                      bitDepth,
@@ -101,7 +100,9 @@ int main()
 
     // --- read back -----------------------------------------------------------
     {
-        juce::AudioFormatReader* rawReader = formats.createReaderFor (file);
+        // JUCE 6+ AudioFormat::createReaderFor takes a unique_ptr by value.
+        juce::AudioFormatReader* rawReader
+            = wavFormat.createReaderFor (file.createInputStream(), false);
         if (! expect (rawReader != nullptr, "WAV could not be re-opened"))
             return 1;
         std::unique_ptr<juce::AudioFormatReader> reader (rawReader);
