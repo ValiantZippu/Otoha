@@ -176,11 +176,11 @@ void SoundView::rebuildPresetCombo (const juce::String& selectName)
 
     if (! safeMode)
     {
-        presetCombo.addSeparatorItem();
+        presetCombo.addSeparator();
         const auto customs = userPresets.all();
         for (size_t i = 0; i < customs.size(); ++i)
             presetCombo.addItem (customs[i].name, kFirstCustomItemId + (int) i);
-        presetCombo.addSeparatorItem();
+        presetCombo.addSeparator();
         presetCombo.addItem ("Save Preset…", kSavePresetItemId);
     }
 

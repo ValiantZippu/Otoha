@@ -47,12 +47,13 @@ bool TimelineRenderer::renderToFile (juce::AudioFormat& format,
 
     const int bitsPerSample = format.getFileExtensions().contains ("flac") ? 16 : 24;
 
-    // createWriterFor takes ownership of the stream on success (JUCE 6+ API).
+    // createWriterFor takes a raw stream and deletes it itself on failure,
+    // so ownership is handed over with release() (no double free).
     std::unique_ptr<juce::AudioFormatWriter> writer (
-        format.createWriterFor (stream,
+        format.createWriterFor (stream.release(),
                                 doc->getSampleRate(),
                                 (unsigned int) juce::jmax (1, doc->getNumChannels()),
-                                (unsigned int) bitsPerSample,
+                                bitsPerSample,
                                 {}, 0));
 
     if (writer == nullptr)

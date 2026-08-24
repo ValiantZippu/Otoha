@@ -37,11 +37,11 @@ int main()
             return 1;
 
         std::unique_ptr<juce::AudioFormatWriter> writer (
-            wavFormat.createWriterFor (stream,
-                                                                     sampleRate,
-                                                                     numChannels,
-                                                                     bitDepth,
-                                                                     {}, 0));
+            wavFormat.createWriterFor (stream.release(),
+                                       sampleRate,
+                                       numChannels,
+                                       bitDepth,
+                                       {}, 0));
         if (! expect (writer != nullptr, "could not create WAV writer"))
             return 1;
 
@@ -100,9 +100,9 @@ int main()
 
     // --- read back -----------------------------------------------------------
     {
-        // JUCE 6+ AudioFormat::createReaderFor takes a unique_ptr by value.
+        // AudioFormat::createReaderFor takes a raw stream + delete-on-fail flag.
         juce::AudioFormatReader* rawReader
-            = wavFormat.createReaderFor (file.createInputStream(), false);
+            = wavFormat.createReaderFor (file.createInputStream().release(), true);
         if (! expect (rawReader != nullptr, "WAV could not be re-opened"))
             return 1;
         std::unique_ptr<juce::AudioFormatReader> reader (rawReader);

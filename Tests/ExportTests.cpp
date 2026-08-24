@@ -34,7 +34,7 @@ juce::File writeTestWav (const juce::File& dir, const juce::String& name, double
 
     auto* wav = &wavFormat;
     std::unique_ptr<juce::AudioFormatWriter> writer (
-        wav->createWriterFor (stream, rate, 1, 16, {}, 0));
+        wav->createWriterFor (stream.release(), rate, 1, 16, {}, 0));
     if (writer == nullptr) return {};
 
     juce::AudioBuffer<float> silence (1, (int) rate);   // one second

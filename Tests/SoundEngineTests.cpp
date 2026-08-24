@@ -184,10 +184,14 @@ int main()
         manager.upsert ({ "bt-1", "Headphones", "bthh-abc123",
                           presetToState (DspPreset::bass), true });
 
-        ok &= expect (otoha::sound::saveProfiles (manager), "profiles saved");
+        const auto profilesDir = juce::File::getSpecialLocation (juce::File::tempDirectory)
+                                     .getChildFile ("otoha_profile_test");
+        profilesDir.createDirectory();
+
+        ok &= expect (otoha::sound::saveProfiles (manager, profilesDir), "profiles saved");
 
         ProfileManager reloaded;
-        otoha::sound::loadProfiles (reloaded);
+        otoha::sound::loadProfiles (reloaded, profilesDir);
 
         const auto* bt = reloaded.resolveForDevice ("bthh-abc123");
         ok &= expect (bt != nullptr && bt->name == "Headphones",

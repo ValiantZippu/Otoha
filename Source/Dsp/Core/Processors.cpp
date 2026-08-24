@@ -229,7 +229,8 @@ void EqProcessor::prepare (const ProcessingContext& context)
 {
     sampleRate = context.sampleRate;
     numChannelsPrepared = juce::jmax (1, context.numChannels);
-    filters.assign ((size_t) numChannelsPrepared, {});
+    filters.clear();
+    filters.resize ((size_t) numChannelsPrepared);   // arrays of unique_ptrs are move-only
     dirty = true;
 }
 
