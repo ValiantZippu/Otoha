@@ -1,0 +1,85 @@
+# Otoha release pipeline (M16 #39) — triggered by pushing a v* tag.
+#
+#   checkout → build → test → package → artifact
+#
+# Signing is intentionally NOT wired to fake steps: Windows Authenticode
+# signing runs only when OTOHA_SIGNTOOL_* secrets exist (see docs/release.md);
+# otherwise artifacts are honestly UNSIGNED. Never commit certificates.
+
+name: release
+
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pkg-config libsqlite3-dev libasound2-dev libfreetype6-dev \
+            libfontconfig1-dev libx11-dev libxext-dev libxrandr-dev libxi-dev \
+            libgl1-mesa-dev libcurl4-openssl-dev
+      - name: Configure + build (Release)
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build -j
+      - name: Test gate
+        run: ctest --test-dir build --output-on-failure \
+              -R "wav_round_trip|state_machine|support|edit_engine|dsp_engine|dsp_core|cross_platform|qa_stress"
+      - name: Package
+        run: sh ./scripts/package-linux.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-artifacts
+          path: release/Otoha-*-Linux-x64.tar.gz
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure + build (Release)
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release -j
+      - name: Test gate
+        run: ctest --test-dir build -C Release --output-on-failure
+      - name: Stage portable files
+        shell: bash
+        run: |
+          mkdir -p release/stage
+          find build -name "Otoha.exe" -exec cp {} release/stage/ \;
+          cp packaging/windows/THIRD-PARTY-NOTICES.txt release/stage/
+      - name: Sign (only if credentials configured)
+        if: env.OTOHA_SIGNTOOL_SUBJECT != ''
+        env:
+          OTOHA_SIGNTOOL_SUBJECT: ${{ secrets.OTOHA_SIGNTOOL_SUBJECT }}
+        shell: pwsh
+        run: |
+          $exe = (Get-ChildItem release/stage/Otoha.exe).FullName
+          signtool sign /fd SHA256 /n "$env:OTOHA_SIGNTOOL_SUBJECT" /tr http://timestamp.digicert.com /td SHA256 $exe
+          Write-Output "SIGNED: $exe"
+      - name: Build installer (Inno Setup)
+        shell: pwsh
+        env:
+          OTOHA_RELEASE_VERSION: ${{ github.ref_name }}
+        run: |
+          choco install innosetup -y --no-progress
+          $env:OTOHA_RELEASE_VERSION = "${env:GITHUB_REF_NAME}" -replace '^v',''
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /DSetupExeName="Otoha-$($env:OTOHA_RELEASE_VERSION)-Windows-x64" packaging/windows/Otoha.iss
+      - name: Checksums
+        shell: pwsh
+        run: |
+          Get-ChildItem release -File | ForEach-Object {
+            (Get-FileHash $_.FullName -Algorithm SHA256).Hash + "  " + $_.Name
+          } | Set-Content release/checksums-windows.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-artifacts
+          path: |
+            release/*.exe
+            release/checksums-windows.txt

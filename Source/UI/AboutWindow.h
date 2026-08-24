@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../App/UpdateChecker.h"
+#include "../Core/BuildInfo.h"
 
 #include <juce_gui_basics/juce_gui_basics.h>
 
@@ -54,8 +55,8 @@ inline void showAboutWindow()
     title->setColour (juce::Label::textColourId, juce::Colours::white);
     content->addAndMakeVisible (title);
 
-    auto* subtitle = new juce::Label ("sub", "Simple audio enhancement.\nVersion "
-                                     + juce::String (OTOHA_VERSION));
+    auto* subtitle = new juce::Label ("sub", "Simple audio enhancement.\n"
+                                     + otoha::build::summary());   // #4 build metadata
     subtitle->setJustificationType (juce::Justification::centred);
     subtitle->setColour (juce::Label::textColourId, juce::Colour (0xffd8c7ce));
     content->addAndMakeVisible (subtitle);

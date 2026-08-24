@@ -16,6 +16,10 @@
 #if MyAppVersion == ""
   #define MyAppVersion "0.0.0-local"
 #endif
+; M16 #40: predictable artifact name, overridable via ISCC /DSetupExeName=...
+#ifndef SetupExeName
+  #define SetupExeName "Otoha-{#MyAppVersion}-Windows-x64"
+#endif
 
 [Setup]
 AppId={{8C1B2E44-6D5A-4B7E-9A21-OTOHA-DESKTOP}
@@ -26,7 +30,7 @@ DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 OutputDir=..\..\release
-OutputBaseFilename=Otoha-{#MyAppVersion}-Setup
+OutputBaseFilename={#SetupExeName}
 Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern

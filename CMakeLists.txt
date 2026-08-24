@@ -77,12 +77,28 @@ else()
     set(OTOHA_PLATFORM_DEFINE OTOHA_PLATFORM_LINUX=1)
 endif()
 
+# M16 #4: build identity baked into About/diagnostics. Release tooling
+# (scripts/release.sh / CI) overrides the date for reproducibility.
+find_package(Git QUIET)
+execute_process(
+    COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    OUTPUT_VARIABLE OTOHA_GIT_COMMIT
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET)
+if(NOT OTOHA_GIT_COMMIT)
+    set(OTOHA_GIT_COMMIT "dev")
+endif()
+string(TIMESTAMP OTOHA_BUILD_DATE "%Y-%m-%d")
+
 target_compile_definitions(Otoha PRIVATE
     JUCE_WEB_BROWSER=0
     JUCE_USE_CURL=0
     JUCE_JACK=0
     JUCE_MODAL_LOOPS_PERMITTED=0
     OTOHA_VERSION="${PROJECT_VERSION}"
+    OTOHA_GIT_COMMIT="${OTOHA_GIT_COMMIT}"
+    OTOHA_BUILD_DATE="${OTOHA_BUILD_DATE}"
     ${OTOHA_PLATFORM_DEFINE})
 
 target_link_libraries(Otoha PRIVATE

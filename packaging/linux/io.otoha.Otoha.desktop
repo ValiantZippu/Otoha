@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Otoha
+Comment=Simple, open-source recording and audio enhancement
+Exec=otoha
+Icon=otoha
+Terminal=false
+Categories=AudioVideo;Audio;Recorder;
+Keywords=audio;record;voice;enhance;editor;
