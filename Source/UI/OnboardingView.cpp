@@ -1,5 +1,6 @@
 #include "OnboardingView.h"
 
+#include "OtohaTheme.h"
 #include "../Dsp/Presets.h"
 
 /*
@@ -16,7 +17,7 @@ OnboardingView::OnboardingView()
 
     tagline.setFont (juce::FontOptions (18.0f));
     tagline.setJustificationType (juce::Justification::centred);
-    tagline.setColour (juce::Label::textColourId, juce::Colour (0xffd8c7ce));
+    tagline.setColour (juce::Label::textColourId, otoha::theme::sakura().withAlpha (0.85f));
     addAndMakeVisible (tagline);
 
     getStartedButton.onClick = [this] { revealSetup(); };
@@ -32,7 +33,7 @@ OnboardingView::OnboardingView()
     outputCombo.addItem ("System Default", 1);
     outputCombo.setSelectedItemIndex (0, juce::dontSendNotification);
     outputCombo.setColour (juce::ComboBox::textColourId, juce::Colours::white);
-    outputCombo.setColour (juce::ComboBox::backgroundColourId, juce::Colour (0xff141414));
+    outputCombo.setColour (juce::ComboBox::backgroundColourId, otoha::theme::card());
     addChildComponent (outputCombo);
 
     enhanceToggle.setClickingTogglesState (true);
@@ -46,13 +47,13 @@ OnboardingView::OnboardingView()
             presetCombo.addItem (otoha::presetToString (presets.getReference (i)), i + 1);
     presetCombo.setSelectedItemIndex (1, juce::dontSendNotification);   // Natural
     presetCombo.setColour (juce::ComboBox::textColourId, juce::Colours::white);
-    presetCombo.setColour (juce::ComboBox::backgroundColourId, juce::Colour (0xff141414));
+    presetCombo.setColour (juce::ComboBox::backgroundColourId, otoha::theme::card());
     addChildComponent (presetCombo);
 
     hintLabel.setText ("You can change everything later under Advanced.",
                        juce::dontSendNotification);
     hintLabel.setJustificationType (juce::Justification::centred);
-    hintLabel.setColour (juce::Label::textColourId, juce::Colour (0xff8a7a82));
+    hintLabel.setColour (juce::Label::textColourId, otoha::theme::textMuted());
     addChildComponent (hintLabel);
 
     doneButton.onClick = [this]
@@ -77,7 +78,7 @@ void OnboardingView::revealSetup()
 
 void OnboardingView::paint (juce::Graphics& g)
 {
-    g.fillAll (juce::Colour (0xff000000));
+    g.fillAll (otoha::theme::background());
 
     juce::ColourGradient gradient (juce::Colour (0x38ff9ecf), (float) getWidth() * 0.15f, (float) getHeight() * 0.2f,
                                    juce::Colour (0x08ff9ecf), (float) getWidth() * 0.85f, (float) getHeight() * 0.75f, false);

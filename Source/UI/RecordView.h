@@ -88,7 +88,7 @@ private:
     juce::ShapeButton recordButton { "record", juce::Colours::transparentBlack,
                                      juce::Colours::transparentBlack, juce::Colours::transparentBlack };
     juce::TextButton playButton { "Play" }, stopButton { "Stop" };
-    juce::TextButton editButton { "Edit" }, enhanceButton { "Enhance" };
+    juce::TextButton editButton { "Edit" };
     juce::TextButton exportButton { "Export" }, deleteButton { "Delete" };
     juce::Label timeLabel;
 

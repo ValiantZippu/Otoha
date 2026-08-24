@@ -369,6 +369,8 @@ EditorView::EditorView (Player& pl, LibraryService& lib, std::function<void()> b
         }
         enhancePanel->setVisible (show);
         enhancePanel->resized();
+        // #29: the button itself confirms the state.
+        enhanceButton.setButtonText (show ? "✨ Enhanced" : "✨ Enhance");
         dspChanged();
     };
 
@@ -791,6 +793,8 @@ void EditorView::closeEditor()
     editorActive = false;
     doc = nullptr;
     if (enhancePanel) { enhancePanel->setVisible (false); }
+    enhanceButton.setToggleState (false, juce::dontSendNotification);
+    enhanceButton.setButtonText ("✨ Enhance");   // reset for the next recording
     loadedSourceVersion = 0xFFFFFFFF;
     refreshButtonsAndTitle();
     wave->repaint();

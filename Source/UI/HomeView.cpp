@@ -49,6 +49,13 @@ HomeView::HomeView (LibraryService& lib) : library (lib)
     viewLibraryButton.onClick = [this] { if (onViewLibrary) onViewLibrary(); };
     addAndMakeVisible (viewLibraryButton);
 
+    // #4: a quiet time-of-day greeting — friendly without being chatty.
+    const auto hour = juce::Time::getCurrentTime().getHours();
+    subtitle.setText (hour < 12 ? "Good morning"
+                    : hour < 18 ? "Good afternoon"
+                                : "Good evening",
+                      juce::dontSendNotification);
+
     refreshRecents();
 }
 

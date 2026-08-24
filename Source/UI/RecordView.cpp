@@ -199,10 +199,11 @@ RecordView::RecordView (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl,
             goToEditor();
         grabKeyboardFocus();
     };
-    enhanceButton.setEnabled (false);  // Milestone 5
+    // M14: the old "Enhance placeholder" button is gone (#78) — enhancing
+    // happens in the editor, one ✨ tap away via Edit.
     exportButton.onClick = [this] { exportClicked(); };
     deleteButton.onClick = [this] { deleteClicked(); };
-    for (auto* b : { &editButton, &enhanceButton, &exportButton, &deleteButton })
+    for (auto* b : { &editButton, &exportButton, &deleteButton })
         addAndMakeVisible (*b);
 
     timeLabel.setFont (juce::FontOptions (26.0f, juce::Font::bold));
@@ -272,10 +273,9 @@ void RecordView::resized()
 
     auto actionsRow = bounds.removeFromBottom (34);
     formatLabel.setBounds (actionsRow.removeFromLeft (260));
-    auto actionButtons = actionsRow.withSizeKeepingCentre (330, 26).removeFromRight (330);
+    auto actionButtons = actionsRow.withSizeKeepingCentre (240, 26).removeFromRight (240);
     deleteButton.setBounds  (actionButtons.removeFromRight (76).reduced (2, 1));
     exportButton.setBounds  (actionButtons.removeFromRight (76).reduced (2, 1));
-    enhanceButton.setBounds (actionButtons.removeFromRight (86).reduced (2, 1));
     editButton.setBounds    (actionButtons.removeFromRight (66).reduced (2, 1));
 
     auto meterArea = bounds.removeFromBottom (46);
@@ -706,8 +706,7 @@ void RecordView::updateTransportState()
     const bool actionsEnabled = player.hasFile() && ! busy;
     exportButton.setEnabled (actionsEnabled);
     deleteButton.setEnabled (actionsEnabled);
-    editButton.setEnabled (player.hasFile());   // opens the M4 editor via the shell
-    enhanceButton.setEnabled (false);           // placeholder until Milestone 5
+    editButton.setEnabled (player.hasFile());   // opens the editor via the shell
 
     if (busy)
     {

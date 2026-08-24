@@ -20,6 +20,7 @@ M14 makes the existing feature set feel like one finished product. No audio-arch
 - **Human feedback after edits (#28)** — transient "Deleted 12 s / Cut … / Pasted …" toast over the waveform, auto-clearing (~2 s), no command names.
 - **Selection-aware toolbar verified** — cut/copy/delete/keep disable without a selection; paste disabled with an empty clipboard (#26/#65).
 - **Accessibility pass on icon controls** — Back/More-options/Zoom/Delete/Keep-selection/Play all carry semantic names + tooltips; record button reachable by name (#56).
+- **Pass 2** — time-of-day greeting on Home (#4); ✨ Enhanced toggle wording + reset on close (#29); removed the dead "Enhance placeholder" button from RecordView — enhancing lives one Edit tap away, per the less-UI rule (#78); every remaining raw colour literal in UI code now flows through `OtohaTheme` incl. new `clipRed()`/`textSoft()` tokens (#72).
 
 ---
 
