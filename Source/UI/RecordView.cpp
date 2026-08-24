@@ -181,6 +181,10 @@ RecordView::RecordView (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl,
     // Big round record button (shape matched to its final size in resized()).
     recordButton.setOnColours (juce::Colour (0xffe05252), juce::Colour (0xffc33b3b), juce::Colour (0xffa92f2f));
     recordButton.setColours (juce::Colour (0xffe05252), juce::Colour (0xffd14646), juce::Colour (0xffc33b3b));
+    // M14 #5/#56: the dominant action must be reachable by name, not just sight.
+    recordButton.setName ("Record");
+    recordButton.setDescription ("Start recording");
+    recordButton.setHelpText ("Starts a new recording with the selected microphone");
     recordButton.onClick = [this] { recordButtonClicked(); };
     addAndMakeVisible (recordButton);
 
