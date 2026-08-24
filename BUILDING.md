@@ -22,6 +22,10 @@ sudo apt install pkg-config libsqlite3-dev libasound2-dev libfreetype6-dev \
   libgl1-mesa-dev libcurl4-openssl-dev
 ```
 
+SQLite note: if no system SQLite dev package is found (the normal case on
+Windows), CMake automatically downloads the official amalgamation from
+sqlite.org and builds it — no manual step is required anywhere.
+
 ## Configure & build
 
 ```sh

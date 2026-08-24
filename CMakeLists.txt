@@ -6,8 +6,29 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# --- SQLite (system dev package; e.g. libsqlite3-dev on Debian/Ubuntu) -------
-find_package(SQLite3 REQUIRED)
+# --- SQLite -----------------------------------------------------------------
+# Prefer the system dev package (libsqlite3-dev on Debian/Ubuntu). On Windows
+# there is no system SQLite, so fall back to fetching the official
+# amalgamation from sqlite.org — keeping "clone -> configure -> build" a
+# zero-extra-steps experience on every platform.
+find_package(SQLite3 QUIET)
+
+if (NOT SQLite3_FOUND)
+    message(STATUS "SQLite3 not found locally - fetching the official amalgamation")
+    include(FetchContent)
+    FetchContent_Declare(
+        sqlite_amalgamation
+        URL      https://www.sqlite.org/2024/sqlite-amalgamation-3450100.zip
+        URL_HASH SHA256=5592243caf28b2cdef41e6ab58d25d653dfc53deded8450eb66072c929f030c4)
+    FetchContent_MakeAvailable(sqlite_amalgamation)
+
+    add_library(sqlite3_local STATIC ${sqlite_amalgamation_SOURCE_DIR}/sqlite3.c)
+    target_include_directories(sqlite3_local PUBLIC ${sqlite_amalgamation_SOURCE_DIR})
+
+    # Expose it through the same variables the targets below already consume.
+    set(SQLite3_INCLUDE_DIRS ${sqlite_amalgamation_SOURCE_DIR})
+    set(SQLite3_LIBRARIES sqlite3_local)
+endif()
 
 # --- JUCE (downloaded automatically on first configure) ----------------------
 include(FetchContent)
