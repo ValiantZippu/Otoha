@@ -28,6 +28,8 @@ inline juce::Colour cardAccent()      { return { 0xff2a1620 }; }   // primary-ac
 inline juce::Colour sakura()          { return { 0xffff9ecf }; }   // THE accent
 inline juce::Colour textPrimary()     { return juce::Colours::white; }
 inline juce::Colour textMuted()       { return { 0xff8a7a82 }; }   // warm grey-sakura
+inline juce::Colour textSoft()        { return { 0xffd8c7ce }; }   // soft rose for dark panels
+inline juce::Colour clipRed()         { return { 0xffff5a7e }; }   // clipping / error states
 
 inline constexpr int cornerRadius = 8;       // restrained rounding, never bubbly
 inline constexpr int edgePadding  = 24;      // screen margins

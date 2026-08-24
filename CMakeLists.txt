@@ -207,6 +207,22 @@ target_sources(otoha_xplat_tests PRIVATE
 
 target_link_libraries(otoha_xplat_tests PRIVATE juce::juce_audio_formats)
 
+# --- Milestone 15: QA stress / audio correctness ---------------------------------
+# Deliberately abusive: buffer/rate matrices, signal correctness, parameter
+# extremes, reset isolation, property-based timeline fuzzing, undo/redo stress,
+# unicode + damaged-project handling.
+juce_add_console_app(otoha_qa_tests PRODUCT_NAME "otoha_qa_tests")
+target_sources(otoha_qa_tests PRIVATE
+    Tests/QaStressTests.cpp
+    Source/Editor/AudioDocument.cpp
+    Source/Editor/ProjectFormat.cpp
+    Source/Dsp/Core/Processors.cpp
+    Source/Dsp/DspChain.cpp
+    Source/Dsp/Presets.cpp
+    Source/Dsp/SampleRateConverter.cpp)
+
+target_link_libraries(otoha_qa_tests PRIVATE juce::juce_audio_formats)
+
 foreach(OTOHA_TEST_TARGET otoha_tests otoha_state_tests otoha_support_tests)
     target_compile_definitions(${OTOHA_TEST_TARGET} PRIVATE
         JUCE_WEB_BROWSER=0
@@ -227,3 +243,4 @@ add_test(NAME sound_engine COMMAND otoha_sound_tests)
 add_test(NAME export_system COMMAND otoha_export_tests)
 add_test(NAME release_hardening COMMAND otoha_release_tests)
 add_test(NAME cross_platform COMMAND otoha_xplat_tests)
+add_test(NAME qa_stress COMMAND otoha_qa_tests)
