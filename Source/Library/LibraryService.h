@@ -40,6 +40,12 @@ public:
         the next startup scan will recover it. */
     juce::int64 registerAudioFile (const juce::File& file);
 
+    /** #20: duplicates a recording as a fully independent copy — new file on
+        disk ("Name copy.ext", never overwriting anything), new database row,
+        display name "<original> copy". The original is untouched.
+        Returns the new item's id, or 0 on failure. */
+    juce::int64 duplicateMedia (juce::int64 id);
+
     /** Display name is stored separately from the physical filename, so rename
         can never lose the file. */
     bool rename (juce::int64 id, const juce::String& newDisplayName);

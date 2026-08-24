@@ -10,6 +10,34 @@ product is one loop:
 
 ---
 
+## Status — Milestone 11: Studio v1 cohesion (complete)
+
+Milestones 1–8 already delivered the Studio mechanics; Milestone 11 closed the remaining cohesion gaps without rewriting working systems:
+
+- **Studio Home** (`HomeView`): the new landing screen — big Record button, five most-recent recordings with durations, View Library (#2/#3)
+- **Navigation**: `Studio | Sound` top-level; Studio contains Home → Library → Record → Editor → Export
+- **Duplicate recording**: `LibraryService::duplicateMedia()` + context-menu action — independent file copy ("Name copy.ext"), own database row, original untouched (#20)
+- **Drag-and-drop import**: drop audio files anywhere in the Library; they are *referenced where they live* — never converted or moved on import (#63/#64); unsupported formats get "Otoha can't open this audio format" (#65); startup scan tolerates externally-moved sources (#66)
+- **Ctrl/Cmd+S** save shortcut added to the editor's existing #68 shortcut set
+
+Everything else in the v1 loop — mic selection, input meter + clipping indicator, countdown (Off/3/5/10), crash-safe background writer, lossless source format, library search/sort/rename/trash-delete/favorites/batch export, non-destructive timeline with cut/copy/paste/ripple delete, snapshot undo/redo, multiresolution waveform cache, autosave sidecar + recovery, one-tap Enhance with A/B preview, WAV/FLAC/M4A/Opus/MP3 export via the single DSP-aware pipeline — was verified present from earlier milestones and left alone.
+
+## Status — Milestone 10: Windows release hardening, installer, updates & audio UX (code complete)
+
+Milestone 10 turns the validated M8 implementation into a shippable release candidate (pure code this pass; see docs/release.md for the hardware/installer checklist that still needs a real Windows machine):
+
+- **Centralized version** `1.0.0` in CMake, propagated everywhere via `OTOHA_VERSION` (#34)
+- **AppSettings store** (`Source/Core/AppSettings.h`): versioned `configVersion`, step-wise migration, atomic saves, corrupt/future-file resilience, and two distinct reset policies — audio-only vs full (#29/#42/#46/#47)
+- **AppLifecycle state machine** (`Source/App/AppLifecycle.h`): Starting → Ready → ON/OFF ⇄ Recovering/Unavailable → Stopping replaces scattered booleans; the UI literally cannot claim ON while inactive (#18/#23)
+- **First-launch onboarding** (`OnboardingView`): one screen — Get Started → Output (System Default) → Enhance ON → Natural preset (#3–#5)
+- **Custom presets** (`Source/Dsp/UserPresets.h`): Save/rename/duplicate/delete with automatic name disambiguation and JSON persistence; built-ins stay immutable (#13)
+- **Advanced menu** on the Sound screen: EQ/compressor-amount/limiter panel with a confirmation before disabling protection (#7–#10), diagnostics export (#44), About (#35), audio reset
+- **About window + third-party notices**: reads `THIRD-PARTY-NOTICES.txt` beside the exe, with an accurate built-in fallback (#36/#37); opt-in update check behind a pluggable source — disabled by default, never forced (#39–#41)
+- **Safe Mode**: `Otoha.exe --safe-mode` disables custom presets/auto-switching for recovery (#45)
+- **Installer & release tooling**: Inno Setup script (`packaging/windows/Otoha.iss`), `scripts/release.sh` (build → test gate → package → SHA-256 checksums), `docs/release.md` reproducibility + RC checklist (#27/#54–#57)
+- **Fixed a real build bug found during the audit**: `EditorView.cpp` and `SoundView.cpp` were missing from the app's `target_sources`
+- New headless `release_hardening` test suite: signal-artifact matrix (#50: silence/impulse/sine/sweep/pink × five DSP states vs NaN/clipping/DC/channel integrity), settings migration/resets, preset CRUD persistence, exhaustive lifecycle transition table, semver compare, diagnostics sanity
+
 ## Status — Milestone 8: Otoha Sound real-time system audio (complete)
 
 Milestone 7 extracted the DSP Core; Milestone 8 points it at **live system audio**, Windows-first:

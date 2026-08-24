@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(Otoha VERSION 0.1.0 LANGUAGES C CXX)
+project(Otoha VERSION 1.0.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -48,10 +48,14 @@ target_sources(Otoha PRIVATE
     Source/Library/WaveformCache.cpp
     Source/Sound/platform/WindowsAudioBackend.cpp
     Source/UI/AppShell.cpp
+    Source/UI/EditorView.cpp
     Source/UI/EnhancePanel.cpp
     Source/UI/ExportUi.cpp
+    Source/UI/HomeView.cpp
     Source/UI/LibraryView.cpp
-    Source/UI/RecordView.cpp)
+    Source/UI/OnboardingView.cpp
+    Source/UI/RecordView.cpp
+    Source/UI/SoundView.cpp)
 
 target_include_directories(Otoha PRIVATE ${SQLite3_INCLUDE_DIRS})
 target_link_libraries(Otoha PRIVATE ${SQLite3_LIBRARIES})
@@ -159,6 +163,17 @@ target_sources(otoha_state_tests PRIVATE Tests/StateMachineTest.cpp)
 juce_add_console_app(otoha_support_tests PRODUCT_NAME "otoha_support_tests")
 target_sources(otoha_support_tests PRIVATE Tests/SupportTest.cpp)
 
+# --- Milestone 10: release hardening (settings/presets/lifecycle/artifacts) ----
+juce_add_console_app(otoha_release_tests PRODUCT_NAME "otoha_release_tests")
+target_sources(otoha_release_tests PRIVATE
+    Tests/ReleaseTests.cpp
+    Source/Dsp/Core/Processors.cpp
+    Source/Dsp/DspChain.cpp
+    Source/Dsp/Presets.cpp)
+
+target_compile_definitions(otoha_release_tests PRIVATE OTOHA_VERSION="${PROJECT_VERSION}")
+target_link_libraries(otoha_release_tests PRIVATE juce::juce_audio_basics)
+
 foreach(OTOHA_TEST_TARGET otoha_tests otoha_state_tests otoha_support_tests)
     target_compile_definitions(${OTOHA_TEST_TARGET} PRIVATE
         JUCE_WEB_BROWSER=0
@@ -177,3 +192,4 @@ add_test(NAME dsp_engine COMMAND otoha_dsp_tests)
 add_test(NAME dsp_core COMMAND otoha_dspcore_tests)
 add_test(NAME sound_engine COMMAND otoha_sound_tests)
 add_test(NAME export_system COMMAND otoha_export_tests)
+add_test(NAME release_hardening COMMAND otoha_release_tests)

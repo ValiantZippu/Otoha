@@ -10,11 +10,12 @@ any public release). Until then, treat the repository as all-rights-reserved.
 
 ## Current dependencies
 
-| Dependency | License | How used | Distribution notes |
-|------------|---------|----------|-------------------|
-| JUCE 8     | Dual: AGPLv3 / commercial | App framework, audio I/O, DSP containers | A commercial JUCE license or AGPL compliance is required for distribution; decide with the product license. |
-| SQLite     | Public domain | Library metadata | No obligations. |
-| FFmpeg     | LGPL/GPL depending on build flags | Compressed export subprocess | See below. |
+| Dependency | Version | License | How used | Distribution notes |
+|------------|---------|---------|----------|-------------------|
+| JUCE       | 8.0.8 (pinned) | Dual: AGPLv3 / commercial | App framework, audio I/O, DSP containers | A commercial JUCE license or AGPL compliance is required for distribution; decide with the product license before shipping 1.0. |
+| SQLite     | system dev package | Public domain | Library metadata | No obligations. |
+| FFmpeg     | optional, user-installed | LGPL/GPL depending on build flags | Compressed export subprocess | See below. Never bundled in 1.0. |
+| Inno Setup | build-time only (6.x) | Inno Setup License | Windows installer compiler (`packaging/windows/Otoha.iss`) | Not distributed with the app; no obligations for shipped binaries. |
 
 ## FFmpeg considerations
 

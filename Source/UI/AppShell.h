@@ -4,10 +4,13 @@
 
 #include "../Audio/Player.h"
 #include "../Audio/Recorder.h"
+#include "../Core/AppSettings.h"
 #include "../Export/ExportManager.h"
 #include "../Export/ExportPresets.h"
 #include "../Library/LibraryService.h"
+#include "OnboardingView.h"
 #include "EditorView.h"
+#include "HomeView.h"
 #include "LibraryView.h"
 #include "RecordView.h"
 #include "SoundView.h"
@@ -23,7 +26,8 @@ class AppShell : public juce::Component
 {
 public:
     AppShell (juce::AudioDeviceManager& deviceManager,
-              Recorder& recorder, Player& player, LibraryService& library);
+              Recorder& recorder, Player& player, LibraryService& library,
+              otoha::AppSettings* appSettings = nullptr);
 
     void resized() override;
 
@@ -33,6 +37,7 @@ public:
     otoha::ExportSettingsStore exportStore;
 
 private:
+    void showHome();
     void showLibrary();
     void showRecording();
     void showEditor();
@@ -41,15 +46,18 @@ private:
     LibraryService& library;
     Recorder& recorder;
     Player& player;
+    otoha::AppSettings* settings = nullptr;
     otoha::ExportManager exportManager;
 
-    juce::TextButton libraryButton { "Library" }, recordButton { "Record" },
+    juce::TextButton studioButton { "Studio" }, libraryButton { "Library" }, recordButton { "Record" },
                      soundButton { "Sound" }, cameraButton { "Camera" }, settingsButton { "Settings" };
 
+    std::unique_ptr<HomeView> homeView;
     std::unique_ptr<RecordView> recordView;
     std::unique_ptr<LibraryView> libraryView;
     std::unique_ptr<EditorView> editorView;
     std::unique_ptr<SoundView> soundView;
+    std::unique_ptr<OnboardingView> onboarding;   // first launch only (#3)
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AppShell)
 };

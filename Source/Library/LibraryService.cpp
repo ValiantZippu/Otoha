@@ -116,6 +116,30 @@ juce::int64 LibraryService::registerAudioFile (const juce::File& file)
     return db.insertMedia (item) ? item.id : 0;
 }
 
+juce::int64 LibraryService::duplicateMedia (juce::int64 id)
+{
+    const auto source = db.getMedia (id);
+    if (source.id == 0 || ! source.file.existsAsFile())
+        return 0;
+
+    // "Name copy.ext" next to the original; keep suffixing if even that exists.
+    const auto ext = source.file.getFileExtension();
+    auto target = source.file.getSiblingFile (source.file.getFileNameWithoutExtension()
+                                              + " copy" + ext);
+    int n = 2;
+    while (target.existsAsFile())
+        target = source.file.getSiblingFile (source.file.getFileNameWithoutExtension()
+                                             + " copy " + juce::String (n++) + ext);
+
+    if (! source.file.copyFileTo (target))
+        return 0;
+
+    const auto newId = registerAudioFile (target);
+    if (newId != 0)
+        db.updateDisplayName (newId, source.displayName + " copy");   // #18: name is metadata only
+    return newId;
+}
+
 bool LibraryService::rename (juce::int64 id, const juce::String& newDisplayName)
 {
     const auto trimmed = newDisplayName.trim();
