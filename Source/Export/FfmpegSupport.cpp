@@ -46,7 +46,13 @@ EncoderStatus FfmpegLocator::locate (FfmpegInfo& out)
     // name — but we still validate with -version before trusting it (#7).
     const auto candidates = juce::StringArray {
         getCustomPath (juce::File::getSpecialLocation (juce::File::userHomeDirectory)),
-        exeDir.getChildFile (JUCE_WINDOWS ? "ffmpeg.exe" : "ffmpeg").getFullPathName(),
+        exeDir.getChildFile (
+#if JUCE_WINDOWS
+            "ffmpeg.exe"
+#else
+            "ffmpeg"
+#endif
+        ).getFullPathName(),
         "ffmpeg"
     };
 

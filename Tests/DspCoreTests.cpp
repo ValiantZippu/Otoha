@@ -136,8 +136,17 @@ int main()
         s.compressor = { true, -12.0f, 4.0f, 10.0f, 150.0f, 0.0f };
         auto loud  = runProcessor (comp, s, { sine (9600, 220.0, 0.95f) }, 9600, 512);
         auto quiet = runProcessor (comp, s, { sine (9600, 220.0, 0.05f) }, 9600, 512);
-        failures += ! expect (peakOf (loud[0]) < 0.8f, "compressor did not reduce loud signal");
-        failures += ! expect (peakOf (quiet[0]) > 0.04f && peakOf (quiet[0]) < 0.08f,
+        // Measure the STEADY-STATE region only: the envelope's attack time
+        // constant legitimately lets the very first transient through.
+        auto settledPeakOf = [] (const std::vector<float>& v)
+        {
+            float p = 0.0f;
+            for (size_t i = v.size() / 4; i < v.size(); ++i)
+                p = std::max (p, std::abs (v[i]));
+            return p;
+        };
+        failures += ! expect (settledPeakOf (loud[0]) < 0.8f, "compressor did not reduce loud signal");
+        failures += ! expect (settledPeakOf (quiet[0]) > 0.04f && settledPeakOf (quiet[0]) < 0.08f,
                               "compressor disturbed below-threshold signal");
     }
 

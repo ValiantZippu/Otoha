@@ -257,6 +257,11 @@ private:
 // =============================================================================
 // EditorView
 // =============================================================================
+EditorView::~EditorView()
+{
+    // WaveformDisplay is complete here; unique_ptr members destroy safely.
+}
+
 EditorView::EditorView (Player& pl, LibraryService& lib, std::function<void()> back,
                         otoha::ExportManager& exportManagerRef,
                         otoha::ExportSettingsStore& exportStoreRef)

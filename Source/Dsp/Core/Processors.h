@@ -27,14 +27,24 @@ namespace otoha::dsp
 class GainProcessor : public DspProcessor
 {
 public:
+    /** Default: apply BOTH input and output trims (direct/test use).
+        In DspChain the head instance is input-only and the tail is
+        output-only, so each dB value is applied exactly once. */
+    enum class Stage { both, inputOnly, outputOnly };
+
+    GainProcessor() = default;
+    explicit GainProcessor (Stage s) : stage (s) {}
+
     void prepare (const ProcessingContext& context) override;
     void process (AudioBlock& block) override;
     void reset() override;
     void setParameters (const ProcessingState& state) override;
 
 private:
+    Stage stage = Stage::both;
     SmoothedFloat inputGain  { }, outputGain { };
     float inputGainDbTarget = 0.0f, outputGainDbTarget = 0.0f;
+    bool firstParametersApplied = false;
 };
 
 // =============================================================================

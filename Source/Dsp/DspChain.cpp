@@ -2,17 +2,24 @@
 
 #include <cmath>
 
+#include "Core/Processors.h"
+
 namespace otoha
 {
 DspChain::DspChain()
 {
     // Explicit, code-defined order — UI layout must never determine this.
+    // Input trim heads the chain; output trim sits between limiter and meter
+    // (M15 QA: inputGainDb/outputGainDb must be audible through process()).
+    // At neutral (0 dB) both are bit-exact skips, never coloration.
+    chain.push_back (std::make_unique<dsp::GainProcessor> (dsp::GainProcessor::Stage::inputOnly));
     chain.push_back (std::make_unique<dsp::NoiseReductionProcessor>());
     chain.push_back (std::make_unique<dsp::EqProcessor>());
     chain.push_back (std::make_unique<dsp::BassProcessor>());
     chain.push_back (std::make_unique<dsp::ClarityProcessor>());
     chain.push_back (std::make_unique<dsp::CompressorProcessor>());
     chain.push_back (std::make_unique<dsp::LimiterProcessor>());
+    chain.push_back (std::make_unique<dsp::GainProcessor> (dsp::GainProcessor::Stage::outputOnly));   // output trim
 
     auto meter = std::make_unique<dsp::MeterProcessor>();
     meterTap = meter.get();

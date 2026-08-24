@@ -119,7 +119,7 @@ bool Database::ensureSchema (juce::String& errorOut)
         const char* createSql =
             "BEGIN;"
             "CREATE TABLE IF NOT EXISTS media ("
-            " id INTEGER PRIMARY KEY,"
+            " id INTEGER PRIMARY KEY AUTOINCREMENT,"
             " type TEXT NOT NULL DEFAULT 'audio',"
             " file_path TEXT NOT NULL UNIQUE,"
             " display_name TEXT NOT NULL,"
@@ -209,6 +209,7 @@ bool Database::updateDisplayName (juce::int64 id, const juce::String& newName)
 {
     const juce::ScopedLock sl (lock);
     if (db == nullptr) return false;
+    if (newName.trim().isEmpty()) return false;   // a recording always has a name
 
     static constexpr const char* sql = "UPDATE media SET display_name = ?1 WHERE id = ?2;";
 

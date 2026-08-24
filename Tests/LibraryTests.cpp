@@ -57,6 +57,9 @@ int main()
 
     const auto root = juce::File::createTempFile ("otoha_lib_test_dir");
     root.createDirectory();
+    // The canonical Library/Audio folder must exist before any wav is written
+    // into it (the real app creates it in LibraryService::initialise).
+    root.getChildFile ("Library").getChildFile ("Audio").createDirectory();
     const auto dbFile = root.getChildFile ("Database").getChildFile ("library.sqlite");
 
     {
@@ -94,7 +97,7 @@ int main()
                       "favorites filter finds it");
 
         // --- search + LIKE escaping -------------------------------------------
-        otoha::MediaItem percentItem = makeItem (writeTestWav (root, "b.wav"), "100% Live Take");
+        otoha::MediaItem percentItem = makeItem (writeTestWav (root, "b.wav"), "100% Live Take", 8.0);
         db.insertMedia (percentItem);
 
         ok &= expect (db.query ("live", otoha::LibraryFilter::all,
@@ -109,7 +112,7 @@ int main()
 
         // --- special characters in names --------------------------------------
         otoha::MediaItem weird = makeItem (writeTestWav (root, "c.wav"),
-                                           "Ünïcode \"quoted\" & <tagged> 🎙");
+                                           "Ünïcode \"quoted\" & <tagged> 🎙", 6.0);
         ok &= expect (db.insertMedia (weird), "special-char insert succeeds");
         ok &= expect (db.getMedia (weird.id).displayName == weird.displayName,
                       "special characters round-trip");

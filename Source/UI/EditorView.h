@@ -36,13 +36,14 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
     bool keyPressed (const juce::KeyPress& key) override;
+    ~EditorView() override;   // defined in the .cpp where WaveformDisplay is complete
 
 private:
     void timerCallback() override;
 
     // Hooks used by WaveformDisplay (nested classes may access these)
     int64_t playbackPositionSamples() const;
-    void onWaveformClick (int64_t sample);
+    void onWaveformClick (juce::int64 sample);   // juce::int64, NOT int64_t (differs on Linux)
     void selectionChanged();
 
     // Edit commands

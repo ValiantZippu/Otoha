@@ -241,12 +241,16 @@ int main()
         fresh.setParameters (st);
 
         // Feed SILENCE to both after reset: a leaked envelope would differ.
-        juce::AudioBuffer<float> silence (1, 1024);   // zeros
+        // NB: JUCE 8 does NOT guarantee freshly-allocated buffers are zeroed,
+        // so clear explicitly — never rely on allocator remnants.
+        juce::AudioBuffer<float> silence (1, 1024);
+        silence.clear();
         float* pr[1] = { silence.getWritePointer (0) };
         reused.process (pr, 1024);
         const float r = silence.getRMSLevel (0, 0, 1024);
 
         juce::AudioBuffer<float> silence2 (1, 1024);
+        silence2.clear();
         float* pf[1] = { silence2.getWritePointer (0) };
         fresh.process (pf, 1024);
         const float f = silence2.getRMSLevel (0, 0, 1024);

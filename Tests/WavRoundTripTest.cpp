@@ -76,15 +76,21 @@ int main()
         bool ok = true;
         ok &= expect (tagIs (0, "RIFF"), "missing RIFF header");
         ok &= expect (tagIs (8, "WAVE"), "missing WAVE form type");
-        ok &= expect (tagIs (12, "fmt "), "missing fmt chunk");
 
-        // Walk chunks to find 'data' and validate its declared size.
+        // Walk chunks to find 'fmt ' and 'data' and validate their contents.
+        // NB: JUCE may emit a leading JUNK chunk (RF64 placeholder) on some
+        // platforms, so never assume 'fmt ' sits at a fixed offset.
+        bool foundFmt = false;
         bool foundData = false;
         for (size_t pos = 12; pos + 8 <= size; )
         {
             const juce::uint32 chunkSize = (juce::uint32) bytes[pos + 4] | ((juce::uint32) bytes[pos + 5] << 8)
                                          | ((juce::uint32) bytes[pos + 6] << 16) | ((juce::uint32) bytes[pos + 7] << 24);
-            if (tagIs (pos, "data"))
+            if (tagIs (pos, "fmt "))
+            {
+                foundFmt = true;
+            }
+            else if (tagIs (pos, "data"))
             {
                 foundData = true;
                 ok &= expect (chunkSize == expectedDataBytes,
@@ -93,6 +99,7 @@ int main()
             }
             pos += 8u + chunkSize + (chunkSize & 1u);
         }
+        ok &= expect (foundFmt, "missing fmt chunk");
         ok &= expect (foundData, "missing data chunk");
 
         if (! ok) return 1;
