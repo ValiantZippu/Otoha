@@ -10,6 +10,17 @@ product is one loop:
 
 ---
 
+## Status — Milestone 15: QA, stress testing & reliability (code complete)
+
+M15 tries to break Otoha before users can. Static + headless pass; hardware rows honestly open (see docs/qa-report.md).
+
+- **New `otoha_qa_tests` suite**: DSP across 7 rates × 11 buffer sizes × mono/stereo; quiet-input amplification; impulse explosion; +6 dB sine gain measurement; extreme parameter stack; compressor reset isolation; seeded property-based timeline fuzzing with per-op invariant checks; 1000-op undo-all/redo-all; undo branching; unicode project paths; damaged-payload refusals.
+- **Security fix (#72)**: FFmpeg export now refuses destination paths containing quote characters instead of interpolating them into the command string.
+- **Privacy audit (#70)**: zero network calls in Source/; JUCE networking compiled out.
+- **Triage table** with severities and fix status in docs/qa-report.md; no known P0s.
+
+---
+
 ## Status — Milestone 14: UI/UX polish & visual identity (code complete)
 
 M14 makes the existing feature set feel like one finished product. No audio-architecture changes.
