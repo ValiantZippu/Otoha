@@ -42,7 +42,7 @@ void Player::loadCustomSource (std::unique_ptr<juce::PositionableAudioSource> so
     stop();
 
     readerSource = nullptr;
-    currentFile = {};
+    currentFile = juce::File();
     customSource = std::move (source);
 
     transport.setSource (customSource.get(), 32768, &bufferingThread, sampleRate, 2);
@@ -79,7 +79,7 @@ void Player::unload()
     transport.setSource (nullptr);
     readerSource = nullptr;
     customSource = nullptr;
-    currentFile = {};
+    currentFile = juce::File();
 }
 
 double Player::getPositionSeconds() const   { return transport.getCurrentPosition(); }

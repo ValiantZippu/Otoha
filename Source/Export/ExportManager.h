@@ -95,7 +95,7 @@ private:
     void workerLoop();
     bool runJob (Job& job);
     void loadPerRecordingState (const ExportRequest& request,
-                                std::shared_ptr<AudioDocument>& doc,
+                                std::shared_ptr<const AudioDocument>& doc,
                                 const ProcessingState*& dsp) const;
 
     mutable std::mutex lock;

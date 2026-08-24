@@ -198,13 +198,37 @@ int main()
         ok &= expect (manager.getSummary().succeeded == 4, "retried job succeeds");
 
         // --- cancellation between jobs -------------------------------------------------
+        // Race note: a 1-second wav can legitimately FINISH inside the 20 ms
+        // window before cancelAll() arrives — a completed job counts as
+        // succeeded, and that is correct behaviour. The invariant under test:
+        // a job hit by the cancel must end 'cancelled', never half-running,
+        // failed-by-cancel, or "completed by cancellation".
+        // Queue several and cancel immediately: jobs run one-at-a-time, so the
+        // tail of the queue is deterministically still waiting (state waiting
+        // -> cancelled inside cancelAll) no matter how fast each render is.
         submit ("X", a);
         submit ("Y", c);
-        juce::Thread::sleep (20);          // let X start
+        submit ("Z", a);
+        submit ("W", c);
         manager.cancelAll();
         ok &= expect (waitForCompletion (manager), "cancellation settles");
-        const auto afterCancel = manager.getSummary();
-        ok &= expect (afterCancel.succeeded <= 5, "cancelled jobs do not count as succeeded");
+
+        bool cancelledJobsAreClean = true;
+        int sawCancelled = 0;
+        for (const auto& s : manager.getStatuses())
+        {
+            if (s.displayName == "X" || s.displayName == "Y"
+                    || s.displayName == "Z" || s.displayName == "W")
+            {
+                if (s.state == JobStatus::State::cancelled)
+                    ++sawCancelled;
+                else if (s.state != JobStatus::State::completed)
+                    cancelledJobsAreClean = false;   // neither finished nor cleanly cancelled
+            }
+        }
+        ok &= expect (sawCancelled >= 1, "at least one queued job was cancelled");
+        ok &= expect (cancelledJobsAreClean,
+                      "cancelled jobs do not count as succeeded");
     }
 
     // --- FFmpeg availability reporting (never fatal) -------------------------------------

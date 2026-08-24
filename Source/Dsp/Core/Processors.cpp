@@ -23,6 +23,11 @@ void GainProcessor::prepare (const ProcessingContext& context)
 {
     inputGain.setTimeConstant (30.0f, context.sampleRate);
     outputGain.setTimeConstant (30.0f, context.sampleRate);
+    // Start AT the requested gains, never ramping up from silence: a fresh
+    // processor with neutral parameters must be bit-exact unity from the
+    // first sample (bypass identity), not a fade-in.
+    inputGain.reset (dbToGain (inputGainDbTarget));
+    outputGain.reset (dbToGain (outputGainDbTarget));
 }
 
 void GainProcessor::reset() {}
@@ -33,13 +38,30 @@ void GainProcessor::setParameters (const ProcessingState& state)
     outputGainDbTarget = state.outputGainDb;
     inputGain.setTarget (dbToGain (state.inputGainDb));
     outputGain.setTarget (dbToGain (state.outputGainDb));
+
+    // Before any audio has flowed through, jump straight to the requested
+    // gains instead of ramping (a freshly-opened document must not fade in,
+    // and a neutral instance must be bit-exact passthrough).
+    if (! firstParametersApplied)
+    {
+        inputGain.reset  (dbToGain (state.inputGainDb));
+        outputGain.reset (dbToGain (state.outputGainDb));
+        firstParametersApplied = true;
+    }
 }
 
 void GainProcessor::process (AudioBlock& block)
 {
     for (int i = 0; i < block.numFrames; ++i)
     {
-        const float g = inputGain.next() * outputGain.next();
+        float g;
+        switch (stage)
+        {
+            case Stage::inputOnly:  g = inputGain.next();   break;
+            case Stage::outputOnly: g = outputGain.next();  break;
+            default:                g = inputGain.next() * outputGain.next(); break;
+        }
+
         if (juce::approximatelyEqual (g, 1.0f))
             continue;   // neutral gains: zero cost, zero coloration
 
@@ -277,6 +299,14 @@ void EqProcessor::process (AudioBlock& block)
 {
     if (dirty)
         rebuildCoefficients();
+
+    // Neutral contract: all bands at 0 dB must leave audio BIT-IDENTICAL
+    // (biquad chains at unity still drift a few ULPs, so skip entirely).
+    bool neutral = true;
+    for (int band = 0; band < 5; ++band)
+        if (std::abs (appliedGains[band]) > 0.001f) { neutral = false; break; }
+    if (neutral)
+        return;
 
     for (int ch = 0; ch < block.numChannels && ch < numChannelsPrepared; ++ch)
     {

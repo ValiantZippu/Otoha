@@ -239,7 +239,7 @@ void ExportManager::loadPerRecordingState (const ExportRequest& request,
 
 bool ExportManager::runJob (Job& job)
 {
-    std::shared_ptr<AudioDocument> doc;
+    std::shared_ptr<const AudioDocument> doc;
     const ProcessingState* dsp = nullptr;
     loadPerRecordingState (job.request, doc, dsp);
 

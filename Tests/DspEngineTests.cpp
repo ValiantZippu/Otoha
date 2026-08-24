@@ -124,7 +124,9 @@ int main()
             chain.prepare (rate, 1);
             chain.setParameters (boosted);
 
-            auto in = makeSine (48000, 9000.0, rate, 0.2f);
+            // Tone sits ABOVE the 9 kHz shelf corner: at the corner itself a
+            // shelf only delivers ~half its boost, so test the plateau.
+            auto in = makeSine (48000, 12000.0, rate, 0.2f);
             auto out = runChain (chain, in);
             const auto tailOut = std::vector<float> (out.end() - 8000, out.end());
             ok &= expect (rmsOf (tailOut) > 0.2f * 0.7071f * 2.0f,

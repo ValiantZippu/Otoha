@@ -267,7 +267,21 @@ target_sources(otoha_qa_tests PRIVATE
 
 target_link_libraries(otoha_qa_tests PRIVATE juce::juce_audio_formats)
 
-foreach(OTOHA_TEST_TARGET otoha_tests otoha_state_tests otoha_support_tests)
+# All console test targets: disable web-browser/curl so headless Linux CI
+# builds link without libcurl (JUCE's curl path is unused by Otoha).
+foreach(OTOHA_TEST_TARGET
+        otoha_tests
+        otoha_state_tests
+        otoha_support_tests
+        otoha_library_tests
+        otoha_edit_tests
+        otoha_dsp_tests
+        otoha_dspcore_tests
+        otoha_sound_tests
+        otoha_export_tests
+        otoha_release_tests
+        otoha_qa_tests
+        otoha_xplat_tests)
     target_compile_definitions(${OTOHA_TEST_TARGET} PRIVATE
         JUCE_WEB_BROWSER=0
         JUCE_USE_CURL=0)

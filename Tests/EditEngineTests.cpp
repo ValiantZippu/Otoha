@@ -84,7 +84,7 @@ int main()
     {
         auto doc = makeABCD();
         AudioClipboard clip;
-        doc->setSelection (blockSamples, blockSamples * 2);   // B..C
+        doc->setSelection (blockSamples, blockSamples * 3);   // B..C (start of B .. end of C)
         doc->cutSelectedRange (clip);
 
         ok &= expect (timelineEqualsBlocks (*doc, "AD"), "cut B..C leaves A D");
@@ -101,20 +101,21 @@ int main()
         doc->rippleDelete (blockSamples, blockSamples);       // remove B only
         ok &= expect (timelineEqualsBlocks (*doc, "ACD"), "ripple delete closes the gap");
 
-        // Selection spanning two clips deletes both parts correctly.
+        // Selection spanning two clips deletes both parts correctly:
+        // removes the second half of B and the first half of C.
         auto doc2 = makeABCD();
-        doc2->rippleDelete (blockSamples / 2, blockSamples);  // half B + half C
+        doc2->rippleDelete (blockSamples + blockSamples / 2, blockSamples);   // half B + half C
         ok &= expect (doc2->totalSamples() == blockSamples * 3, "spanning delete keeps length right");
-        ok &= expect (std::abs (firstSampleOfRegion (*doc2, blockSamples / 2 - 10) - 0.1f) < 0.001f,
+        ok &= expect (std::abs (firstSampleOfRegion (*doc2, blockSamples - 10) - 0.1f) < 0.001f,
                       "A intact before the cut");
-        ok &= expect (std::abs (firstSampleOfRegion (*doc2, blockSamples / 2 + 10) - 0.35f) < 0.05f,
+        ok &= expect (std::abs (firstSampleOfRegion (*doc2, blockSamples + blockSamples / 2 + 10) - 0.35f) < 0.05f,
                       "second half of C follows immediately");
     }
 
     // --- trim --------------------------------------------------------------------
     {
         auto doc = makeABCD();
-        doc->setSelection (blockSamples, blockSamples * 2);   // B..C
+        doc->setSelection (blockSamples, blockSamples * 3);   // B..C (start of B .. end of C)
         doc->trimToSelection();
         ok &= expect (timelineEqualsBlocks (*doc, "BC"), "trim keeps only the selection");
     }
@@ -148,14 +149,15 @@ int main()
         AudioClipboard clip;
         doc->setSelection (blockSamples, blockSamples * 2);
         doc->cutSelectedRange (clip);
-        ok &= expect (timelineEqualsBlocks (*doc, "AD"), "edited state");
+        // Ripple semantics: removing B closes the gap, so A flows into C D.
+        ok &= expect (timelineEqualsBlocks (*doc, "ACD"), "edited state");
 
         doc->undo();
         ok &= expect (timelineEqualsBlocks (*doc, "ABCD"), "undo restores original");
         ok &= expect (doc->canRedo(), "redo available after undo");
 
         doc->redo();
-        ok &= expect (timelineEqualsBlocks (*doc, "AD"), "redo re-applies the edit");
+        ok &= expect (timelineEqualsBlocks (*doc, "ACD"), "redo re-applies the edit");
         ok &= expect (doc->canUndo(), "undo available after redo");
 
         doc->undo();
@@ -307,24 +309,26 @@ int main()
             doc->setSelection (blockSamples, blockSamples * 2);   // B
             doc->cutSelectedRange (clip);                          // A D
 
-            doc->pasteAt (0, clip, errorSink);                     // B C A D
-            ok &= expect (timelineEqualsBlocks (*doc, "BCAD")
+            // After cutting B the timeline is A C D; pasting B at the front
+            // yields B A C D.
+            doc->pasteAt (0, clip, errorSink);                     // B A C D
+            ok &= expect (timelineEqualsBlocks (*doc, "BACD")
                               && std::abs (firstSampleOfRegion (*doc, 0) - 0.2f) < 0.001f,
                           "paste at beginning inserts before everything");
 
             doc->undo();
-            ok &= expect (timelineEqualsBlocks (*doc, "AD"), "undo after paste restores prior state");
+            ok &= expect (timelineEqualsBlocks (*doc, "ACD"), "undo after paste restores prior state");
 
             doc->redo();
-            ok &= expect (timelineEqualsBlocks (*doc, "BCAD"), "redo after undo reapplies paste");
+            ok &= expect (timelineEqualsBlocks (*doc, "BACD"), "redo after undo reapplies paste");
 
-            doc->rippleDelete (0, blockSamples);                   // fresh edit -> C A D
+            doc->rippleDelete (0, blockSamples);                   // fresh edit -> A C D
             ok &= expect (! doc->canRedo(), "a new edit invalidates the redo branch");
-            ok &= expect (timelineEqualsBlocks (*doc, "CAD"), "post-redo-invalidation state correct");
+            ok &= expect (timelineEqualsBlocks (*doc, "ACD"), "post-redo-invalidation state correct");
 
             // paste at the very end
-            doc->pasteAt (doc->totalSamples(), clip, errorSink);   // A D B
-            ok &= expect (std::abs (firstSampleOfRegion (*doc, doc->totalSamples() - 1) - 0.3f) < 0.001f,
+            doc->pasteAt (doc->totalSamples(), clip, errorSink);   // A C D B
+            ok &= expect (std::abs (firstSampleOfRegion (*doc, doc->totalSamples() - 1) - 0.2f) < 0.001f,
                           "paste at end appends after everything");
         }
 

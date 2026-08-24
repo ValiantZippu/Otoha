@@ -29,13 +29,12 @@ ExportSettingsStore::ExportSettingsStore (const juce::File& otohaBaseDirectory)
     options.filenameSuffix      = ".properties";
     options.folderName          = otohaBaseDirectory.getChildFile ("Database").getFullPathName();
     options.storageFormat       = juce::PropertiesFile::storeAsXML;
-    properties.setOptions (options);
-    properties.load();
+    properties = std::make_unique<juce::PropertiesFile> (options);   // loads existing file
 }
 
 ExportFormat ExportSettingsStore::getLastFormat() const
 {
-    const auto v = properties.getValue ("format", "wav");
+    const auto v = properties->getValue ("format", "wav");
     if (v == "flac") return ExportFormat::flac;
     if (v == "m4a")  return ExportFormat::m4a;
     if (v == "opus") return ExportFormat::opus;
@@ -45,14 +44,14 @@ ExportFormat ExportSettingsStore::getLastFormat() const
 
 ExportQuality ExportSettingsStore::getLastQuality() const
 {
-    const auto v = properties.getValue ("quality", "standard");
+    const auto v = properties->getValue ("quality", "standard");
     return v == "small" ? ExportQuality::small
          : v == "high"  ? ExportQuality::high : ExportQuality::standard;
 }
 
 juce::File ExportSettingsStore::getLastDirectory() const
 {
-    const auto path = properties.getValue ("directory", {});
+    const auto path = properties->getValue ("directory", {});
     return path.isEmpty()
         ? juce::File::getSpecialLocation (juce::File::userMusicDirectory)
         : juce::File (path);
@@ -60,12 +59,12 @@ juce::File ExportSettingsStore::getLastDirectory() const
 
 void ExportSettingsStore::remember (ExportFormat f, ExportQuality q, const juce::File& directory)
 {
-    properties.setValue ("format", formatToString (f));
-    properties.setValue ("quality",
-                         q == ExportQuality::small ? "small"
-                       : q == ExportQuality::high  ? "high" : "standard");
+    properties->setValue ("format", formatToString (f));
+    properties->setValue ("quality",
+                          q == ExportQuality::small ? "small"
+                        : q == ExportQuality::high  ? "high" : "standard");
     if (directory != juce::File{})
-        properties.setValue ("directory", directory.getFullPathName());
-    properties.saveIfNeeded();
+        properties->setValue ("directory", directory.getFullPathName());
+    properties->saveIfNeeded();
 }
 } // namespace otoha

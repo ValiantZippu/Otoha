@@ -5,6 +5,11 @@ TimelineSource::TimelineSource (std::shared_ptr<const otoha::AudioDocument> docu
 {
 }
 
+// Audio data is read directly from the in-memory document, so there is
+// nothing to prepare or release.
+void TimelineSource::prepareToPlay (int /*samplesPerBlockExpected*/, double /*sampleRate*/) {}
+void TimelineSource::releaseResources() {}
+
 void TimelineSource::setNextReadPosition (juce::int64 newPosition)
 {
     position = doc != nullptr ? juce::jlimit ((juce::int64) 0, doc->totalSamples(), newPosition) : 0;
