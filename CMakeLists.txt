@@ -25,6 +25,9 @@ juce_add_gui_app(Otoha
     BUNDLE_ID       "app.otoha.desktop"
     NEEDS_MENUBAR   FALSE)
 
+# JUCE 8 disables modal loops by default; the export dialog's synchronous
+# flow relies on one, so opt back in explicitly below (desktop app only).
+
 target_sources(Otoha PRIVATE
     Source/App/Main.cpp
     Source/App/MainWindow.cpp
@@ -95,7 +98,7 @@ target_compile_definitions(Otoha PRIVATE
     JUCE_WEB_BROWSER=0
     JUCE_USE_CURL=0
     JUCE_JACK=0
-    JUCE_MODAL_LOOPS_PERMITTED=0
+    JUCE_MODAL_LOOPS_PERMITTED=1   # export dialog uses one synchronous modal loop
     OTOHA_VERSION="${PROJECT_VERSION}"
     OTOHA_GIT_COMMIT="${OTOHA_GIT_COMMIT}"
     OTOHA_BUILD_DATE="${OTOHA_BUILD_DATE}"

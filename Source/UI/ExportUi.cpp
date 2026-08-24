@@ -32,7 +32,7 @@ ExportOptionsComponent::ExportOptionsComponent (const ExportSettingsStore& store
     qualityLabel.setFont (juce::FontOptions (14.0f));
     addAndMakeVisible (qualityCombo);
 
-    auto refreshQualityItems = [this]
+    auto refreshQualityItems = [this, &store]
     {
         const auto f = (ExportFormat) formatCombo.getSelectedItemIndex();
         qualityCombo.clear (juce::dontSendNotification);
@@ -128,9 +128,7 @@ public:
         : manager (m),
           window ("Exporting", "", juce::MessageBoxIconType::NoIcon)
     {
-        bar.setTextBoxStyle (juce::Slider::NoTextBox, false, 0, 0);
-        window.addProgressBarComponent (bar);
-        currentFile.setFont (juce::FontOptions (13.0f));
+        window.addProgressBarComponent (progressValue);   // binds to our double
         window.setMessage (currentFileName);
         window.addButton ("Cancel", 0);
         window.enterModalState (false, nullptr, false);
@@ -163,7 +161,8 @@ private:
             }
         }
 
-        bar.setValue (total > 0 ? sum / (double) total : 0.0, juce::dontSendNotification);
+        // ProgressBar watches this double through addProgressBarComponent.
+        progressValue = total > 0 ? sum / (double) total : 0.0;
 
         for (const auto& s : statuses)
             if (s.state == JobStatus::State::rendering || s.state == JobStatus::State::encoding)
@@ -199,8 +198,7 @@ private:
 
     ExportManager& manager;
     juce::AlertWindow window;
-    juce::ProgressBar bar { 0.0 };
-    juce::Label currentFile;
+    double progressValue = 0.0;
     juce::String currentFileName;
     bool deleteThisWhenSafe = false;
 };

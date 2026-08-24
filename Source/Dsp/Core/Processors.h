@@ -2,6 +2,7 @@
 
 #include <array>
 #include <atomic>
+#include <memory>
 #include <vector>
 
 #include "OtohaDspCore.h"
@@ -50,7 +51,9 @@ public:
     void setParameters (const ProcessingState& state) override;
 
 private:
-    std::vector<juce::IIRFilter> shelf;      // per channel (M7 fix)
+    // juce::IIRFilter is non-copyable in JUCE 8 (SpinLock member), so the
+    // per-channel filters live behind unique_ptrs.
+    std::vector<std::unique_ptr<juce::IIRFilter>> shelf;      // per channel (M7 fix)
     SmoothedFloat gainDb;
     float amountTarget = 0.0f;
     double sampleRate = 0.0;
@@ -70,8 +73,8 @@ public:
     void setParameters (const ProcessingState& state) override;
 
 private:
-    std::vector<juce::IIRFilter> presence;   // per channel
-    std::vector<juce::IIRFilter> air;        // per channel
+    std::vector<std::unique_ptr<juce::IIRFilter>> presence;   // per channel
+    std::vector<std::unique_ptr<juce::IIRFilter>> air;        // per channel
     SmoothedFloat presenceGainDb, airGainDb;
     float amountTarget = 0.0f;
     double sampleRate = 0.0;
@@ -109,7 +112,7 @@ public:
 
 private:
     void rebuildCoefficients();
-    std::vector<std::array<juce::IIRFilter, 5>> filters;   // [channel][band]
+    std::vector<std::array<std::unique_ptr<juce::IIRFilter>, 5>> filters;   // [channel][band]
     ProcessingState pendingState;
     float appliedGains[5] = { 0, 0, 0, 0, 0 };
     bool dirty = true;
@@ -172,7 +175,7 @@ private:
     struct NrTuning { float thresholdDb, depthDb, attackMs, releaseMs; };
     static NrTuning tuningFor (NoiseReductionMode mode, float strength);
 
-    std::vector<juce::IIRFilter> highPass;   // per channel
+    std::vector<std::unique_ptr<juce::IIRFilter>> highPass;   // per channel
     bool highPassDirty = true;
     std::vector<float> envelope;
     std::vector<float> gain;

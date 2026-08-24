@@ -23,7 +23,7 @@ AppShell::AppShell (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl, Lib
     homeView->onViewLibrary = [this] { showLibrary(); };
     homeView->onOpenItem    = [this] (const otoha::MediaItem& item) { openInEditor (item); };
 
-    addChildComponent (homeView);
+    addChildComponent (*homeView);
     addChildComponent (*recordView);
     addChildComponent (*libraryView);
     addChildComponent (*editorView);

@@ -54,7 +54,9 @@ void GainProcessor::process (AudioBlock& block)
 void BassProcessor::prepare (const ProcessingContext& context)
 {
     sampleRate = context.sampleRate;
-    shelf.assign ((size_t) juce::jmax (1, context.numChannels), juce::IIRFilter());
+    shelf.clear();
+    for (int ch = 0; ch < juce::jmax (1, context.numChannels); ++ch)
+        shelf.push_back (std::make_unique<juce::IIRFilter>());
     gainDb.setTimeConstant (60.0f, context.sampleRate);
     gainDb.reset (0.0f);
     dirtyShelf = true;
@@ -62,7 +64,7 @@ void BassProcessor::prepare (const ProcessingContext& context)
 
 void BassProcessor::reset()
 {
-    for (auto& f : shelf) f.reset();
+    for (auto& f : shelf) f->reset();
 }
 
 void BassProcessor::setParameters (const ProcessingState& state)
@@ -86,13 +88,13 @@ void BassProcessor::process (AudioBlock& block)
         const auto coefficients = juce::IIRCoefficients::makeLowShelf (
             sampleRate, 90.0, 0.8, dbToGain (gainDb.getTarget()));
         for (auto& f : shelf)
-            f.setCoefficients (coefficients);
+            f->setCoefficients (coefficients);
         dirtyShelf = false;
     }
 
     for (int i = 0; i < block.numFrames; ++i)
         for (int ch = 0; ch < (int) shelf.size() && ch < block.numChannels; ++ch)
-            block.channelData[ch][i] = shelf[(size_t) ch].processSingleSampleRaw (block.channelData[ch][i]);
+            block.channelData[ch][i] = shelf[(size_t) ch]->processSingleSampleRaw (block.channelData[ch][i]);
 
     gainDb.next();   // keep the smoother advancing toward its target
 }
@@ -104,8 +106,13 @@ void ClarityProcessor::prepare (const ProcessingContext& context)
 {
     sampleRate = context.sampleRate;
     const auto channels = (size_t) juce::jmax (1, context.numChannels);
-    presence.assign (channels, juce::IIRFilter());
-    air.assign (channels, juce::IIRFilter());
+    presence.clear();
+    air.clear();
+    for (int ch = 0; ch < channels; ++ch)
+    {
+        presence.push_back (std::make_unique<juce::IIRFilter>());
+        air.push_back (std::make_unique<juce::IIRFilter>());
+    }
     presenceGainDb.setTimeConstant (60.0f, context.sampleRate);
     airGainDb.setTimeConstant (60.0f, context.sampleRate);
     presenceGainDb.reset (0.0f);
@@ -115,8 +122,8 @@ void ClarityProcessor::prepare (const ProcessingContext& context)
 
 void ClarityProcessor::reset()
 {
-    for (auto& f : presence) f.reset();
-    for (auto& f : air) f.reset();
+    for (auto& f : presence) f->reset();
+    for (auto& f : air) f->reset();
 }
 
 void ClarityProcessor::setParameters (const ProcessingState& state)
@@ -149,8 +156,8 @@ void ClarityProcessor::process (AudioBlock& block)
 
         for (size_t ch = 0; ch < presence.size(); ++ch)
         {
-            presence[ch].setCoefficients (presenceCoeffs);
-            air[ch].setCoefficients (airCoeffs);
+            presence[ch]->setCoefficients (presenceCoeffs);
+            air[ch]->setCoefficients (airCoeffs);
         }
         dirty = false;
     }
@@ -158,8 +165,8 @@ void ClarityProcessor::process (AudioBlock& block)
     for (int i = 0; i < block.numFrames; ++i)
         for (int ch = 0; ch < (int) presence.size() && ch < block.numChannels; ++ch)
         {
-            float x = presence[(size_t) ch].processSingleSampleRaw (block.channelData[ch][i]);
-            block.channelData[ch][i] = air[(size_t) ch].processSingleSampleRaw (x);
+            float x = presence[(size_t) ch]->processSingleSampleRaw (block.channelData[ch][i]);
+            block.channelData[ch][i] = air[(size_t) ch]->processSingleSampleRaw (x);
         }
 
     presenceGainDb.next();
@@ -207,6 +214,17 @@ void StereoWidthProcessor::process (AudioBlock& block)
 // =============================================================================
 // EqProcessor (migrated from M5 DspChain — same bands/coefficients/Q)
 // =============================================================================
+namespace
+{
+/** Filters are created lazily so prepare()'s value-init arrays stay cheap. */
+juce::IIRFilter* ensureFilter (std::unique_ptr<juce::IIRFilter>& f)
+{
+    if (f == nullptr)
+        f = std::make_unique<juce::IIRFilter>();
+    return f.get();
+}
+} // namespace
+
 void EqProcessor::prepare (const ProcessingContext& context)
 {
     sampleRate = context.sampleRate;
@@ -219,7 +237,8 @@ void EqProcessor::reset()
 {
     for (auto& channelFilters : filters)
         for (auto& f : channelFilters)
-            f.reset();
+            if (f != nullptr)
+                f->reset();
 }
 
 void EqProcessor::setParameters (const ProcessingState& state)
@@ -237,13 +256,13 @@ void EqProcessor::rebuildCoefficients()
 {
     for (auto& channelFilters : filters)
     {
-        channelFilters[0].setCoefficients (juce::IIRCoefficients::makeLowShelf (
+        ensureFilter (channelFilters[0])->setCoefficients (juce::IIRCoefficients::makeLowShelf (
             sampleRate, EqParams::frequencies[0], EqParams::q, dbToGain (pendingState.eq.gainsDb[0])));
         for (int band = 1; band <= 3; ++band)
-            channelFilters[band].setCoefficients (juce::IIRCoefficients::makePeakFilter (
+            ensureFilter (channelFilters[band])->setCoefficients (juce::IIRCoefficients::makePeakFilter (
                 sampleRate, EqParams::frequencies[band], EqParams::q,
                 dbToGain (pendingState.eq.gainsDb[band])));
-        channelFilters[4].setCoefficients (juce::IIRCoefficients::makeHighShelf (
+        ensureFilter (channelFilters[4])->setCoefficients (juce::IIRCoefficients::makeHighShelf (
             sampleRate, EqParams::frequencies[4], EqParams::q, dbToGain (pendingState.eq.gainsDb[4])));
     }
 
@@ -263,7 +282,7 @@ void EqProcessor::process (AudioBlock& block)
         auto& channelFilters = filters[(size_t) ch];
         for (int i = 0; i < block.numFrames; ++i)
             for (auto& f : channelFilters)
-                block.channelData[ch][i] = f.processSingleSampleRaw (block.channelData[ch][i]);
+                block.channelData[ch][i] = f->processSingleSampleRaw (block.channelData[ch][i]);
     }
 }
 
@@ -390,7 +409,9 @@ NoiseReductionProcessor::tuningFor (NoiseReductionMode mode, float strength)
 void NoiseReductionProcessor::prepare (const ProcessingContext& context)
 {
     const auto channels = (size_t) juce::jmax (1, context.numChannels);
-    highPass.assign (channels, juce::IIRFilter());
+    highPass.clear();
+    for (size_t ch = 0; ch < channels; ++ch)
+        highPass.push_back (std::make_unique<juce::IIRFilter>());
     envelope.assign (channels, 0.0f);
     gain.assign (channels, 1.0f);
     highPassDirty = true;
@@ -399,7 +420,7 @@ void NoiseReductionProcessor::prepare (const ProcessingContext& context)
 
 void NoiseReductionProcessor::reset()
 {
-    for (auto& f : highPass) f.reset();
+    for (auto& f : highPass) f->reset();
     std::fill (envelope.begin(), envelope.end(), 0.0f);
     std::fill (gain.begin(), gain.end(), 1.0f);
 }
@@ -418,7 +439,7 @@ void NoiseReductionProcessor::process (AudioBlock& block)
     {
         const auto coeffs = juce::IIRCoefficients::makeHighPass (sampleRateStored, 85.0, 0.7);
         for (auto& f : highPass)
-            f.setCoefficients (coeffs);
+            f->setCoefficients (coeffs);
         highPassDirty = false;
     }
 
@@ -433,7 +454,7 @@ void NoiseReductionProcessor::process (AudioBlock& block)
 
         for (int i = 0; i < block.numFrames; ++i)
         {
-            float x = highPass[(size_t) ch].processSingleSampleRaw (block.channelData[ch][i]);
+            float x = highPass[(size_t) ch]->processSingleSampleRaw (block.channelData[ch][i]);
 
             const float absX = std::abs (x);
             envelope[(size_t) ch] = std::max (absX,

@@ -47,7 +47,7 @@ public:
             {
                 const float h = juce::jlimit (1.5f, waveArea.getHeight(), peaks[i] * waveArea.getHeight());
                 g.fillRect (waveArea.getX() + (float) i * step, midY - h * 0.5f,
-                            jmax (1.0f, step - 1.0f), h);
+                            juce::jmax (1.0f, step - 1.0f), h);
             }
         }
         else if (item->type == otoha::MediaType::video)
@@ -296,7 +296,7 @@ void LibraryView::resized()
     bounds.removeFromTop (54); // title strip
 
     auto searchRow = bounds.removeFromTop (38).reduced (16, 2);
-    searchBox.setBounds (searchRow.removeFromLeft (jmin (420, searchRow.getWidth())));
+    searchBox.setBounds (searchRow.removeFromLeft (juce::jmin (420, searchRow.getWidth())));
     searchRow.removeFromLeft (12);
     sortCombo.setBounds (searchRow.removeFromRight (130));
 

@@ -33,6 +33,7 @@ public:
 
     /** Opens a library item in the editor view. */
     bool openInEditor (const otoha::MediaItem& item);
+    void openCurrentRecordingInEditor();
 
     otoha::ExportSettingsStore exportStore;
 
