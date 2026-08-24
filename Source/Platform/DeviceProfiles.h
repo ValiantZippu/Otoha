@@ -85,6 +85,14 @@ public:
         return findForDevice (deviceId);
     }
 
+    /** Mutable variant for UI code that legitimately updates the resolved
+        profile (tone sliders, preset application). Same resolution rules. */
+    AudioProfile* resolveForDeviceMutable (const std::string& deviceId)
+    {
+        return const_cast<AudioProfile*> (
+            static_cast<const ProfileManager*> (this)->resolveForDevice (deviceId));
+    }
+
 private:
     std::vector<AudioProfile> profiles;
 };

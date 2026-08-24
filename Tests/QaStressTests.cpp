@@ -266,6 +266,7 @@ int main()
 
         otoha::AudioDocument doc (src, 48000.0);
         otoha::AudioClipboard clip;
+        juce::String pasteError;   // reused lvalue for pasteAt's error out-param
         std::uniform_int_distribution<juce::int64> pick (0, (juce::int64) doc.totalSamples());
 
         const int totalOps = 1000;
@@ -290,7 +291,7 @@ int main()
                         doc.setSelection (pick (rng) / 2, pick (rng));
                         doc.copySelectedRange (clip);
                     }
-                    doc.pasteAt (pick (rng) % (doc.totalSamples() + 1), clip, juce::String());
+                    doc.pasteAt (pick (rng) % (doc.totalSamples() + 1), clip, pasteError);
                     ++performed;
                     break;
                 }

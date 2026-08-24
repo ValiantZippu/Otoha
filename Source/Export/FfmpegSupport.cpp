@@ -86,7 +86,7 @@ EncoderStatus FfmpegLocator::probePath (const juce::String& executable, FfmpegIn
                          juce::ChildProcess::wantStdOut | juce::ChildProcess::wantStdErr))
         return EncoderStatus::unavailable;
 
-    process.waitForProcessToExit (-1);
+    process.waitForProcessToFinish (-1);
     const auto output = process.readAllProcessOutput();
 
     if (! output.contains ("ffmpeg version"))
@@ -156,7 +156,7 @@ bool FfmpegEncoder::encode (const juce::File& ffmpegExecutable,
     }
 
     juce::String command;
-    command << "\"" << ffmpegExecutable << "\""
+    command << "\"" << ffmpegExecutable.getFullPathName() << "\""
             << " -hide_banner -loglevel info -y"
             << " -i \"" << intermediateAudio.getFullPathName() << "\""
             << " " << muxer << " " << codecArgs;

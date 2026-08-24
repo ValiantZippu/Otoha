@@ -142,7 +142,7 @@ bool migrateToCurrent (const juce::var& /*parsed*/, int fromVersion, juce::var& 
     if (fromVersion != currentFormatVersion)
         return false;
 
-    migrated = {};   // signal "unchanged"; callers use the original
+    migrated = juce::var();   // signal "unchanged"; callers use the original
     return true;
 }
 } // namespace otoha::project

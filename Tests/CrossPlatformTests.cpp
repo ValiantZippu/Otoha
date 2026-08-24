@@ -12,6 +12,7 @@
 */
 #include "../Source/Audio/RecorderPhase.h"
 #include "../Source/Core/OtohaError.h"
+#include "../Source/Core/OtohaLog.h"
 #include "../Source/Core/PlatformCapabilities.h"
 #include "../Source/Dsp/DspChain.h"
 #include "../Source/Editor/AudioDocument.h"

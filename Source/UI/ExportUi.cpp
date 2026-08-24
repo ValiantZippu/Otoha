@@ -46,7 +46,7 @@ ExportOptionsComponent::ExportOptionsComponent (const ExportSettingsStore& store
         {
             qualityCombo.setEnabled (true);
             for (auto q : { ExportQuality::small, ExportQuality::standard, ExportQuality::high })
-                qualityCombo.addItem (qualityLabel (f, q), (int) q + 1);
+                qualityCombo.addItem (otoha::qualityLabel (f, q), (int) q + 1);
             qualityCombo.setSelectedItemIndex ((int) store.getLastQuality(), juce::dontSendNotification);
         }
     };

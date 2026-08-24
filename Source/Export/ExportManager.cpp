@@ -200,7 +200,7 @@ void ExportManager::workerLoop()
 }
 
 void ExportManager::loadPerRecordingState (const ExportRequest& request,
-                                           std::shared_ptr<AudioDocument>& doc,
+                                           std::shared_ptr<const AudioDocument>& doc,
                                            const ProcessingState*& dsp) const
 {
     doc = request.openDocument;
@@ -219,7 +219,7 @@ void ExportManager::loadPerRecordingState (const ExportRequest& request,
         // Per-recording recovery (#25/#44): each recording restores its OWN
         // timeline + processing state from its sidecar when present.
         fresh->restoreFromSidecar();
-        doc = fresh;
+        doc = std::move (fresh);
     }
 
     static ProcessingState overrideHolder;
@@ -303,3 +303,5 @@ bool ExportManager::runJob (Job& job)
 
     return ok;
 }
+
+} // namespace otoha

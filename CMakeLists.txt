@@ -221,7 +221,9 @@ juce_add_console_app(otoha_state_tests PRODUCT_NAME "otoha_state_tests")
 target_sources(otoha_state_tests PRIVATE Tests/StateMachineTest.cpp)
 
 juce_add_console_app(otoha_support_tests PRODUCT_NAME "otoha_support_tests")
-target_sources(otoha_support_tests PRIVATE Tests/SupportTest.cpp)
+target_sources(otoha_support_tests PRIVATE
+    Tests/SupportTest.cpp
+    Source/Core/RecordingSupport.cpp)
 
 # --- Milestone 10: release hardening (settings/presets/lifecycle/artifacts) ----
 juce_add_console_app(otoha_release_tests PRODUCT_NAME "otoha_release_tests")

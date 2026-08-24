@@ -110,9 +110,9 @@ bool streamIntoWriterBuffered (juce::AudioFormatWriter* writer,
         if (cancelFlag.load()) { errorOut = "Export cancelled."; return false; }
 
         const int frames = juce::jmin (chunkFrames, buffer.getNumSamples() - pos);
-        float* ptrs[2] = { buffer.getWritePointer (0, pos),
-                           channels > 1 ? buffer.getWritePointer (1, pos)
-                                        : buffer.getWritePointer (0, pos) };
+        const float* ptrs[2] = { buffer.getReadPointer (0, pos),
+                                 channels > 1 ? buffer.getReadPointer (1, pos)
+                                              : buffer.getReadPointer (0, pos) };
         if (! writer->writeFromFloatArrays (ptrs, channels, frames))
         {
             errorOut = "Otoha couldn't finish the export.\nThere may not be enough storage space.";

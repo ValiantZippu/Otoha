@@ -273,7 +273,8 @@ void Recorder::writerThreadLoop()
             for (int ch = 0; ch < numChannels; ++ch)
                 channels[ch] = fifoBuffer.getWritePointer (ch, start);
 
-            if (! activeWriter->write (channels, numSamples))
+            if (! activeWriter->writeFromFloatArrays (
+                    const_cast<const float**> (channels), numChannels, numSamples))
                 failureReason.store (otoha::FailureReason::diskFull, std::memory_order_relaxed);
 
             juce::AudioBuffer<float> view (channels, numChannels, numSamples); // wraps, no copy

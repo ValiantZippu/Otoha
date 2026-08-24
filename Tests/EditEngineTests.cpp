@@ -123,16 +123,17 @@ int main()
     {
         auto doc = makeABCD();
         AudioClipboard clip;
+        juce::String pasteError;
         doc->setSelection (0, blockSamples);                  // copy A
         doc->copySelectedRange (clip);
         doc->clearSelection();
 
-        doc->pasteAt (doc->totalSamples(), clip, {});         // append at end
+        doc->pasteAt (doc->totalSamples(), clip, pasteError);         // append at end
         ok &= expect (timelineEqualsBlocks (*doc, "ABCDA"), "paste inserts without overwriting");
 
         // Insert into the middle: cursor between B and C.
         auto doc2 = makeABCD();
-        doc2->pasteAt (blockSamples * 2, clip, {});
+        doc2->pasteAt (blockSamples * 2, clip, pasteError);
         ok &= expect (timelineEqualsBlocks (*doc2, "ABACD"), "mid-timeline insert is A B A C D");
         ok &= expect (doc2->totalSamples() == blockSamples * 5, "insert grows the timeline by clipboard length");
         ok &= expect (std::abs (firstSampleOfRegion (*doc2, blockSamples * 2) - 0.1f) < 0.001f,
@@ -192,7 +193,8 @@ int main()
         for (int ch = 0; ch < 2; ++ch)
             fill (foreign.data, ch, 0, 44100, 0.25f);
 
-        ok &= expect (doc->pasteAt (0, foreign, {}), "cross-rate paste succeeds");
+        juce::String crossRateError;
+        ok &= expect (doc->pasteAt (0, foreign, crossRateError), "cross-rate paste succeeds");
         // 44100 frames @44.1k == exactly one second == 48000 frames @48k.
         ok &= expect (doc->totalSamples() == blockSamples * 4 + 48000,
                       "pasted length converted to destination sample rate");

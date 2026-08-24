@@ -37,7 +37,7 @@ juce::File writeTestWav (const juce::File& dir, const juce::String& name,
 }
 
 otoha::MediaItem makeItem (const juce::File& f, const juce::String& name,
-                           double duration, bool favorite = false,
+                           double duration = 1.0, bool favorite = false,
                            otoha::MediaType type = otoha::MediaType::audio)
 {
     otoha::MediaItem item;
@@ -157,7 +157,7 @@ int main()
         LibraryService service (root);
         ok &= expect (service.initialise (error), "service initialises against existing database");
 
-        const auto stale = makeItem (root.getChildFile ("gone.wav"), "Vanished", 1.0);
+        auto stale = makeItem (root.getChildFile ("gone.wav"), "Vanished", 1.0);
         db.insertMedia (stale);
 
         // An unregistered but valid wav sitting in Library/Audio gets recovered.

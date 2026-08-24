@@ -99,7 +99,7 @@ public:
 
         if (e.mods.isRightButtonDown())
         {
-            if (! view.listBox.isSelectedRow (row))
+            if (! view.listBox.isRowSelected (row))
                 view.selectRowWithModifiers (row, e);
             view.showContextMenuFor (row);
             return;
@@ -134,7 +134,6 @@ public:
 
         body.setFont (juce::FontOptions (13.0f));
         body.setJustificationType (juce::Justification::topLeft);
-        body.setMultiLine (true, false);
         addAndMakeVisible (body);
     }
 
@@ -144,7 +143,7 @@ public:
                                                   : item.displayName,
                        juce::dontSendNotification);
 
-        auto sizeMb = juce::String::toDecimalStringWithPlaces ((double) item.fileSizeBytes / (1024.0 * 1024.0), 1);
+        auto sizeMb = juce::String ((double) item.fileSizeBytes / (1024.0 * 1024.0), 1);
 
         body.setText (
             juce::String ("Duration     ") + otoha::formatDuration (item.durationSeconds)
@@ -629,9 +628,9 @@ void LibraryView::exportSelected()
     if (selected.empty()) return;
 
     // Batch export: one format/quality choice for the whole selection (#23).
-    FfmpegLocator locator;
-    FfmpegInfo info;
-    const bool ffmpegAvailable = locator.locate (info) == EncoderStatus::available;
+    otoha::FfmpegLocator locator;
+    otoha::FfmpegInfo info;
+    const bool ffmpegAvailable = locator.locate (info) == otoha::EncoderStatus::available;
 
     const auto choice = runExportOptionsDialog (this, exportStore, (int) selected.size(), ffmpegAvailable);
     if (! choice.confirmed) return;

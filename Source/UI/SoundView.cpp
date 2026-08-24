@@ -93,7 +93,7 @@ void SoundView::buildUi()
 
     auto publishTone = [this]
     {
-        auto& active = *profiles.resolveForDevice ("");
+        auto& active = *profiles.resolveForDeviceMutable ("");
         active.dspState.bassAmount    = (float) bassSlider.getValue();
         active.dspState.clarityAmount = (float) claritySlider.getValue();
         active.dspState.stereoWidth   = (float) spaceSlider.getValue();   // "Space"
@@ -329,7 +329,7 @@ void SoundView::handleDeviceChange()
 void SoundView::applyPresetSelection()
 {
     const int id = presetCombo.getSelectedId();
-    auto* active = profiles.resolveForDevice ("");
+    auto* active = profiles.resolveForDeviceMutable ("");
     if (active == nullptr || id <= 0) return;
 
     if (id >= kFirstCustomItemId && id < kSavePresetItemId)
@@ -419,7 +419,7 @@ void SoundView::showAdvancedMenu()
                                         ? profiles.resolveForDevice ("")->dspState : otoha::ProcessingState{};
                                     otoha::ui::showAdvancedPanel (current, [this] (const otoha::ProcessingState& s)
                                     {
-                                        if (auto* active = profiles.resolveForDevice (""))
+                                        if (auto* active = profiles.resolveForDeviceMutable (""))
                                         {
                                             active->dspState = s;
                                             engine.setParameters (s);
