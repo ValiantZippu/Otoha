@@ -1,6 +1,7 @@
 #include "SoundView.h"
 
 #include "AboutWindow.h"
+#include "OtohaTheme.h"
 #include "SoundAdvancedPanel.h"
 
 #include "../Dsp/Presets.h"
@@ -393,8 +394,8 @@ void SoundView::updateStatusText()
                          juce::dontSendNotification);
     statusLabel.setColour (juce::Label::textColourId,
                            lifecycle.current() == otoha::AppState::processing ? juce::Colours::white
-                           : lifecycle.current() == otoha::AppState::unavailable ? juce::Colour (0xffff5a7e)
-                                                                                 : juce::Colour (0xffd8c7ce));
+                           : lifecycle.current() == otoha::AppState::unavailable ? otoha::theme::clipRed()
+                                                                                 : otoha::theme::textSoft());
 }
 
 // -----------------------------------------------------------------------------
@@ -504,7 +505,7 @@ void SoundView::exportDiagnosticsReport()
 
 void SoundView::paint (juce::Graphics& g)
 {
-    g.fillAll (juce::Colour (0xff000000));                       // AMOLED-friendly base
+    g.fillAll (otoha::theme::background());                       // AMOLED-friendly base
 
     // Subtle sakura-pink accent band behind the header.
     juce::ColourGradient gradient (juce::Colour (0x30ff9ecf), (float) getWidth() * 0.2f, 0.0f,
@@ -515,13 +516,13 @@ void SoundView::paint (juce::Graphics& g)
     // Output meter bar (#25): smoothed peak from the shared chain's meter tap.
     if (! meterRect.isEmpty())
     {
-        g.setColour (juce::Colour (0xff141414));
+        g.setColour (otoha::theme::card());
         g.fillRoundedRectangle (meterRect.toFloat(), 4.0f);
 
         const float level = juce::jlimit (0.0f, 1.0f, meterLevel);
         auto fill = meterRect.withWidth (meterRect.getWidth() * level);
-        g.setColour (level > 0.95f ? juce::Colour (0xffff5a7e)      // clip-ish
-                                   : juce::Colour (0xffff9ecf));    // sakura pink
+        g.setColour (level > 0.95f ? otoha::theme::clipRed()      // clip-ish
+                                   : otoha::theme::sakura());    // sakura pink
         g.fillRoundedRectangle (fill.toFloat(), 4.0f);
     }
 }
