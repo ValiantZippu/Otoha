@@ -122,9 +122,6 @@ public:
     /** Test hook: associate a sidecar location without a real file load. */
     juce::File& sourceFileForTest()             { return sourceFile; }
 
-    /** Test hook: associate a sidecar location without a real file load. */
-    juce::File& sourceFileForTest()             { return sourceFile; }
-
 private:
     void pushUndoSnapshot();
     void applyClips (std::vector<Clip> newClips);
