@@ -10,6 +10,19 @@ product is one loop:
 
 ---
 
+## Status — Milestone 14: UI/UX polish & visual identity (code complete)
+
+M14 makes the existing feature set feel like one finished product. No audio-architecture changes.
+
+- **Design system** (`Source/UI/OtohaTheme.h`) — the AMOLED + sakura palette, six-step typography scale, spacing constants, button styling helpers and an accessibility-label helper, all in one named place; HomeView is refactored as the reference implementation (#1/#63/#72).
+- **Dominant Record button** — explicit hover/pressed colours, `● Record` label, accessible name + tooltip (#5).
+- **Plain-language editing** — "Ripple Delete" is now just **Delete**; "Trim" is **Keep Selection**; Enhance reads **✨ Enhance** (#27/#73).
+- **Human feedback after edits (#28)** — transient "Deleted 12 s / Cut … / Pasted …" toast over the waveform, auto-clearing (~2 s), no command names.
+- **Selection-aware toolbar verified** — cut/copy/delete/keep disable without a selection; paste disabled with an empty clipboard (#26/#65).
+- **Accessibility pass on icon controls** — Back/More-options/Zoom/Delete/Keep-selection/Play all carry semantic names + tooltips; record button reachable by name (#56).
+
+---
+
 ## Status — Milestone 13: Cross-platform completion & hardening (code complete)
 
 M13 finishes the shared architecture: audits, edge-case hardening, CI, and developer docs. Pure code this pass; platform hardware items are reported honestly.

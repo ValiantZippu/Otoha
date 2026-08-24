@@ -1,5 +1,7 @@
 #include "HomeView.h"
 
+#include "OtohaTheme.h"
+
 #include "../Core/RecordingSupport.h"
 
 #include <algorithm>
@@ -7,34 +9,43 @@
 /*
     Home implementation. Same AMOLED + restrained sakura language as Sound and
     the onboarding screen, so Studio and Sound read as one product (#2).
+    M14: all styling flows from otoha::theme — this file is the reference.
 */
 HomeView::HomeView (LibraryService& lib) : library (lib)
 {
-    brand.setFont (juce::FontOptions (34.0f, juce::Font::bold));
-    brand.setColour (juce::Label::textColourId, juce::Colours::white);
+    brand.setFont (otoha::theme::font (otoha::theme::TextSize::display));
+    brand.setColour (juce::Label::textColourId, otoha::theme::textPrimary());
     brand.setJustificationType (juce::Justification::centred);
     addAndMakeVisible (brand);
 
-    subtitle.setFont (juce::FontOptions (15.0f));
-    subtitle.setColour (juce::Label::textColourId, juce::Colour (0xff8a7a82));
+    subtitle.setFont (otoha::theme::font (otoha::theme::TextSize::body));
+    subtitle.setColour (juce::Label::textColourId, otoha::theme::textMuted());
     subtitle.setJustificationType (juce::Justification::centred);
     addAndMakeVisible (subtitle);
 
-    recordButton.setColour (juce::TextButton::buttonColourId, juce::Colour (0xff2a1620));
-    recordButton.setColour (juce::TextButton::textColourOffId, juce::Colour (0xffff9ecf));
+    // The one dominant action on this screen (#5): clear states, accessible name,
+    // and a tooltip. JUCE supplies hover/pressed/down visuals from the colours.
+    otoha::theme::stylePrimaryButton (recordButton);
+    recordButton.setButtonText ("●  Record");
+    otoha::theme::label (recordButton, "Record",
+                         "Start recording with the selected microphone");
     recordButton.onClick = [this] { if (onRecord) onRecord(); };
     addAndMakeVisible (recordButton);
 
-    recentHeader.setFont (juce::FontOptions (16.0f, juce::Font::bold));
-    recentHeader.setColour (juce::Label::textColourId, juce::Colours::white);
+    recentHeader.setFont (otoha::theme::font (otoha::theme::TextSize::section));
+    recentHeader.setColour (juce::Label::textColourId, otoha::theme::textPrimary());
+    recentHeader.setText ("Recent", juce::dontSendNotification);
     addAndMakeVisible (recentHeader);
 
     emptyHint.setJustificationType (juce::Justification::centred);
-    emptyHint.setColour (juce::Label::textColourId, juce::Colour (0xff8a7a82));
+    emptyHint.setColour (juce::Label::textColourId, otoha::theme::textMuted());
+    emptyHint.setText ("No recordings yet.\nPress Record to make your first one.",
+                       juce::dontSendNotification);
     addAndMakeVisible (emptyHint);
 
-    viewLibraryButton.setColour (juce::TextButton::buttonColourId, juce::Colour (0xff141414));
-    viewLibraryButton.setColour (juce::TextButton::textColourOffId, juce::Colours::white);
+    otoha::theme::styleCardButton (viewLibraryButton);
+    viewLibraryButton.setButtonText ("View library →");
+    otoha::theme::label (viewLibraryButton, "View library", "Open your recordings");
     viewLibraryButton.onClick = [this] { if (onViewLibrary) onViewLibrary(); };
     addAndMakeVisible (viewLibraryButton);
 
@@ -55,8 +66,7 @@ void HomeView::refreshRecents()
         row.item = item;
 
         row.openButton = std::make_unique<juce::TextButton> (item.displayName);
-        row.openButton->setColour (juce::TextButton::buttonColourId, juce::Colour (0xff141414));
-        row.openButton->setColour (juce::TextButton::textColourOffId, juce::Colours::white);
+        otoha::theme::styleCardButton (*row.openButton);
         row.openButton->setTooltip ("Open in editor");
         row.openButton->onClick = [this, id = item.id]
         {
@@ -65,9 +75,10 @@ void HomeView::refreshRecents()
         };
         addAndMakeVisible (*row.openButton);
 
+        row.duration.setFont (otoha::theme::font (otoha::theme::TextSize::caption));
         row.duration.setText (otoha::formatDuration (item.durationSeconds),
                               juce::dontSendNotification);
-        row.duration.setColour (juce::Label::textColourId, juce::Colour (0xff8a7a82));
+        row.duration.setColour (juce::Label::textColourId, otoha::theme::textMuted());
         row.duration.setJustificationType (juce::Justification::centredRight);
         addAndMakeVisible (row.duration);
 
@@ -80,7 +91,7 @@ void HomeView::refreshRecents()
 
 void HomeView::paint (juce::Graphics& g)
 {
-    g.fillAll (juce::Colour (0xff000000));
+    g.fillAll (otoha::theme::background());
 
     juce::ColourGradient gradient (juce::Colour (0x30ff9ecf), (float) getWidth() * 0.25f, 0.0f,
                                    juce::Colour (0x08ff9ecf), (float) getWidth() * 0.75f, 160.0f, false);
@@ -90,7 +101,7 @@ void HomeView::paint (juce::Graphics& g)
 
 void HomeView::resized()
 {
-    auto bounds = getLocalBounds().reduced (24);
+    auto bounds = getLocalBounds().reduced (otoha::theme::edgePadding);
     const int centreW = juce::jmin (460, bounds.getWidth());
 
     brand.setBounds    (bounds.removeFromTop (52));

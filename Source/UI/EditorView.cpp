@@ -1,5 +1,6 @@
 #include "EditorView.h"
 
+#include "OtohaTheme.h"
 #include "../Core/RecordingSupport.h"
 #include "../Editor/TimelineRenderer.h"
 #include "../Editor/TimelineSource.h"
@@ -329,6 +330,18 @@ EditorView::EditorView (Player& pl, LibraryService& lib, std::function<void()> b
     exportButton.onClick       = [this] { exportAs(); };
     saveButton.onClick         = [this] { saveChanges(); };
 
+    // M14 #56: every icon-like control carries a semantic name + tooltip.
+    otoha::theme::label (backButton, "Back to Library", "Return to your recordings");
+    otoha::theme::label (menuButton, "More options", "Save, export or discard changes");
+    otoha::theme::label (zoomInButton, "Zoom in");
+    otoha::theme::label (zoomOutButton, "Zoom out");
+    otoha::theme::label (zoomFitButton, "Fit whole recording", "Zoom to show the entire timeline");
+    otoha::theme::label (rippleDeleteButton, "Delete",
+                         "Removes the selection and closes the gap (undoable)");
+    otoha::theme::label (trimButton, "Keep selection",
+                         "Keeps only the selected audio; the rest is removed (undoable)");
+    otoha::theme::label (playButton, "Play or pause");
+
     // Enhance toggles the DSP panel; the panel drives ProcessingState only.
     enhanceButton.setClickingTogglesState (true);
     enhanceButton.onClick = [this]
@@ -360,6 +373,13 @@ EditorView::EditorView (Player& pl, LibraryService& lib, std::function<void()> b
     };
 
     refreshButtonsAndTitle();
+    // M14 #28: transient edit feedback ("Deleted 12 s"), auto-clearing.
+    feedbackLabel.setFont (otoha::theme::font (otoha::theme::TextSize::body));
+    feedbackLabel.setColour (juce::Label::textColourId, otoha::theme::sakura());
+    feedbackLabel.setJustificationType (juce::Justification::centred);
+    feedbackLabel.setInterceptsMouseClicks (false, false);
+    addChildComponent (feedbackLabel);
+
     startTimerHz (30);
 }
 
@@ -436,6 +456,10 @@ void EditorView::resized()
     undoButton.setBounds (row2.removeFromRight (72).reduced (2, 3));
 
     wave->setBounds (bounds.reduced (16, 6));
+
+    // Feedback toast floats over the top of the waveform (#28).
+    feedbackLabel.setBounds (wave->getBounds().removeFromTop (24)
+                                 .withSizeKeepingCentre (juce::jmin (280, wave->getWidth()), 22));
 
     // Enhance panel overlays the right side of the waveform when open.
     if (enhancePanel != nullptr && enhancePanel->isVisible())
@@ -578,8 +602,10 @@ void EditorView::cutSelected()
 {
     if (! isOpen() || doc->getSelection().isEmpty()) return;
     stopPlayback();
+    const double seconds = (double) doc->getSelection().length() / doc->getSampleRate();
     doc->cutSelectedRange (clipboard);
     afterEditRebuild();
+    showFeedback ("Cut " + otoha::formatDuration (seconds));
 }
 
 void EditorView::copySelected()
@@ -598,7 +624,11 @@ void EditorView::pasteAtCursor()
     if (! doc->pasteAt (doc->getSelection().start, clipboard, error))
         juce::AlertWindow::showMessageBoxAsync (juce::MessageBoxIconType::WarningIcon, "Paste", error);
     else
+    {
         afterEditRebuild();
+        const double seconds = (double) clipboard.data.getNumSamples() / doc->getSampleRate();
+        showFeedback ("Pasted " + otoha::formatDuration (seconds));
+    }
 }
 
 void EditorView::rippleDeleteSelection()
@@ -606,8 +636,10 @@ void EditorView::rippleDeleteSelection()
     if (! isOpen() || doc->getSelection().isEmpty()) return;
     stopPlayback();
     const auto sel = doc->getSelection();
+    const double seconds = (double) sel.length() / doc->getSampleRate();
     doc->rippleDelete (sel.start, sel.length());
     afterEditRebuild();
+    showFeedback ("Deleted " + otoha::formatDuration (seconds));   // #28/#73: no jargon
 }
 
 void EditorView::trimSelection()
@@ -775,6 +807,10 @@ void EditorView::timerCallback()
     if (! isOpen())
         return;
 
+    // Fade the edit-feedback toast out after ~2 seconds.
+    if (feedbackTicksLeft > 0 && --feedbackTicksLeft == 0)
+        feedbackLabel.setVisible (false);
+
     // Auto-stop at the end of a selection preview.
     if (playingSelection && player.isPlaying())
     {
@@ -803,6 +839,13 @@ void EditorView::timerCallback()
     }
 
     wave->repaint();
+}
+
+void EditorView::showFeedback (const juce::String& message)
+{
+    feedbackLabel.setText (message, juce::dontSendNotification);
+    feedbackLabel.setVisible (true);
+    feedbackTicksLeft = 60;   // ~2 s at 30 Hz
 }
 
 void EditorView::refreshButtonsAndTitle()

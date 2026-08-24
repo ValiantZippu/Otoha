@@ -96,13 +96,18 @@ private:
     juce::Label titleLabel;
 
     juce::TextButton cutButton { "Cut" }, copyButton { "Copy" }, pasteButton { "Paste" },
-        rippleDeleteButton { "Ripple Delete" }, trimButton { "Trim" },
+        rippleDeleteButton { "Delete" }, trimButton { "Keep Selection" },
         undoButton { "Undo" }, redoButton { "Redo" },
         playButton { "Play" },
         zoomInButton { "+" }, zoomOutButton { "-" }, zoomFitButton { "Fit" },
-        enhanceButton { "Enhance" }, exportButton { "Export" }, saveButton { "Save" };
+        enhanceButton { "✨ Enhance" }, exportButton { "Export" }, saveButton { "Save" };
 
     juce::Label timeLabel;   // cursor / selection readout
+
+    // M14 #28: transient human feedback ("Deleted 12 s") — auto-clears.
+    juce::Label feedbackLabel;
+    int feedbackTicksLeft = 0;
+    void showFeedback (const juce::String& message);
     std::unique_ptr<EnhancePanel> enhancePanel;
 
     std::unique_ptr<juce::FileChooser> chooser;
