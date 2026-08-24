@@ -50,6 +50,10 @@ device, always: [docs/privacy.md](docs/privacy.md).
 
 ## Development milestone log
 
+> Next up: **UI redesign (M17–M25)** — re-skinning the app in the Kaiteyo design
+> language. Plan and per-milestone agent prompts:
+> [docs/ui-redesign-milestones.md](docs/ui-redesign-milestones.md).
+
 ## Status — Milestone 16: packaging & release engineering (code complete)
 
 - Build metadata (`BuildInfo.h`: version/commit/date/type) baked in via CMake, shown on About (#3/#4).
