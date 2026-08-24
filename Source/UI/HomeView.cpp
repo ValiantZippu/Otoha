@@ -69,25 +69,25 @@ void HomeView::refreshRecents()
     recents.clear();
     for (const auto& item : newest)
     {
-        RecentRow row;
-        row.item = item;
+        auto row = std::make_unique<RecentRow>();
+        row->item = item;
 
-        row.openButton = std::make_unique<juce::TextButton> (item.displayName);
-        otoha::theme::styleCardButton (*row.openButton);
-        row.openButton->setTooltip ("Open in editor");
-        row.openButton->onClick = [this, id = item.id]
+        row->openButton = std::make_unique<juce::TextButton> (item.displayName);
+        otoha::theme::styleCardButton (*row->openButton);
+        row->openButton->setTooltip ("Open in editor");
+        row->openButton->onClick = [this, id = item.id]
         {
             if (onOpenItem)
                 onOpenItem (library.get (id));   // fresh lookup: survives renames
         };
-        addAndMakeVisible (*row.openButton);
+        addAndMakeVisible (*row->openButton);
 
-        row.duration.setFont (otoha::theme::font (otoha::theme::TextSize::caption));
-        row.duration.setText (otoha::formatDuration (item.durationSeconds),
-                              juce::dontSendNotification);
-        row.duration.setColour (juce::Label::textColourId, otoha::theme::textMuted());
-        row.duration.setJustificationType (juce::Justification::centredRight);
-        addAndMakeVisible (row.duration);
+        row->duration.setFont (otoha::theme::font (otoha::theme::TextSize::caption));
+        row->duration.setText (otoha::formatDuration (item.durationSeconds),
+                               juce::dontSendNotification);
+        row->duration.setColour (juce::Label::textColourId, otoha::theme::textMuted());
+        row->duration.setJustificationType (juce::Justification::centredRight);
+        addAndMakeVisible (row->duration);
 
         recents.push_back (std::move (row));
     }
@@ -132,8 +132,8 @@ void HomeView::resized()
         {
             auto r = centre.removeFromTop (40);
             r.removeFromLeft (8);
-            row.duration.setBounds (r.removeFromRight (64));
-            row.openButton->setBounds (r.withTrimmedRight (8));
+            row->duration.setBounds (r.removeFromRight (64));
+            row->openButton->setBounds (r.withTrimmedRight (8));
             centre.removeFromTop (4);
         }
     }

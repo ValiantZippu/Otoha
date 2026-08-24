@@ -69,9 +69,9 @@ void OnboardingView::revealSetup()
 {
     setupRevealed = true;
     getStartedButton.setVisible (false);
-    for (auto* c : { (juce::Component*) &outputLabel, &outputCombo,
-                     &enhanceLabel, &enhanceToggle,
-                     &presetLabel, &presetCombo, &hintLabel, &doneButton })
+    for (juce::Component* c : { &outputLabel, &outputCombo,
+                                &enhanceLabel, &enhanceToggle,
+                                &presetLabel, &presetCombo, &hintLabel, &doneButton })
         c->setVisible (true);
     resized();
 }

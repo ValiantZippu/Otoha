@@ -205,7 +205,7 @@ void EnhancePanel::paint (juce::Graphics& g)
 
     g.setColour (juce::Colours::grey);
     g.setFont (juce::FontOptions (12.0f));
-    auto labelAt = [this] (const juce::Rectangle<int>& r, const juce::String& text)
+    auto labelAt = [&g] (juce::Rectangle<int> r, const juce::String& text)
     {
         g.drawText (text, r.removeFromLeft (110), juce::Justification::centredLeft);
     };

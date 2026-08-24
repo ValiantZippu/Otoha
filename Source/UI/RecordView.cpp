@@ -78,7 +78,7 @@ public:
             return;
 
         const double fraction = juce::jlimit (0.0, 1.0,
-            (e.position.x - area.getX()) / area.getWidth());
+            (double) ((e.position.x - area.getX()) / area.getWidth()));
         player.setPositionSeconds (fraction * player.getLengthSeconds());
     }
 
@@ -301,7 +301,7 @@ void RecordView::resized()
 bool RecordView::keyPressed (const juce::KeyPress& key)
 {
     if (key.isKeyCode (juce::KeyPress::spaceKey))  { playPauseClicked();      return true; }
-    if (key.isKeyCode (juce::KeyPress::rKey))      { recordButtonClicked();   return true; }
+    if (key.isKeyCode (juce::KeyPress ('r')))     { recordButtonClicked();   return true; }
     if (key.isKeyCode (juce::KeyPress::escapeKey) && counting) { cancelCountdown(); return true; }
     return false;
 }
@@ -328,7 +328,10 @@ void RecordView::populateDeviceCombos()
     const auto setup = deviceManager.getAudioDeviceSetup();
     auto select = [] (juce::ComboBox& box, const juce::String& deviceName)
     {
-        const int id = deviceName.isEmpty() ? 1 : box.indexOfText (deviceName) + 1;
+        int id = 1;
+        if (deviceName.isNotEmpty())
+            for (int i = 1; i <= box.getNumItems(); ++i)
+                if (box.getItemText (i - 1) == deviceName) { id = i; break; }
         box.setSelectedItemIndex (id - 1, juce::dontSendNotification);
     };
     select (inputCombo, setup.inputDeviceName);

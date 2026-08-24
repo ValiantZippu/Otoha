@@ -53,7 +53,8 @@ private:
         std::unique_ptr<juce::TextButton> openButton;
         juce::Label duration;
     };
-    std::vector<RecentRow> recents;
+    // Rows hold a juce::Label (non-movable), so own them through unique_ptr.
+    std::vector<std::unique_ptr<RecentRow>> recents;
 
     juce::TextButton viewLibraryButton { "View Library" };
 

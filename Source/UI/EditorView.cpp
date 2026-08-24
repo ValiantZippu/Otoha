@@ -175,8 +175,8 @@ public:
                     continue;
 
                 const int b0 = bucketIndex (juce::jlimit ((juce::int64) 0, total, s0), bucketCount);
-                const int b1 = juce::jlimit (b0, bucketCount - 1,
-                                             bucketIndex (juce::jlimit ((juce::int64) 0, total, s1), bucketCount));
+                const int b1 = juce::jlimit ((int) b0, (int) bucketCount - 1,
+                                             (int) bucketIndex (juce::jlimit ((juce::int64) 0, total, s1), bucketCount));
 
                 float m = 0.0f;
                 for (int i = b0; i <= b1; ++i)
@@ -723,9 +723,9 @@ void EditorView::exportAs()
     if (! isOpen()) return;
 
     // Export = current timeline + current DSP state through the shared service.
-    FfmpegLocator locator;
-    FfmpegInfo info;
-    const bool ffmpegAvailable = locator.locate (info) == EncoderStatus::available;
+    otoha::FfmpegLocator locator;
+    otoha::FfmpegInfo info;
+    const bool ffmpegAvailable = locator.locate (info) == otoha::EncoderStatus::available;
 
     const auto choice = runExportOptionsDialog (this, exportStore, 1, ffmpegAvailable);
     if (! choice.confirmed) return;

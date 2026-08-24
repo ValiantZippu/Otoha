@@ -57,9 +57,9 @@ public:
 
         compressorAmount.setRange (0.0, 1.0, 0.01);   // 0 == off (#9)
         compressorAmount.setValue (state.compressor.enabled
-                                       ? juce::jlimit (0.0, 1.0,
+                                       ? juce::jlimit (0.0f, 1.0f,
                                                        (state.compressor.ratio - 1.0f) / 5.0f)
-                                       : 0.0,
+                                       : 0.0f,
                                    juce::dontSendNotification);
         compressorAmount.setColour (juce::Slider::textBoxTextColourId, juce::Colours::white);
         compressorAmount.onValueChange = [this]
