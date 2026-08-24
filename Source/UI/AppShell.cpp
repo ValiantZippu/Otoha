@@ -18,17 +18,25 @@ AppShell::AppShell (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl, Lib
     soundView   = std::make_unique<SoundView> (otohaBaseDirectory(), settings,
                                                settings != nullptr && settings->safeModeSession);
 
+    homeView = std::make_unique<HomeView> (library);
+    homeView->onRecord      = [this] { showRecording(); };
+    homeView->onViewLibrary = [this] { showLibrary(); };
+    homeView->onOpenItem    = [this] (const otoha::MediaItem& item) { openInEditor (item); };
+
+    addChildComponent (homeView);
     addChildComponent (*recordView);
     addChildComponent (*libraryView);
     addChildComponent (*editorView);
     addChildComponent (*soundView);
 
-    for (auto* b : { &libraryButton, &recordButton, &soundButton, &cameraButton, &settingsButton })
+    for (auto* b : { &studioButton, &libraryButton, &recordButton, &soundButton, &cameraButton, &settingsButton })
         addAndMakeVisible (*b);
 
+    studioButton.setClickingTogglesState (true);
     libraryButton.setClickingTogglesState (true);
     recordButton.setClickingTogglesState (true);
     soundButton.setClickingTogglesState (true);
+    studioButton.setRadioGroupId (10);
     libraryButton.setRadioGroupId (10);
     recordButton.setRadioGroupId (10);
     soundButton.setRadioGroupId (10);
@@ -38,14 +46,15 @@ AppShell::AppShell (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl, Lib
     cameraButton.setTooltip ("Coming in the video milestone");
     settingsButton.setTooltip ("Coming soon");
 
+    studioButton.onClick  = [this] { showHome(); };
     libraryButton.onClick = [this] { showLibrary(); };
     recordButton.onClick  = [this] { showRecording(); };
     soundButton.onClick   = [this] { showSound(); };
 
-    // Record is the home screen; the editor opens from the Library or Record's
-    // Edit button. Sound lives in its own section (#40) — never mixed into Studio.
-    recordButton.setToggleState (true, juce::dontSendNotification);
-    recordView->setVisible (true);
+    // Studio Home is the landing screen (M11 #2/#3): Record + Recent + Library.
+    // Sound lives in its own top-level section — never mixed into Studio.
+    studioButton.setToggleState (true, juce::dontSendNotification);
+    showHome();
 
     // --- first launch (#3): one short screen before anything else -------------
     if (settings != nullptr && ! settings->firstLaunchComplete)
@@ -66,11 +75,24 @@ AppShell::AppShell (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl, Lib
         };
         addAndMakeVisible (*onboarding);  // stays on top of all views
     }
-}void AppShell::resized()
+}void AppShell::showHome()
+{
+    studioButton.setToggleState (true, juce::dontSendNotification);
+    recordView->setVisible (false);
+    libraryView->setVisible (false);
+    editorView->setVisible (false);
+    soundView->setVisible (false);
+    homeView->refreshRecents();
+    homeView->setVisible (true);
+}
+
+void AppShell::resized()
 {
     auto bounds = getLocalBounds();
 
     auto nav = bounds.removeFromTop (44).reduced (12, 6);
+    studioButton.setBounds (nav.removeFromLeft (80).withHeight (30));
+    nav.removeFromLeft (8);
     libraryButton.setBounds (nav.removeFromLeft (90).withHeight (30));
     nav.removeFromLeft (8);
     recordButton.setBounds  (nav.removeFromLeft (90).withHeight (30));
@@ -81,6 +103,7 @@ AppShell::AppShell (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl, Lib
     nav.removeFromLeft (8);
     settingsButton.setBounds (nav.removeFromLeft (88).withHeight (30));
 
+    homeView->setBounds    (bounds);
     recordView->setBounds  (bounds);
     libraryView->setBounds (bounds);
     editorView->setBounds (bounds);
@@ -93,6 +116,7 @@ AppShell::AppShell (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl, Lib
 void AppShell::showLibrary()
 {
     libraryButton.setToggleState (true, juce::dontSendNotification);
+    homeView->setVisible (false);
     recordView->setVisible (false);
     editorView->setVisible (false);
     soundView->setVisible (false);
@@ -104,6 +128,7 @@ void AppShell::showLibrary()
 void AppShell::showRecording()
 {
     recordButton.setToggleState (true, juce::dontSendNotification);
+    homeView->setVisible (false);
     libraryView->setVisible (false);
     editorView->setVisible (false);
     soundView->setVisible (false);
@@ -113,6 +138,7 @@ void AppShell::showRecording()
 
 void AppShell::showEditor()
 {
+    homeView->setVisible (false);
     libraryView->setVisible (false);
     recordView->setVisible (false);
     soundView->setVisible (false);
@@ -123,6 +149,7 @@ void AppShell::showEditor()
 void AppShell::showSound()
 {
     soundButton.setToggleState (true, juce::dontSendNotification);
+    homeView->setVisible (false);
     libraryView->setVisible (false);
     recordView->setVisible (false);
     editorView->setVisible (false);

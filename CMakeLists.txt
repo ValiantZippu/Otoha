@@ -51,6 +51,7 @@ target_sources(Otoha PRIVATE
     Source/UI/EditorView.cpp
     Source/UI/EnhancePanel.cpp
     Source/UI/ExportUi.cpp
+    Source/UI/HomeView.cpp
     Source/UI/LibraryView.cpp
     Source/UI/OnboardingView.cpp
     Source/UI/RecordView.cpp

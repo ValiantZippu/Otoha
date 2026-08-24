@@ -460,6 +460,7 @@ bool EditorView::keyPressed (const juce::KeyPress& key)
     if (cmd && key.isKeyCode ('C'))                                      { copySelected(); return true; }
     if (cmd && key.isKeyCode ('V'))                                      { pasteAtCursor(); return true; }
     if (cmd && key.isKeyCode ('A'))                                      { doc->setSelection (0, doc->totalSamples()); selectionChanged(); return true; }
+    if (cmd && key.isKeyCode ('S'))                                      { saveChanges(); return true; }   // #68
 
     // Shift+Arrow selection nudging.
     if (key.getModifiers().isShiftDown())

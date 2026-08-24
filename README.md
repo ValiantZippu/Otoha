@@ -10,6 +10,18 @@ product is one loop:
 
 ---
 
+## Status — Milestone 11: Studio v1 cohesion (complete)
+
+Milestones 1–8 already delivered the Studio mechanics; Milestone 11 closed the remaining cohesion gaps without rewriting working systems:
+
+- **Studio Home** (`HomeView`): the new landing screen — big Record button, five most-recent recordings with durations, View Library (#2/#3)
+- **Navigation**: `Studio | Sound` top-level; Studio contains Home → Library → Record → Editor → Export
+- **Duplicate recording**: `LibraryService::duplicateMedia()` + context-menu action — independent file copy ("Name copy.ext"), own database row, original untouched (#20)
+- **Drag-and-drop import**: drop audio files anywhere in the Library; they are *referenced where they live* — never converted or moved on import (#63/#64); unsupported formats get "Otoha can't open this audio format" (#65); startup scan tolerates externally-moved sources (#66)
+- **Ctrl/Cmd+S** save shortcut added to the editor's existing #68 shortcut set
+
+Everything else in the v1 loop — mic selection, input meter + clipping indicator, countdown (Off/3/5/10), crash-safe background writer, lossless source format, library search/sort/rename/trash-delete/favorites/batch export, non-destructive timeline with cut/copy/paste/ripple delete, snapshot undo/redo, multiresolution waveform cache, autosave sidecar + recovery, one-tap Enhance with A/B preview, WAV/FLAC/M4A/Opus/MP3 export via the single DSP-aware pipeline — was verified present from earlier milestones and left alone.
+
 ## Status — Milestone 10: Windows release hardening, installer, updates & audio UX (code complete)
 
 Milestone 10 turns the validated M8 implementation into a shippable release candidate (pure code this pass; see docs/release.md for the hardware/installer checklist that still needs a real Windows machine):

@@ -24,7 +24,8 @@
 */
 class LibraryView : public juce::Component,
                     private juce::Timer,
-                    private juce::ListBoxModel
+                    private juce::ListBoxModel,
+                    private juce::FileDragAndDropTarget
 {
 public:
     using OpenInEditorFn = std::function<bool (const otoha::MediaItem&)>;
@@ -41,6 +42,11 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
     bool keyPressed (const juce::KeyPress& key) override;
+
+    // #63/#64: drop audio files anywhere in the Library to register them.
+    // Files are REFERENCED where they are — never converted or moved on import.
+    bool isInterestedInFileDrag (const juce::StringArray& files) override;
+    void filesDropped (const juce::StringArray& files, int x, int y) override;
 
     void grabDefaultFocus()  { searchBox.grabKeyboardFocus(); }
 
@@ -65,6 +71,7 @@ private:
     void updateBulkBar();
 
     void playItem (int row);
+    void duplicateForRow (juce::int64 id);   // #20
     void renameDialogForId (juce::int64 id);
     void deleteSelected();
     void favoriteSelected();

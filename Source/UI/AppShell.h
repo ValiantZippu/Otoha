@@ -10,6 +10,7 @@
 #include "../Library/LibraryService.h"
 #include "OnboardingView.h"
 #include "EditorView.h"
+#include "HomeView.h"
 #include "LibraryView.h"
 #include "RecordView.h"
 #include "SoundView.h"
@@ -36,6 +37,7 @@ public:
     otoha::ExportSettingsStore exportStore;
 
 private:
+    void showHome();
     void showLibrary();
     void showRecording();
     void showEditor();
@@ -47,9 +49,10 @@ private:
     otoha::AppSettings* settings = nullptr;
     otoha::ExportManager exportManager;
 
-    juce::TextButton libraryButton { "Library" }, recordButton { "Record" },
+    juce::TextButton studioButton { "Studio" }, libraryButton { "Library" }, recordButton { "Record" },
                      soundButton { "Sound" }, cameraButton { "Camera" }, settingsButton { "Settings" };
 
+    std::unique_ptr<HomeView> homeView;
     std::unique_ptr<RecordView> recordView;
     std::unique_ptr<LibraryView> libraryView;
     std::unique_ptr<EditorView> editorView;

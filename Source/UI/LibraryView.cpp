@@ -444,6 +444,7 @@ void LibraryView::showContextMenuFor (int row)
     menu.addItem (7, "Open in Editor");
     menu.addSeparator();
     menu.addItem (2, "Rename...");
+    menu.addItem (8, "Duplicate");
     menu.addItem (3, item->favorite ? "Unfavorite" : "Favorite");
     menu.addItem (4, "Export...");
     menu.addItem (5, "Show in Folder");
@@ -470,6 +471,7 @@ void LibraryView::showContextMenuFor (int row)
                                 }
                                 case 2: renameDialogForId (id); break;
                                 case 7: openInEditor (library.get (id)); break;
+                                case 8: duplicateForRow (id); break;
                                 case 3:
                                     library.setFavorite (id, ! library.get (id).favorite);
                                     refreshItems();
@@ -487,6 +489,56 @@ void LibraryView::showContextMenuFor (int row)
                                 default: break;
                             }
                         });
+}
+
+// -----------------------------------------------------------------------------
+// #20 Duplicate — an independent copy; the original is never touched.
+// -----------------------------------------------------------------------------
+void LibraryView::duplicateForRow (juce::int64 id)
+{
+    const auto newId = library.duplicateMedia (id);
+    if (newId == 0)
+    {
+        juce::AlertWindow::showMessageBoxAsync (
+            juce::MessageBoxIconType::WarningIcon, "Couldn't duplicate recording",
+            "The copy could not be created.\nCheck free disk space and try again.");   // #71
+        return;
+    }
+    refreshItems();
+}
+
+// -----------------------------------------------------------------------------
+// #63-#65 Drag-and-drop import — reference in place, friendly on failure.
+// -----------------------------------------------------------------------------
+bool LibraryView::isInterestedInFileDrag (const juce::StringArray& files)
+{
+    return ! files.isEmpty();
+}
+
+void LibraryView::filesDropped (const juce::StringArray& files, int /*x*/, int /*y*/)
+{
+    int imported = 0;
+    juce::StringArray unsupported;
+
+    for (const auto& f : files)
+    {
+        const auto file = juce::File (f);
+        if (! file.existsAsFile()) continue;
+
+        // #64: register the external file where it lives — no conversion,
+        // no move, original stays untouched. The startup scan also tolerates
+        // these references going missing later (#66).
+        if (library.registerAudioFile (file) != 0) ++imported;
+        else                                       unsupported.add (file.getFileName());
+    }
+
+    refreshItems();
+
+    if (! unsupported.isEmpty())
+        juce::AlertWindow::showMessageBoxAsync (
+            juce::MessageBoxIconType::InfoIcon, "Some files weren't imported",
+            "Otoha can't open this audio format:\n"
+            + unsupported.joinIntoString ("\n"));   // #65
 }
 
 void LibraryView::renameDialogForId (juce::int64 id)
