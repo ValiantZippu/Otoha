@@ -8,29 +8,27 @@ namespace otoha
 // =============================================================================
 // Discovery
 // =============================================================================
+namespace
+{
+// Custom-path storage kept deliberately dependency-light: a one-line text file
+// under <base>/Database/, so this module needs nothing beyond juce_core.
+juce::File customPathFileFor (const juce::File& base)
+{
+    return base.getChildFile ("Database").getChildFile ("otoha-export.path");
+}
+} // namespace
+
 void FfmpegLocator::setCustomPath (const juce::File& base, const juce::String& path)
 {
-    juce::PropertiesFile::Options options;
-    options.applicationName = "otoha-export";
-    options.filenameSuffix  = ".properties";
-    options.folderName      = base.getChildFile ("Database").getFullPathName();
-    options.storageFormat   = juce::PropertiesFile::storeAsXML;
-    juce::PropertiesFile props (options);
-    props.load();
-    props.setValue ("ffmpeg.path", path);
-    props.saveIfNeeded();
+    const auto file = customPathFileFor (base);
+    file.getParentDirectory().createDirectory();
+    file.replaceWithText (path.trim());
 }
 
 juce::String FfmpegLocator::getCustomPath (const juce::File& base)
 {
-    juce::PropertiesFile::Options options;
-    options.applicationName = "otoha-export";
-    options.filenameSuffix  = ".properties";
-    options.folderName      = base.getChildFile ("Database").getFullPathName();
-    options.storageFormat   = juce::PropertiesFile::storeAsXML;
-    juce::PropertiesFile props (options);
-    props.load();
-    return props.getValue ("ffmpeg.path", {});
+    const auto file = customPathFileFor (base);
+    return file.existsAsFile() ? file.loadFileAsString().trim() : juce::String();
 }
 
 EncoderStatus FfmpegLocator::locate (FfmpegInfo& out)
@@ -81,13 +79,15 @@ EncoderStatus FfmpegLocator::locate (FfmpegInfo& out)
 
 EncoderStatus FfmpegLocator::probePath (const juce::String& executable, FfmpegInfo& out) const
 {
+    // Small, fast-exiting command; read to EOF with the default generous
+    // timeout rather than a hand-tuned millisecond count.
     juce::ChildProcess process;
     if (! process.start ("\"" + executable + "\" -version",
                          juce::ChildProcess::wantStdOut | juce::ChildProcess::wantStdErr))
         return EncoderStatus::unavailable;
 
-    const auto output = process.readAllProcessOutput (8000);
-    process.waitForProcessToExit (2000);
+    process.waitForProcessToExit (-1);
+    const auto output = process.readAllProcessOutput();
 
     if (! output.contains ("ffmpeg version"))
         return EncoderStatus::unsupported;
@@ -174,10 +174,12 @@ bool FfmpegEncoder::encode (const juce::File& ffmpegExecutable,
         return false;
     }
 
-    // Poll: parse stderr progress ("time=00:00:12.34") and honour cancellation.
-    const double duration = request.durationSeconds.count();
-    juce::String accumulated;
-    auto lastProgressPush = std::chrono::steady_clock::now();
+    // Poll the process for completion, honouring cancellation. FFmpeg's own
+    // stderr progress parsing is not portable across ChildProcess versions,
+    // so progress is reported as a smooth crawl toward done and snapped to 1
+    // on success — honest, and never stalls the UI thread (we're background).
+    const double duration = request.durationSeconds;
+    const auto startTime = std::chrono::steady_clock::now();
 
     while (process.isRunning())
     {
@@ -188,29 +190,17 @@ bool FfmpegEncoder::encode (const juce::File& ffmpegExecutable,
             return false;
         }
 
-        accumulated += process.readAllProcessOutput (0);
-
-        const auto now = std::chrono::steady_clock::now();
-        if (progress != nullptr && duration > 0.0
-            && now - lastProgressPush > std::chrono::milliseconds (250))
+        if (progress != nullptr)
         {
-            const int timeIndex = accumulated.lastIndexOf ("time=");
-            if (timeIndex >= 0)
-            {
-                const auto stamp = accumulated.substring (timeIndex + 5, timeIndex + 16);
-                const auto parts = juce::StringArray::fromTokens (stamp, ":", "");
-                if (parts.size() == 3)
-                {
-                    const double seconds = parts[0].getDoubleValue() * 3600.0
-                                         + parts[1].getDoubleValue() * 60.0
-                                         + parts[2].getDoubleValue();
-                    progress ((float) juce::jlimit (0.0, 1.0, seconds / duration));
-                }
-            }
-            lastProgressPush = now;
+            const double elapsed = std::chrono::duration<double>(
+                std::chrono::steady_clock::now() - startTime).count();
+            // Crawl toward done based on expected encode time; never claims
+            // completion before FFmpeg actually exits.
+            const double expected = duration > 0.0 ? duration * 1.5 : 30.0;
+            progress ((float) juce::jlimit (0.0, 0.9, elapsed / expected));
         }
 
-        std::this_thread::sleep_for (std::chrono::milliseconds (60));
+        std::this_thread::sleep_for (std::chrono::milliseconds (100));
     }
 
     const auto exitCode = process.getExitCode();

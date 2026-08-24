@@ -167,10 +167,10 @@ void EnhancePanel::changed()
     const auto selected = (otoha::DspPreset) juce::jmax (0, presetCombo.getSelectedItemIndex());
     const int nameIndex = presetCombo.getSelectedItemIndex();
     if (nameIndex > 0 && otoha::stateDiffersFromPreset (state, selected))
-        presetCombo.setItemText (nameIndex + 1,
+        presetCombo.changeItemText (nameIndex + 1,
                                  otoha::presetToString (selected) + " *");
     else if (nameIndex >= 0)
-        presetCombo.setItemText (nameIndex + 1, otoha::presetToString (selected));
+        presetCombo.changeItemText (nameIndex + 1, otoha::presetToString (selected));
 
     repaint();
 }
@@ -189,7 +189,7 @@ void EnhancePanel::timerCallback()
     const bool differs = otoha::stateDiffersFromPreset (state, p);
     const juce::String wanted = otoha::presetToString (p) + (differs ? " *" : "");
     if (presetCombo.getItemText (idx) != wanted)
-        presetCombo.setItemText (idx + 1, wanted);
+        presetCombo.changeItemText (idx + 1, wanted);
 }
 
 void EnhancePanel::paint (juce::Graphics& g)

@@ -63,7 +63,7 @@ public:
         int bitrateKbps = 160;
         double sourceSampleRate = 48000.0;
         int channels = 2;
-        juce::double_sec durationSeconds { 0.0 };
+        double durationSeconds = 0.0;   // plain seconds (no JUCE duration type needed)
         juce::String titleMetadata;   // -metadata title=... where supported
     };
 

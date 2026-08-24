@@ -187,7 +187,14 @@ std::vector<AudioDeviceInfo> WindowsAudioBackend::getDevices() const
     collection->GetCount (&count);
 
     LPWSTR defaultId = nullptr;
-    impl->enumerator->GetDefaultAudioEndpoint (eRender, eMultimedia, &defaultId);
+    {
+        // GetDefaultAudioEndpoint hands back an IMMDevice, not a string id;
+        // resolve it to the endpoint id we compare against below.
+        ComPtr<IMMDevice> defaultDevice;
+        if (SUCCEEDED (impl->enumerator->GetDefaultAudioEndpoint (eRender, eMultimedia, &defaultDevice))
+            && defaultDevice.ptr != nullptr)
+            defaultDevice.ptr->GetId (&defaultId);
+    }
 
     for (UINT i = 0; i < count; ++i)
     {

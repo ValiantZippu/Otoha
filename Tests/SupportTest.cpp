@@ -2,7 +2,7 @@
     SupportTest — headless verification of naming, save-location and duration
     helpers (device independent).
 */
-#include "../../Source/Core/RecordingSupport.h"
+#include "../Source/Core/RecordingSupport.h"
 
 #include <cstdio>
 

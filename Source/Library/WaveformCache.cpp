@@ -112,7 +112,7 @@ void WaveformCache::generate (otoha::MediaItem item)
     const juce::int64 totalFrames = reader->lengthInSamples;
     constexpr int framesPerChunk = 1 << 16;
 
-    juce::AudioBuffer<int> chunk ((int) juce::jmax ((juce::int64) 1, reader->numChannels), framesPerChunk);
+    juce::AudioBuffer<float> chunk ((int) juce::jmax (1, (int) reader->numChannels), framesPerChunk);
 
     for (juce::int64 pos = 0; pos < totalFrames; pos += framesPerChunk)
     {
@@ -127,8 +127,7 @@ void WaveformCache::generate (otoha::MediaItem item)
             {
                 const size_t bucket = (size_t) juce::jlimit (0, numBuckets - 1,
                     (int) (((pos + i) * (juce::int64) numBuckets) / totalFrames));
-                magnitudes[bucket] = juce::jmax (magnitudes[bucket],
-                                                 std::abs ((float) samples[i] / 2147483648.0f));
+                magnitudes[bucket] = juce::jmax (magnitudes[bucket], std::abs (samples[i]));
             }
         }
     }

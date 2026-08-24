@@ -82,7 +82,7 @@ public:
         if (out == nullptr) return false;
         out->setPosition (0);
         out->truncate();
-        out->writeText (juce::JSON::toString (juce::var (root)), false, false);
+        out->writeText (juce::JSON::toString (juce::var (root)), false, false, "\n");
         out->flush();
         out.reset();
 

@@ -20,17 +20,14 @@ bool expect (bool condition, const char* message)
 juce::File writeTestWav (const juce::File& dir, const juce::String& name,
                          int seconds = 1, double rate = 48000.0)
 {
-    static thread_local juce::AudioFormatManager formats;
-    if (formats.getNumKnownFormats() == 0)
-        formats.registerBasicFormats();
+    juce::WavAudioFormat wavFormat;
 
     const auto file = dir.getChildFile (name);
-    std::unique_ptr<juce::FileOutputStream> stream (file.createOutputStream());
+    auto stream = file.createOutputStream();
     if (stream == nullptr) return {};
 
     std::unique_ptr<juce::AudioFormatWriter> writer (
-        formats.findFormatForExtension ("wav")->createWriterFor (
-            stream.release(), rate, 1, 16, {}, 0));
+        wavFormat.createWriterFor (stream, rate, 1, 16, {}, 0));
     if (writer == nullptr) return {};
 
     juce::AudioBuffer<float> silence (1, (int) (seconds * rate));

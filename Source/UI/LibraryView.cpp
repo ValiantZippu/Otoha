@@ -153,7 +153,7 @@ public:
             + "\nBit Depth    " + (item.bitDepth > 0 ? juce::String (item.bitDepth) + "-bit" : "—")
             + "\nChannels     " + (item.channels >= 2 ? "Stereo" : item.channels == 1 ? "Mono" : "—")
             + "\nSize         " + sizeMb + " MB"
-            + "\nCreated      " + item.createdAt.toString ("%Y-%m-%d %H:%M"),
+            + "\nCreated      " + item.createdAt.formatted ("%Y-%m-%d %H:%M"),
             juce::dontSendNotification);
     }
 

@@ -18,7 +18,7 @@ juce::File recordingsDirectory()
 juce::String makeRecordingFileName (const juce::Time& t)
 {
     // Colons are illegal on Windows; dashes keep the stamp readable and portable.
-    return t.toString ("%Y-%m-%d %H-%M-%S") + ".wav";
+    return t.formatted ("%Y-%m-%d %H-%M-%S") + ".wav";
 }
 
 juce::File uniqueRecordingFile (const juce::File& directory, const juce::Time& t)

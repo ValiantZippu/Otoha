@@ -2,7 +2,7 @@
     StateMachineTest — headless verification of the recording transition rules
     (no audio device required).
 */
-#include "../../Source/Audio/RecordingState.h"
+#include "../Source/Audio/RecordingState.h"
 
 #include <cstdio>
 

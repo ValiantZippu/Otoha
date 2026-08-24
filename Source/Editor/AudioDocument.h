@@ -76,7 +76,8 @@ public:
 
         bool isEmpty() const       { return end <= start; }
         juce::int64 length() const { return juce::jmax ((juce::int64) 0, end - start); }
-        void normalize()           { if (end < start) std::swap (start, end); clamp(); }
+        void clear()               { start = 0; end = 0; }
+        void normalize()           { if (end < start) std::swap (start, end); }
         void clampTo (juce::int64 total)
         {
             start = juce::jlimit ((juce::int64) 0, total, start);

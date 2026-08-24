@@ -198,15 +198,14 @@ bool AudioExporter::exportAudio (const AudioExportRequest& request,
                                   || request.channelOverride > 0;
 
         if (needsConversion)
-        {
-            auto converted = convertIfNeeded (doc, request.dsp,
+        {            auto converted = convertIfNeeded (doc, request.dsp,
                                               request.sampleRateOverride, request.channelOverride);
 
-            std::unique_ptr<juce::FileOutputStream> stream (temps.b.createOutputStream());
+            auto stream = temps.b.createOutputStream();
             std::unique_ptr<juce::AudioFormatWriter> writer (
-                stream.isNotNull()
-                    ? format.createWriterFor (stream.release(),
-                                              request.sampleRateOverride > 0
+                stream != nullptr
+                    ? format.createWriterFor (stream,
+                                                  request.sampleRateOverride > 0
                                                   ? (double) request.sampleRateOverride : doc->getSampleRate(),
                                               (unsigned int) juce::jmax (1, converted.getNumChannels()),
                                               (unsigned int) bitsPerSample, {}, 0)
@@ -219,10 +218,10 @@ bool AudioExporter::exportAudio (const AudioExportRequest& request,
         }
         else
         {
-            std::unique_ptr<juce::FileOutputStream> stream (temps.b.createOutputStream());
+            auto stream = temps.b.createOutputStream();
             std::unique_ptr<juce::AudioFormatWriter> writer (
-                stream.isNotNull()
-                    ? format.createWriterFor (stream.release(), doc->getSampleRate(),
+                stream != nullptr
+                    ? format.createWriterFor (stream, doc->getSampleRate(),
                                               (unsigned int) juce::jmax (1, doc->getNumChannels()),
                                               (unsigned int) bitsPerSample, {}, 0)
                     : nullptr);
@@ -234,7 +233,7 @@ bool AudioExporter::exportAudio (const AudioExportRequest& request,
         }
 
         if (ok)
-            ok = writerFinaliseAndMove (*temps.b, destination, errorOut);
+            ok = writerFinaliseAndMove (temps.b, destination, errorOut);
     }
     else
     {
@@ -243,12 +242,12 @@ bool AudioExporter::exportAudio (const AudioExportRequest& request,
         int sourceChans = 0;
 
         // Intermediate WAV always at source rate/channels (no double conversion).
-        std::unique_ptr<juce::FileOutputStream> stream (temps.a.createOutputStream());
+        auto stream = temps.a.createOutputStream();
         std::unique_ptr<juce::AudioFormatWriter> wavWriter;
-        if (stream.isNotNull())
+        if (stream != nullptr)
         {
             juce::WavAudioFormat wav;
-            wavWriter.reset (wav.createWriterFor (stream.release(), doc->getSampleRate(),
+            wavWriter.reset (wav.createWriterFor (stream, doc->getSampleRate(),
                                                   (unsigned int) juce::jmax (1, doc->getNumChannels()),
                                                   24u, {}, 0));
         }
@@ -269,7 +268,7 @@ bool AudioExporter::exportAudio (const AudioExportRequest& request,
         enc.bitrateKbps = bitrateKbpsFor (request.format, request.quality);
         enc.sourceSampleRate = doc->getSampleRate();
         enc.channels = doc->getNumChannels();
-        enc.durationSeconds = juce::double_sec ((double) doc->totalSamples() / doc->getSampleRate());
+        enc.durationSeconds = (double) doc->totalSamples() / doc->getSampleRate();
         enc.titleMetadata = request.titleMetadata;
 
         ok = FfmpegEncoder::encode (ffmpegExecutable, temps.a, temps.b, enc, cancelFlag,

@@ -4,8 +4,6 @@
 
 #include <juce_core/juce_core.h>
 
-#include <juce_core/juce_core.h>
-
 /*
     ProfileStorage — persists Otoha Sound device profiles as JSON.
 
@@ -72,7 +70,7 @@ inline bool saveProfiles (const platform::ProfileManager& manager, const juce::F
 
     out->setPosition (0);
     out->truncate();
-    out->writeText (juce::JSON::toString (juce::var (arr)), false, false);
+    out->writeText (juce::JSON::toString (juce::var (arr)), false, false, "\n");
     out->flush();
     out.reset();
 

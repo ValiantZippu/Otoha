@@ -55,6 +55,14 @@ inline juce::File settingsFileIn (const juce::File& directory)
     return directory.getChildFile ("settings.json");
 }
 
+/** DynamicObject::getProperty takes a single argument in current JUCE; this
+    restores the convenient "value or default" form via the NamedValueSet. */
+inline juce::var propOr (const juce::DynamicObject& o, const juce::Identifier& id,
+                         juce::var fallback = {})
+{
+    return o.getProperties().getWithDefault (id, fallback);
+}
+
 // --- JSON round-trip ---------------------------------------------------------
 
 inline juce::var settingsToVar (const AppSettings& s)
@@ -100,12 +108,12 @@ inline AppSettings settingsFromVar (const juce::var& v)
     if (obj == nullptr)
         return s;
 
-    s.configVersion       = (int) obj->getProperty ("configVersion", kCurrentConfigVersion);
-    s.firstLaunchComplete = (bool) (int) obj->getProperty ("firstLaunchComplete", 0);
-    s.startWithSystem     = (bool) (int) obj->getProperty ("startWithSystem", 0);
-    s.lastRunVersion      = obj->getProperty ("lastRunVersion", {}).toString();
+    s.configVersion       = (int) propOr (*obj, "configVersion", kCurrentConfigVersion);
+    s.firstLaunchComplete = (bool) (int) propOr (*obj, "firstLaunchComplete", 0);
+    s.startWithSystem     = (bool) (int) propOr (*obj, "startWithSystem", 0);
+    s.lastRunVersion      = propOr (*obj, "lastRunVersion").toString();
 
-    const auto snd = obj->getProperty ("sound", {});
+    const auto snd = propOr (*obj, "sound");
     s.sound.enabled            = (bool) (int) snd.getProperty ("enabled", 0);
     s.sound.enhanceAmount      = (float) (double) snd.getProperty ("enhanceAmount", 1.0);
     s.sound.presetName         = snd.getProperty ("presetName", "Natural").toString();
@@ -144,7 +152,7 @@ inline bool saveAppSettings (const AppSettings& s, const juce::File& directory)
     if (out == nullptr) return false;
     out->setPosition (0);
     out->truncate();
-    out->writeText (juce::JSON::toString (settingsToVar (s)), false, false);
+    out->writeText (juce::JSON::toString (settingsToVar (s)), false, false, "\n");
     out->flush();
     out.reset();
 

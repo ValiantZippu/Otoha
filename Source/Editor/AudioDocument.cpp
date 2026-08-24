@@ -11,30 +11,22 @@ namespace
 {
 constexpr int decodeChunkFrames = 1 << 16;
 
-/** Converts a whole file to float samples via the int reader path (always available). */
+/** Reads a whole file into float samples via the float reader path
+    (AudioBuffer<float> overload — the only one current JUCE provides). */
 juce::AudioBuffer<float> readWholeFile (juce::AudioFormatReader& reader, juce::String& errorOut)
 {
     const int channels = (int) reader.numChannels;
     const auto total = reader.lengthInSamples;
 
     juce::AudioBuffer<float> result (channels, (int) total);
-    juce::AudioBuffer<int> chunk (channels, decodeChunkFrames);
 
     for (juce::int64 pos = 0; pos < total; pos += decodeChunkFrames)
     {
         const int frames = (int) juce::jmin ((juce::int64) decodeChunkFrames, total - pos);
-        if (! reader.read (&chunk, 0, frames, pos, true, true))
+        if (! reader.read (&result, 0, frames, pos, true, true))
         {
             errorOut = "Couldn't open this recording.\nThe file could not be read correctly.";
             return {};
-        }
-
-        for (int ch = 0; ch < channels; ++ch)
-        {
-            const auto* src = chunk.getReadPointer (ch);
-            auto* dst = result.getWritePointer (ch, (int) pos);
-            for (int i = 0; i < frames; ++i)
-                dst[i] = (float) ((double) src[i] / 2147483648.0);
         }
     }
     return result;
@@ -70,7 +62,7 @@ bool AudioDocument::loadFromFile (const juce::File& file, juce::String& errorOut
 AudioDocument::AudioDocument (juce::AudioBuffer<float> data, double rate)
     : source (std::move (data)), sampleRate (rate)
 {
-    if (! source.isEmpty())
+    if (source.getNumSamples() > 0)
         clips.push_back ({ 0, source.getNumSamples() });
 }
 
@@ -196,7 +188,7 @@ void AudioDocument::applyClips (std::vector<Clip> newClips)
     }
 
     clips = std::move (newClips);
-    selection.clearSelection();
+    selection.clear();
 }
 
 void AudioDocument::rippleDelete (juce::int64 start, juce::int64 length)
@@ -363,7 +355,7 @@ void AudioDocument::undo()
     redoStack.push_back (clips);
     clips = std::move (undoStack.back());
     undoStack.pop_back();
-    selection.clearSelection();
+    selection.clear();
     ++version;
     modified = true;
 }
@@ -376,7 +368,7 @@ void AudioDocument::redo()
     undoStack.push_back (clips);
     clips = std::move (redoStack.back());
     redoStack.pop_back();
-    selection.clearSelection();
+    selection.clear();
     ++version;
     modified = true;
 }
@@ -430,7 +422,7 @@ bool AudioDocument::fromJSON (const juce::var& state)
     }
 
     clips = std::move (parsed);
-    selection.clearSelection();
+    selection.clear();
 
     // Restore processing state if present (older sidecars simply keep defaults).
     processing = ProcessingState::fromJSON (state.getProperty ("dsp", {}));

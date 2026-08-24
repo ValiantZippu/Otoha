@@ -266,8 +266,12 @@ void Recorder::writerThreadLoop()
         const int numChannels = juce::jmin (activeWriter->getNumChannels(), fifoBuffer.getNumChannels());
         auto writeRange = [&] (int start, int numSamples)
         {
+            // Write-pointer access on our own FIFO is intentional: the writer
+            // thread owns this data between prepareToRead/finishedRead, and
+            // AudioFormatWriter::write plus the thumbnail's wrapping buffer
+            // both need mutable pointers.
             for (int ch = 0; ch < numChannels; ++ch)
-                channels[ch] = fifoBuffer.getReadPointer (ch, start);
+                channels[ch] = fifoBuffer.getWritePointer (ch, start);
 
             if (! activeWriter->write (channels, numSamples))
                 failureReason.store (otoha::FailureReason::diskFull, std::memory_order_relaxed);
