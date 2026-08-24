@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <memory>
 #include <vector>
 
@@ -49,10 +50,16 @@ public:
     /** Safe snapshot for UI polling (atomics underneath). */
     Meters getMeters() const;
 
+    /** M12 #12: NaN/Inf guard. Every processed block is scanned at the chain
+        output; non-finite samples are replaced with 0.0 and counted here so a
+        broken processor can never poison the renderer or the export. */
+    juce::uint32 invalidSampleCount() const { return invalidSamples.load (std::memory_order_relaxed); }
+
 private:
     std::vector<std::unique_ptr<dsp::DspProcessor>> chain;
     dsp::MeterProcessor* meterTap = nullptr;   // non-owning; owned by `chain`
     bool prepared = false;
     int preparedChannelCount = 0;
+    std::atomic<juce::uint32> invalidSamples { 0 };
 };
 } // namespace otoha

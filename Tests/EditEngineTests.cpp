@@ -248,6 +248,93 @@ int main()
         dest.deleteFile();
     }
 
+    // --- M13 #14/#15: timeline edge cases -------------------------------------
+    {
+        juce::String errorSink;
+
+        // delete at start
+        {
+            auto doc = makeABCD();
+            doc->rippleDelete (0, blockSamples);
+            ok &= expect (timelineEqualsBlocks (*doc, "BCD"), "delete at start removes A");
+        }
+
+        // delete at end (length past EOF is clamped)
+        {
+            auto doc = makeABCD();
+            doc->rippleDelete (blockSamples * 3, blockSamples * 99);
+            ok &= expect (timelineEqualsBlocks (*doc, "ABC"), "delete at end is clamped to source length");
+        }
+
+        // delete ENTIRE recording: applyClips refuses an empty timeline, so the
+        // document must stay valid and unchanged (#15 — no zero-sample state)
+        {
+            auto doc = makeABCD();
+            doc->rippleDelete (0, doc->totalSamples());
+            ok &= expect (timelineEqualsBlocks (*doc, "ABCD"),
+                          "deleting everything is refused; timeline stays intact");
+            ok &= expect (! doc->canUndo(), "refused edit leaves no dangling undo entry");
+        }
+
+        // zero-length delete / empty selection are no-ops
+        {
+            auto doc = makeABCD();
+            const auto versionBefore = doc->getVersion();
+            doc->rippleDelete (blockSamples, 0);
+            ok &= expect (doc->getVersion() == versionBefore && timelineEqualsBlocks (*doc, "ABCD"),
+                          "zero-length delete changes nothing");
+            doc->setSelection (700, 700);
+            doc->trimToSelection();
+            ok &= expect (timelineEqualsBlocks (*doc, "ABCD"),
+                          "trim with empty selection changes nothing");
+        }
+
+        // selection larger than source clamps instead of crashing
+        {
+            auto doc = makeABCD();
+            doc->setSelection (-5000, 999999);
+            const auto sel = doc->getSelection();
+            ok &= expect (sel.start == 0 && sel.end == doc->totalSamples(),
+                          "oversized selection clamps to the document");
+        }
+
+        // paste at beginning / end + undo + redo invalidation (#14)
+        {
+            auto doc = makeABCD();
+            AudioClipboard clip;
+            doc->setSelection (blockSamples, blockSamples * 2);   // B
+            doc->cutSelectedRange (clip);                          // A D
+
+            doc->pasteAt (0, clip, errorSink);                     // B C A D
+            ok &= expect (timelineEqualsBlocks (*doc, "BCAD")
+                              && std::abs (firstSampleOfRegion (*doc, 0) - 0.2f) < 0.001f,
+                          "paste at beginning inserts before everything");
+
+            doc->undo();
+            ok &= expect (timelineEqualsBlocks (*doc, "AD"), "undo after paste restores prior state");
+
+            doc->redo();
+            ok &= expect (timelineEqualsBlocks (*doc, "BCAD"), "redo after undo reapplies paste");
+
+            doc->rippleDelete (0, blockSamples);                   // fresh edit -> C A D
+            ok &= expect (! doc->canRedo(), "a new edit invalidates the redo branch");
+            ok &= expect (timelineEqualsBlocks (*doc, "CAD"), "post-redo-invalidation state correct");
+
+            // paste at the very end
+            doc->pasteAt (doc->totalSamples(), clip, errorSink);   // A D B
+            ok &= expect (std::abs (firstSampleOfRegion (*doc, doc->totalSamples() - 1) - 0.3f) < 0.001f,
+                          "paste at end appends after everything");
+        }
+
+        // reading zero samples from a valid document is safe (#15)
+        {
+            auto doc = makeABCD();
+            const auto empty = doc->readRangeToBuffer (0, 0);
+            ok &= expect (empty.getNumSamples() == 0,
+                          "zero-frame reads return an empty buffer without error");
+        }
+    }
+
     if (! ok) return 1;
     std::printf ("PASS: editing engine\n");
     return 0;
