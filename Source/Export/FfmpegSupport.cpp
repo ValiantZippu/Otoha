@@ -141,6 +141,20 @@ bool FfmpegEncoder::encode (const juce::File& ffmpegExecutable,
     // Raw PCM in via pipe would be ideal long-term; today JUCE's ChildProcess
     // cannot write to stdin, so we feed a verified intermediate file instead —
     // correctness first (#36 allows this fallback explicitly).
+
+    // M15 #72 hardening: we build one quoted command string for ChildProcess.
+    // A path containing an embedded double-quote could terminate its quoting
+    // section early on Unix shells. Windows filenames cannot contain '"', and
+    // Otoha's own temp/intermediate names never do — but a user-chosen
+    // destination on macOS/Linux could. Refuse rather than escape-and-pray.
+    if (intermediateAudio.getFullPathName().containsChar ('"')
+        || destination.getFullPathName().containsChar ('"'))
+    {
+        errorOut = "Couldn't export to that location.\n"
+                   "Please choose a destination whose path doesn't contain quote characters.";
+        return false;
+    }
+
     juce::String command;
     command << "\"" << ffmpegExecutable << "\""
             << " -hide_banner -loglevel info -y"
