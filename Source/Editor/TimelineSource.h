@@ -20,6 +20,9 @@ class TimelineSource : public juce::PositionableAudioSource
 public:
     explicit TimelineSource (std::shared_ptr<const otoha::AudioDocument> document);
 
+    void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;
+    void releaseResources() override;
+
     void getNextAudioBlock (const juce::AudioSourceChannelInfo&) override;
     void setNextReadPosition (juce::int64 newPosition) override;
     juce::int64 getNextReadPosition() const override;

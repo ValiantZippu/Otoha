@@ -29,8 +29,7 @@ ExportSettingsStore::ExportSettingsStore (const juce::File& otohaBaseDirectory)
     options.filenameSuffix      = ".properties";
     options.folderName          = otohaBaseDirectory.getChildFile ("Database").getFullPathName();
     options.storageFormat       = juce::PropertiesFile::storeAsXML;
-    properties.setOptions (options);
-    properties.load();
+    properties = std::make_unique<juce::PropertiesFile> (options);   // loads existing file
 }
 
 ExportFormat ExportSettingsStore::getLastFormat() const

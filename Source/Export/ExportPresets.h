@@ -3,6 +3,8 @@
 #include <juce_core/juce_core.h>
 #include <juce_data_structures/juce_data_structures.h>   // juce::PropertiesFile
 
+#include <memory>
+
 #include "ExportTypes.h"
 
 /*
@@ -43,6 +45,6 @@ public:
     void remember (ExportFormat f, ExportQuality q, const juce::File& directory);
 
 private:
-    juce::PropertiesFile properties;
+    std::unique_ptr<juce::PropertiesFile> properties;
 };
 } // namespace otoha
