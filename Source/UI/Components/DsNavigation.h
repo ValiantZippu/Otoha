@@ -64,7 +64,7 @@ public:
         const auto bounds = getLocalBounds().toFloat();
         const float r = (float) theme::Radius::medium;
 
-        // background states
+        // background states (Kaiteyo DsNavItem)
         if (isEnabled())
         {
             if (isMouseButtonDown())
@@ -74,18 +74,20 @@ public:
             }
             else if (isMouseOver() && ! active)
             {
-                g.setColour (theme::colors::surfaceHover());
+                // Kaiteyo: surfaceInteractive at 60% alpha
+                g.setColour (theme::colors::surfaceHover().withAlpha (0.6f));
                 g.fillRoundedRectangle (bounds, r);
             }
             else if (active)
             {
-                g.setColour (theme::colors::accentSoft());
+                // Kaiteyo: accent.primary at 16% alpha
+                g.setColour (theme::colors::accent().withAlpha (0.16f));
                 g.fillRoundedRectangle (bounds, r);
 
-                // accent indicator bar on the left
+                // accent indicator bar on the left (3dp wide, 16dp tall, 2dp radius)
                 g.setColour (theme::colors::accent());
-                g.fillRect (bounds.getX(), bounds.getY() + 6.0f,
-                            3.0f, bounds.getHeight() - 12.0f);
+                g.fillRoundedRectangle (bounds.getX(), bounds.getY() + 6.0f,
+                                        3.0f, bounds.getHeight() - 12.0f, 2.0f);
             }
         }
 
@@ -101,13 +103,13 @@ public:
                                    : theme::colors::textDisabled());
         g.fillPath (icon, icon.getTransformToScaleToFit (iconArea, true));
 
-        // label
+        // label (Kaiteyo: Body = 14sp, SemiBold when selected)
         if (labelsVisible && label_.isNotEmpty())
         {
             g.setColour (active   ? theme::colors::accent()
-                         : isEnabled() ? theme::colors::textPrimary()
+                         : isEnabled() ? theme::colors::textSecondary()
                                        : theme::colors::textDisabled());
-            g.setFont (theme::font (theme::TextSize::caption));
+            g.setFont (theme::font (theme::TextSize::body, active));
             auto labelArea = bounds.withLeft (iconArea.getRight() + 8.0f);
             g.drawText (label_, labelArea, juce::Justification::centredLeft, false);
         }
@@ -172,6 +174,7 @@ public:
         setWantsKeyboardFocus (false);
         setOpaque (true);
         setName ("Otoha Navigation");
+        setBounds (0, 0, theme::Metrics::sidebarWidth, 600);  // default size
     }
 
     ~Sidebar() override
@@ -255,14 +258,18 @@ public:
     void paint (juce::Graphics& g) override
     {
         const auto bounds = getLocalBounds().toFloat();
-        const float r = (float) theme::Radius::large;
+        const float r = (float) theme::Radius::xl;   // Kaiteyo SidebarRadius = 24dp
+
+        // accent-tinted shadow behind the floating island (Kaiteyo DsElevation.Floating)
+        g.setColour (theme::colors::accent().withAlpha (0.22f));
+        g.fillRoundedRectangle (bounds.expanded (0.0f, 4.0f).translated (0.0f, 4.0f), r);
 
         // floating panel background
-        g.setColour (theme::colors::surface());
+        g.setColour (theme::colors::surfaceElevated());
         g.fillRoundedRectangle (bounds, r);
 
-        // subtle border
-        g.setColour (theme::colors::borderSubtle());
+        // subtle border at 0.3 alpha (Kaiteyo default)
+        g.setColour (theme::colors::border().withAlpha (0.3f));
         g.drawRoundedRectangle (bounds.reduced (0.5f), r, 1.0f);
 
         // brand mark

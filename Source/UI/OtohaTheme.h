@@ -390,14 +390,15 @@ enum class TextSize { display, title, heading, body, bodySmall, caption, button 
 
 inline juce::FontOptions font (TextSize size, bool bold = false)
 {
+    // Matches Kaiteyo DsType scale exactly.
     switch (size)
     {
-        case TextSize::display:  return { 34.0f, juce::Font::bold };
-        case TextSize::title:    return { 20.0f, juce::Font::bold };
-        case TextSize::heading:  return { 16.0f, juce::Font::bold };
-        case TextSize::body:     return { 15.0f, bold };
-        case TextSize::bodySmall:return { 14.0f, bold };
-        case TextSize::caption:  return { 13.0f, bold };
+        case TextSize::display:  return { 28.0f, juce::Font::bold };
+        case TextSize::title:    return { 18.0f, juce::Font::bold };
+        case TextSize::heading:  return { 22.0f, juce::Font::bold };
+        case TextSize::body:     return { 14.0f, bold };
+        case TextSize::bodySmall:return { 12.0f, bold };
+        case TextSize::caption:  return { 11.0f, bold };
         case TextSize::button:   return { 14.0f, juce::Font::bold };
     }
     return { 14.0f, bold };
@@ -419,9 +420,11 @@ namespace Spacing
 
 namespace Radius
 {
-    inline constexpr int small  = 6;    // chips, tags
-    inline constexpr int medium = 8;    // buttons, inputs, cards
-    inline constexpr int large  = 12;   // panels, dialogs
+    inline constexpr int xs     = 4;    // checkboxes, small indicators
+    inline constexpr int small  = 8;    // buttons, inputs, small cards
+    inline constexpr int medium = 12;   // standard cards, list items
+    inline constexpr int large  = 16;   // large cards, modals
+    inline constexpr int xl     = 24;   // sidebar panel, main content
     inline constexpr int pill   = 999;  // fully rounded
 }
 
