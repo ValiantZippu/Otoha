@@ -56,7 +56,7 @@ void SoundView::buildUi()
     // --- master toggle --------------------------------------------------------
     addAndMakeVisible (powerToggle);
     powerToggle.setClickingTogglesState (true);
-    powerToggle.setColour (juce::ToggleButton::textColourId, juce::Colours::white);
+    powerToggle.setColour (juce::ToggleButton::textColourId, otoha::theme::colors::textPrimary());
     powerToggle.onClick = [this]
     {
         engine.setEnabled (powerToggle.getToggleState());
@@ -136,7 +136,7 @@ void SoundView::buildUi()
     };
 
     // --- status / meter / advanced ----------------------------------------------------
-    statusLabel.setFont (juce::FontOptions (28.0f, juce::Font::bold));
+    statusLabel.setFont (juce::FontOptions (28.0f, juce::Font::bold));   // intentional: big status readout (M18 will tokenize)
     statusLabel.setJustificationType (juce::Justification::centred);
     addAndMakeVisible (statusLabel);
 
@@ -388,9 +388,9 @@ void SoundView::updateStatusText()
     statusLabel.setText (otoha::appStateToString (lifecycle.current()),
                          juce::dontSendNotification);
     statusLabel.setColour (juce::Label::textColourId,
-                           lifecycle.current() == otoha::AppState::processing ? juce::Colours::white
-                           : lifecycle.current() == otoha::AppState::unavailable ? otoha::theme::clipRed()
-                                                                                 : otoha::theme::textSoft());
+                           lifecycle.current() == otoha::AppState::processing ? otoha::theme::colors::textPrimary()
+                           : lifecycle.current() == otoha::AppState::unavailable ? otoha::theme::colors::meterClip()
+                                                                                 : otoha::theme::colors::textSecondary());
 }
 
 // -----------------------------------------------------------------------------
@@ -500,24 +500,24 @@ void SoundView::exportDiagnosticsReport()
 
 void SoundView::paint (juce::Graphics& g)
 {
-    g.fillAll (otoha::theme::background());                       // AMOLED-friendly base
+    g.fillAll (otoha::theme::colors::background());               // AMOLED-friendly base
 
-    // Subtle sakura-pink accent band behind the header.
-    juce::ColourGradient gradient (juce::Colour (0x30ff9ecf), (float) getWidth() * 0.2f, 0.0f,
-                                   juce::Colour (0x10ff9ecf), (float) getWidth() * 0.8f, 120.0f, false);
+    // Subtle accent band behind the header.
+    juce::ColourGradient gradient (otoha::theme::colors::accent().withAlpha (0.19f), (float) getWidth() * 0.2f, 0.0f,
+                                   otoha::theme::colors::accent().withAlpha (0.06f), (float) getWidth() * 0.8f, 120.0f, false);
     g.setGradientFill (gradient);
     g.fillRect (0, 0, getWidth(), 120);
 
     // Output meter bar (#25): smoothed peak from the shared chain's meter tap.
     if (! meterRect.isEmpty())
     {
-        g.setColour (otoha::theme::card());
+        g.setColour (otoha::theme::colors::surfaceElevated());
         g.fillRoundedRectangle (meterRect.toFloat(), 4.0f);
 
         const float level = juce::jlimit (0.0f, 1.0f, meterLevel);
         auto fill = meterRect.withWidth (meterRect.getWidth() * level);
-        g.setColour (level > 0.95f ? otoha::theme::clipRed()      // clip-ish
-                                   : otoha::theme::sakura());    // sakura pink
+        g.setColour (level > 0.95f ? otoha::theme::colors::meterClip()      // clip-ish
+                                   : otoha::theme::colors::meterSafe());   // safe level
         g.fillRoundedRectangle (fill.toFloat(), 4.0f);
     }
 }

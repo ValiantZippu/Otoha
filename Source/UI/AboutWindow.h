@@ -2,6 +2,7 @@
 
 #include "../App/UpdateChecker.h"
 #include "../Core/BuildInfo.h"
+#include "OtohaTheme.h"
 
 #include <juce_gui_basics/juce_gui_basics.h>
 
@@ -50,15 +51,15 @@ inline void showAboutWindow()
     auto* content = new juce::Component();
 
     auto* title = new juce::Label ("title", "OTOHA");
-    title->setFont (juce::FontOptions (26.0f, juce::Font::bold));
+    title->setFont (otoha::theme::font (otoha::theme::TextSize::title));
     title->setJustificationType (juce::Justification::centred);
-    title->setColour (juce::Label::textColourId, juce::Colours::white);
+    title->setColour (juce::Label::textColourId, otoha::theme::colors::textPrimary());
     content->addAndMakeVisible (title);
 
     auto* subtitle = new juce::Label ("sub", "Simple audio enhancement.\n"
                                      + otoha::build::summary());   // #4 build metadata
     subtitle->setJustificationType (juce::Justification::centred);
-    subtitle->setColour (juce::Label::textColourId, juce::Colour (0xffd8c7ce));
+    subtitle->setColour (juce::Label::textColourId, otoha::theme::colors::textSecondary());
     content->addAndMakeVisible (subtitle);
 
     auto* licenses = new juce::TextEditor ("licenses");
@@ -101,7 +102,7 @@ inline void showAboutWindow()
 
     juce::DialogWindow::LaunchOptions options;
     options.dialogTitle            = "About Otoha";
-    options.dialogBackgroundColour = juce::Colour (0xff0a0a0a);
+    options.dialogBackgroundColour = otoha::theme::colors::background();
     options.content.setOwned (content);
     options.useNativeTitleBar      = true;
     options.resizable              = false;

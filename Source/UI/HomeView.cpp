@@ -14,12 +14,12 @@
 HomeView::HomeView (LibraryService& lib) : library (lib)
 {
     brand.setFont (otoha::theme::font (otoha::theme::TextSize::display));
-    brand.setColour (juce::Label::textColourId, otoha::theme::textPrimary());
+    brand.setColour (juce::Label::textColourId, otoha::theme::colors::textPrimary());
     brand.setJustificationType (juce::Justification::centred);
     addAndMakeVisible (brand);
 
     subtitle.setFont (otoha::theme::font (otoha::theme::TextSize::body));
-    subtitle.setColour (juce::Label::textColourId, otoha::theme::textMuted());
+    subtitle.setColour (juce::Label::textColourId, otoha::theme::colors::textMuted());
     subtitle.setJustificationType (juce::Justification::centred);
     addAndMakeVisible (subtitle);
 
@@ -32,13 +32,13 @@ HomeView::HomeView (LibraryService& lib) : library (lib)
     recordButton.onClick = [this] { if (onRecord) onRecord(); };
     addAndMakeVisible (recordButton);
 
-    recentHeader.setFont (otoha::theme::font (otoha::theme::TextSize::section));
-    recentHeader.setColour (juce::Label::textColourId, otoha::theme::textPrimary());
+    recentHeader.setFont (otoha::theme::font (otoha::theme::TextSize::heading));
+    recentHeader.setColour (juce::Label::textColourId, otoha::theme::colors::textPrimary());
     recentHeader.setText ("Recent", juce::dontSendNotification);
     addAndMakeVisible (recentHeader);
 
     emptyHint.setJustificationType (juce::Justification::centred);
-    emptyHint.setColour (juce::Label::textColourId, otoha::theme::textMuted());
+    emptyHint.setColour (juce::Label::textColourId, otoha::theme::colors::textMuted());
     emptyHint.setText ("No recordings yet.\nPress Record to make your first one.",
                        juce::dontSendNotification);
     addAndMakeVisible (emptyHint);
@@ -85,7 +85,7 @@ void HomeView::refreshRecents()
         row->duration.setFont (otoha::theme::font (otoha::theme::TextSize::caption));
         row->duration.setText (otoha::formatDuration (item.durationSeconds),
                                juce::dontSendNotification);
-        row->duration.setColour (juce::Label::textColourId, otoha::theme::textMuted());
+        row->duration.setColour (juce::Label::textColourId, otoha::theme::colors::textMuted());
         row->duration.setJustificationType (juce::Justification::centredRight);
         addAndMakeVisible (row->duration);
 
@@ -98,17 +98,20 @@ void HomeView::refreshRecents()
 
 void HomeView::paint (juce::Graphics& g)
 {
-    g.fillAll (otoha::theme::background());
+    g.fillAll (otoha::theme::colors::background());
 
-    juce::ColourGradient gradient (juce::Colour (0x30ff9ecf), (float) getWidth() * 0.25f, 0.0f,
-                                   juce::Colour (0x08ff9ecf), (float) getWidth() * 0.75f, 160.0f, false);
+    // Quiet accent glow behind the hero — derived from the active theme's accent.
+    juce::ColourGradient gradient (otoha::theme::colors::accent().withAlpha (0.19f),
+                                   (float) getWidth() * 0.25f, 0.0f,
+                                   otoha::theme::colors::accent().withAlpha (0.03f),
+                                   (float) getWidth() * 0.75f, 160.0f, false);
     g.setGradientFill (gradient);
     g.fillRect (0, 0, getWidth(), 160);
 }
 
 void HomeView::resized()
 {
-    auto bounds = getLocalBounds().reduced (otoha::theme::edgePadding);
+    auto bounds = getLocalBounds().reduced (otoha::theme::Spacing::xl);
     const int centreW = juce::jmin (460, bounds.getWidth());
 
     brand.setBounds    (bounds.removeFromTop (52));

@@ -1,5 +1,7 @@
 #include "RecordView.h"
 
+#include "OtohaTheme.h"
+
 #include "../Core/RecordingSupport.h"
 
 #include <cmath>
@@ -16,17 +18,18 @@ public:
     {
         auto area = getLocalBounds().toFloat().reduced (12.0f);
 
-        g.setColour (findColour (juce::ResizableWindow::backgroundColourId).contrasting (0.06f));
+        g.setColour (otoha::theme::colors::surfaceElevated());
         g.fillRoundedRectangle (area, 10.0f);
+        g.setColour (otoha::theme::colors::border());
         g.drawRoundedRectangle (area, 10.0f, 1.0f);
 
         // Friendly empty state when no input exists — never a crash or blank box.
         if (! recorder.hasInput())
         {
-            g.setColour (juce::Colours::grey);
-            g.setFont (juce::FontOptions (17.0f, juce::Font::bold));
+            g.setColour (otoha::theme::colors::textMuted());
+            g.setFont (otoha::theme::font (otoha::theme::TextSize::heading));
             g.drawText ("No microphone available.", area.withTrimmedBottom (22), juce::Justification::centred);
-            g.setFont (juce::FontOptions (14.0f));
+            g.setFont (otoha::theme::font (otoha::theme::TextSize::bodySmall));
             g.drawText ("Connect a microphone and try again.",
                         area.withTrimmedTop (22), juce::Justification::centred);
             return;
@@ -38,8 +41,8 @@ public:
 
         if (totalSeconds <= 0.0)
         {
-            g.setColour (juce::Colours::grey);
-            g.setFont (juce::FontOptions (16.0f));
+            g.setColour (otoha::theme::colors::textMuted());
+            g.setFont (otoha::theme::font (otoha::theme::TextSize::body));
             g.drawText ("Press the red button (or R) to start recording",
                         area, juce::Justification::centred);
             return;
@@ -47,7 +50,7 @@ public:
 
         // AudioThumbnail is an efficient peak-aggregated representation; it never
         // stores raw samples, so long recordings stay cheap to draw.
-        g.setColour (juce::Colour (0xff4fc3a1)); // calm mint waveform
+        g.setColour (otoha::theme::colors::waveform());
         if (thumb.getTotalLength() > 0.0)
             thumb.drawChannels (g, area.toNearestInt(), 0.0, thumb.getTotalLength(), 1.0f);
 
@@ -61,7 +64,7 @@ public:
 
         if (fraction >= 0.0 && fraction <= 1.0)
         {
-            g.setColour (juce::Colours::white.withAlpha (0.85f));
+            g.setColour (otoha::theme::colors::playhead().withAlpha (0.85f));
             g.drawVerticalLine ((int) (area.getX() + fraction * area.getWidth()),
                                 area.getY(), area.getBottom());
         }
@@ -99,7 +102,7 @@ public:
     {
         auto area = getLocalBounds().toFloat().reduced (2.0f);
 
-        g.setColour (juce::Colours::black.withAlpha (0.35f));
+        g.setColour (otoha::theme::colors::surfacePressed());
         g.fillRoundedRectangle (area, area.getHeight());
 
         const float rms  = recorder.getLevelRms();
@@ -112,16 +115,17 @@ public:
         };
 
         const auto rmsWidth = juce::jlimit (0.0f, area.getWidth(), xForDb (db (rms)) - area.getX());
-        g.setColour (recorder.hasClipped() ? juce::Colour (0xffe05252) : juce::Colour (0xff4fc3a1));
+        g.setColour (recorder.hasClipped() ? otoha::theme::colors::meterClip()
+                                           : otoha::theme::colors::meterSafe());
         g.fillRoundedRectangle (area.getX(), area.getY(), rmsWidth, area.getHeight(), area.getHeight());
 
         const auto peakX = juce::jlimit (area.getX(), area.getRight(), xForDb (db (peak)));
-        g.setColour (juce::Colours::white);
+        g.setColour (otoha::theme::colors::playhead());
         g.fillRect (peakX - 1.5f, area.getY(), 3.0f, area.getHeight());
 
         if (recorder.hasClipped())
         {
-            g.setColour (juce::Colours::red);
+            g.setColour (otoha::theme::colors::meterClip());
             g.fillEllipse (area.getRight() - area.getHeight(), area.getY(),
                            area.getHeight(), area.getHeight());
         }
@@ -173,14 +177,18 @@ RecordView::RecordView (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl,
     addAndMakeVisible (*waveform);
     addAndMakeVisible (*levelMeter);
 
-    clipLabel.setFont (juce::FontOptions (13.0f, juce::Font::bold));
-    clipLabel.setColour (juce::Label::textColourId, juce::Colour (0xffe05252));
+    clipLabel.setFont (otoha::theme::font (otoha::theme::TextSize::caption, true));
+    clipLabel.setColour (juce::Label::textColourId, otoha::theme::colors::danger());
     clipLabel.setVisible (false);
     addAndMakeVisible (clipLabel);
 
     // Big round record button (shape matched to its final size in resized()).
-    recordButton.setOnColours (juce::Colour (0xffe05252), juce::Colour (0xffc33b3b), juce::Colour (0xffa92f2f));
-    recordButton.setColours (juce::Colour (0xffe05252), juce::Colour (0xffd14646), juce::Colour (0xffc33b3b));
+    recordButton.setOnColours (otoha::theme::colors::recording(),
+                               otoha::theme::colors::recording().darker (0.12f),
+                               otoha::theme::colors::recording().darker (0.25f));
+    recordButton.setColours (otoha::theme::colors::recording(),
+                             otoha::theme::colors::recording().brighter (0.08f),
+                             otoha::theme::colors::recording().darker (0.12f));
     // M14 #5/#56: the dominant action must be reachable by name, not just sight.
     recordButton.setName ("Record");
     recordButton.setDescription ("Start recording");
@@ -206,17 +214,17 @@ RecordView::RecordView (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl,
     for (auto* b : { &editButton, &exportButton, &deleteButton })
         addAndMakeVisible (*b);
 
-    timeLabel.setFont (juce::FontOptions (26.0f, juce::Font::bold));
+    timeLabel.setFont (juce::FontOptions (26.0f, juce::Font::bold));   // intentional: big timer readout (M18 will tokenize)
     timeLabel.setJustificationType (juce::Justification::centredRight);
     addAndMakeVisible (timeLabel);
 
-    statusLabel.setFont (juce::FontOptions (13.0f));
-    statusLabel.setColour (juce::Label::textColourId, juce::Colours::grey);
+    statusLabel.setFont (otoha::theme::font (otoha::theme::TextSize::caption));
+    statusLabel.setColour (juce::Label::textColourId, otoha::theme::colors::textMuted());
     statusLabel.setText ("Ready", juce::dontSendNotification);
     addAndMakeVisible (statusLabel);
 
-    errorLabel.setFont (juce::FontOptions (13.0f));
-    errorLabel.setColour (juce::Label::textColourId, juce::Colour (0xffe08a8a));
+    errorLabel.setFont (otoha::theme::font (otoha::theme::TextSize::caption));
+    errorLabel.setColour (juce::Label::textColourId, otoha::theme::colors::danger().brighter (0.2f));
     addAndMakeVisible (errorLabel);
 
     populateDeviceCombos();
@@ -235,14 +243,14 @@ RecordView::~RecordView()
 
 void RecordView::paint (juce::Graphics& g)
 {
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+    g.fillAll (otoha::theme::colors::background());
 
-    g.setColour (juce::Colours::white);
-    g.setFont (juce::FontOptions (26.0f, juce::Font::bold));
+    g.setColour (otoha::theme::colors::textPrimary());
+    g.setFont (otoha::theme::font (otoha::theme::TextSize::title));
     g.drawText ("Otoha", 20, 14, 200, 34, juce::Justification::centredLeft);
 
-    g.setColour (juce::Colours::grey);
-    g.setFont (juce::FontOptions (13.0f));
+    g.setColour (otoha::theme::colors::textMuted());
+    g.setFont (otoha::theme::font (otoha::theme::TextSize::caption));
     g.drawText ("Record", 220, 24, 300, 20, juce::Justification::centredLeft);
 }
 

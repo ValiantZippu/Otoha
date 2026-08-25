@@ -3,6 +3,9 @@
 #include "../Core/RecordingSupport.h"
 #include "../Export/FfmpegSupport.h"
 #include "ExportUi.h"
+#include "OtohaTheme.h"
+
+using namespace otoha::theme;
 
 #include <algorithm>
 
@@ -23,11 +26,10 @@ public:
 
     void paint (juce::Graphics& g) override
     {
-        auto bounds = getLocalBounds().toFloat().reduced (8.0f, 4.0f);
+        auto bounds = getLocalBounds().toFloat().reduced ((float) Spacing::sm, (float) Spacing::xs);
 
-        g.setColour (selected ? juce::Colour (0xff2b3a36)
-                              : findColour (juce::ResizableWindow::backgroundColourId).contrasting (0.04f));
-        g.fillRoundedRectangle (bounds, 8.0f);
+        g.setColour (selected ? colors::selection() : colors::surface());
+        g.fillRoundedRectangle (bounds, (float) Radius::medium);
 
         const auto* item = view.itemForRow (row);
         if (item == nullptr)
@@ -39,7 +41,7 @@ public:
         std::vector<float> peaks;
         if (view.library.getWaveformCache().getPeaks (*item, peaks) && ! peaks.empty())
         {
-            g.setColour (juce::Colour (0xff4fc3a1));
+            g.setColour (colors::waveform());
             const float midY = waveArea.getCentreY();
             const float step = waveArea.getWidth() / (float) peaks.size();
 
@@ -52,24 +54,24 @@ public:
         }
         else if (item->type == otoha::MediaType::video)
         {
-            g.setColour (juce::Colours::darkgrey);
-            g.fillRoundedRectangle (waveArea, 6.0f);   // thumbnail placeholder until video lands
+            g.setColour (colors::surfaceHover());
+            g.fillRoundedRectangle (waveArea, (float) Radius::small);   // thumbnail placeholder until video lands
         }
         else
         {
-            g.setColour (juce::Colours::grey.withAlpha (0.35f));
-            g.setFont (juce::FontOptions (11.0f));
+            g.setColour (colors::waveformMuted());
+            g.setFont (font (TextSize::caption));
             g.drawText ("…", waveArea, juce::Justification::centred);  // generating
         }
 
         // Text block.
         auto text = bounds.reduced (10.0f, 0.0f);
-        g.setColour (juce::Colours::white);
-        g.setFont (juce::FontOptions (16.0f, juce::Font::bold));
+        g.setColour (colors::textPrimary());
+        g.setFont (font (TextSize::heading));
         g.drawText (item->displayName, text.removeFromTop (24), juce::Justification::centredLeft, true);
 
-        g.setColour (juce::Colours::grey);
-        g.setFont (juce::FontOptions (13.0f));
+        g.setColour (colors::textMuted());
+        g.setFont (font (TextSize::caption));
 
         auto infoLine = text.removeFromTop (18);
         g.drawText (otoha::formatDuration (item->durationSeconds), infoLine.removeFromLeft (70),
@@ -79,8 +81,8 @@ public:
 
         // Favorite star, far right — also a click target (see mouseDown).
         auto star = bounds.removeFromRight (34.0f);
-        g.setColour (item->favorite ? juce::Colour (0xffe8c35a) : juce::Colours::grey);
-        g.setFont (juce::FontOptions (18.0f));
+        g.setColour (item->favorite ? colors::favorite() : colors::textMuted());
+        g.setFont (font (TextSize::heading));
         g.drawText (item->favorite ? "★" : "☆", star, juce::Justification::centred);
     }
 
@@ -128,11 +130,11 @@ class LibraryView::DetailsPanel : public juce::Component
 public:
     explicit DetailsPanel (LibraryService& lib) : library (lib)
     {
-        title.setFont (juce::FontOptions (17.0f, juce::Font::bold));
+        title.setFont (font (TextSize::heading));
         title.setJustificationType (juce::Justification::centredLeft);
         addAndMakeVisible (title);
 
-        body.setFont (juce::FontOptions (13.0f));
+        body.setFont (font (TextSize::caption));
         body.setJustificationType (juce::Justification::topLeft);
         addAndMakeVisible (body);
     }
@@ -164,10 +166,11 @@ public:
 
     void paint (juce::Graphics& g) override
     {
-        auto area = getLocalBounds().toFloat().reduced (8.0f);
-        g.setColour (findColour (juce::ResizableWindow::backgroundColourId).contrasting (0.04f));
-        g.fillRoundedRectangle (area, 10.0f);
-        g.drawRoundedRectangle (area, 10.0f, 1.0f);
+        auto area = getLocalBounds().toFloat().reduced ((float) Spacing::sm);
+        g.setColour (colors::surface());
+        g.fillRoundedRectangle (area, (float) Radius::large);
+        g.setColour (colors::borderSubtle());
+        g.drawRoundedRectangle (area, (float) Radius::large, 1.0f);
     }
 
     void resized() override
@@ -198,7 +201,7 @@ LibraryView::LibraryView (LibraryService& lib, Player& pl, std::function<void()>
       exportStore (exportStoreRef)
 {
     addAndMakeVisible (searchBox);
-    searchBox.setTextToShowWhenEmpty ("Search recordings...", juce::Colours::grey);
+    searchBox.setTextToShowWhenEmpty ("Search recordings...", colors::textMuted());
     searchBox.onTextChange = [this] { refreshItems(); };
 
     for (auto* b : { &filterAll, &filterAudio, &filterVideo, &filterFavorites })
@@ -233,8 +236,8 @@ LibraryView::LibraryView (LibraryService& lib, Player& pl, std::function<void()>
     listBox.setColour (juce::ListBox::backgroundColourId, juce::Colours::transparentBlack);
     addAndMakeVisible (listBox);
 
-    selectionLabel.setFont (juce::FontOptions (13.0f));
-    selectionLabel.setColour (juce::Label::textColourId, juce::Colours::grey);
+    selectionLabel.setFont (font (TextSize::caption));
+    selectionLabel.setColour (juce::Label::textColourId, colors::textMuted());
     addAndMakeVisible (selectionLabel);
 
     for (auto* b : { &bulkFavoriteButton, &bulkExportButton, &bulkDeleteButton })
@@ -251,23 +254,23 @@ LibraryView::LibraryView (LibraryService& lib, Player& pl, std::function<void()>
     details->clear();
 
     emptyTitle.setText ("No recordings yet.", juce::dontSendNotification);
-    emptyTitle.setFont (juce::FontOptions (22.0f, juce::Font::bold));
+    emptyTitle.setFont (font (TextSize::title));
     emptyTitle.setJustificationType (juce::Justification::centred);
     addAndMakeVisible (emptyTitle);
 
     emptySubtitle.setText ("Record something with Otoha.", juce::dontSendNotification);
-    emptySubtitle.setFont (juce::FontOptions (15.0f));
+    emptySubtitle.setFont (font (TextSize::body));
     emptySubtitle.setJustificationType (juce::Justification::centred);
-    emptySubtitle.setColour (juce::Label::textColourId, juce::Colours::grey);
+    emptySubtitle.setColour (juce::Label::textColourId, colors::textMuted());
     addAndMakeVisible (emptySubtitle);
 
     emptyRecordButton.onClick = [this] { if (goToRecording) goToRecording(); };
     addAndMakeVisible (emptyRecordButton);
 
     videoEmptyLabel.setText ("No videos yet.", juce::dontSendNotification);
-    videoEmptyLabel.setFont (juce::FontOptions (18.0f));
+    videoEmptyLabel.setFont (font (TextSize::body));
     videoEmptyLabel.setJustificationType (juce::Justification::centred);
-    videoEmptyLabel.setColour (juce::Label::textColourId, juce::Colours::grey);
+    videoEmptyLabel.setColour (juce::Label::textColourId, colors::textMuted());
     addChildComponent (videoEmptyLabel);
 
     refreshItems();
@@ -280,12 +283,12 @@ void LibraryView::paint (juce::Graphics& g)
 {
     g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
 
-    g.setColour (juce::Colours::white);
-    g.setFont (juce::FontOptions (26.0f, juce::Font::bold));
-    g.drawText ("Otoha", 20, 14, 200, 34, juce::Justification::centredLeft);
+    g.setColour (colors::textPrimary());
+    g.setFont (font (TextSize::title));
+    g.drawText ("Otoha", Spacing::lg, 14, 200, 34, juce::Justification::centredLeft);
 
-    g.setColour (juce::Colours::grey);
-    g.setFont (juce::FontOptions (13.0f));
+    g.setColour (colors::textMuted());
+    g.setFont (font (TextSize::caption));
     g.drawText ("Library", 220, 24, 300, 20, juce::Justification::centredLeft);
 }
 

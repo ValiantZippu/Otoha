@@ -1,4 +1,5 @@
 #include "../Core/AppSettings.h"
+#include "../UI/OtohaTheme.h"
 #include "MainWindow.h"
 
 #include <cmath>
@@ -49,6 +50,10 @@ public:
 
         recorder = std::make_unique<Recorder> (deviceManager);
         player   = std::make_unique<Player> (deviceManager);
+
+        // M17: apply the theme's tokens to every JUCE-wide colour id so all
+        // stock widgets (menus, combos, editors, sliders…) match the design.
+        otoha::theme::applyToDesktopLookAndFeel();
 
         // Library: open/create the database and reconcile with the filesystem.
         library = std::make_unique<LibraryService> (otohaBaseDirectory());

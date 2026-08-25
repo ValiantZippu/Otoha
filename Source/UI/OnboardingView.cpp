@@ -10,14 +10,14 @@
 */
 OnboardingView::OnboardingView()
 {
-    title.setFont (juce::FontOptions (44.0f, juce::Font::bold));
+    title.setFont (juce::FontOptions (44.0f, juce::Font::bold));   // intentional: onboarding hero (M18 will tokenize)
     title.setJustificationType (juce::Justification::centred);
-    title.setColour (juce::Label::textColourId, juce::Colours::white);
+    title.setColour (juce::Label::textColourId, otoha::theme::colors::textPrimary());
     addAndMakeVisible (title);
 
     tagline.setFont (juce::FontOptions (18.0f));
     tagline.setJustificationType (juce::Justification::centred);
-    tagline.setColour (juce::Label::textColourId, otoha::theme::sakura().withAlpha (0.85f));
+    tagline.setColour (juce::Label::textColourId, otoha::theme::colors::accent().withAlpha (0.85f));
     addAndMakeVisible (tagline);
 
     getStartedButton.onClick = [this] { revealSetup(); };
@@ -26,19 +26,19 @@ OnboardingView::OnboardingView()
     // --- setup rows (hidden until Get Started) --------------------------------
     for (auto* l : { &outputLabel, &enhanceLabel, &presetLabel })
     {
-        l->setColour (juce::Label::textColourId, juce::Colours::white);
+        l->setColour (juce::Label::textColourId, otoha::theme::colors::textPrimary());
         addChildComponent (*l);
     }
 
     outputCombo.addItem ("System Default", 1);
     outputCombo.setSelectedItemIndex (0, juce::dontSendNotification);
-    outputCombo.setColour (juce::ComboBox::textColourId, juce::Colours::white);
-    outputCombo.setColour (juce::ComboBox::backgroundColourId, otoha::theme::card());
+    outputCombo.setColour (juce::ComboBox::textColourId, otoha::theme::colors::textPrimary());
+    outputCombo.setColour (juce::ComboBox::backgroundColourId, otoha::theme::colors::surfaceElevated());
     addChildComponent (outputCombo);
 
     enhanceToggle.setClickingTogglesState (true);
     enhanceToggle.setToggleState (true, juce::dontSendNotification);   // default ON
-    enhanceToggle.setColour (juce::ToggleButton::textColourId, juce::Colours::white);
+    enhanceToggle.setColour (juce::ToggleButton::textColourId, otoha::theme::colors::textPrimary());
     addChildComponent (enhanceToggle);
 
     const auto presets = otoha::allDspPresets();
@@ -46,14 +46,14 @@ OnboardingView::OnboardingView()
         if (presets.getReference (i) != otoha::DspPreset::off)
             presetCombo.addItem (otoha::presetToString (presets.getReference (i)), i + 1);
     presetCombo.setSelectedItemIndex (1, juce::dontSendNotification);   // Natural
-    presetCombo.setColour (juce::ComboBox::textColourId, juce::Colours::white);
-    presetCombo.setColour (juce::ComboBox::backgroundColourId, otoha::theme::card());
+    presetCombo.setColour (juce::ComboBox::textColourId, otoha::theme::colors::textPrimary());
+    presetCombo.setColour (juce::ComboBox::backgroundColourId, otoha::theme::colors::surfaceElevated());
     addChildComponent (presetCombo);
 
     hintLabel.setText ("You can change everything later under Advanced.",
                        juce::dontSendNotification);
     hintLabel.setJustificationType (juce::Justification::centred);
-    hintLabel.setColour (juce::Label::textColourId, otoha::theme::textMuted());
+    hintLabel.setColour (juce::Label::textColourId, otoha::theme::colors::textMuted());
     addChildComponent (hintLabel);
 
     doneButton.onClick = [this]
@@ -79,10 +79,10 @@ void OnboardingView::revealSetup()
 
 void OnboardingView::paint (juce::Graphics& g)
 {
-    g.fillAll (otoha::theme::background());
+    g.fillAll (otoha::theme::colors::background());
 
-    juce::ColourGradient gradient (juce::Colour (0x38ff9ecf), (float) getWidth() * 0.15f, (float) getHeight() * 0.2f,
-                                   juce::Colour (0x08ff9ecf), (float) getWidth() * 0.85f, (float) getHeight() * 0.75f, false);
+    juce::ColourGradient gradient (otoha::theme::colors::accent().withAlpha (0.22f), (float) getWidth() * 0.15f, (float) getHeight() * 0.2f,
+                                   otoha::theme::colors::accent().withAlpha (0.03f), (float) getWidth() * 0.85f, (float) getHeight() * 0.75f, false);
     g.setGradientFill (gradient);
     g.fillRect (getLocalBounds());
 }

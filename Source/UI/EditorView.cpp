@@ -125,14 +125,15 @@ public:
     void paint (juce::Graphics& g) override
     {
         auto area = getLocalBounds().toFloat().reduced (8.0f);
-        g.setColour (findColour (juce::ResizableWindow::backgroundColourId).contrasting (0.06f));
+        g.setColour (otoha::theme::colors::surface());
         g.fillRoundedRectangle (area, 10.0f);
+        g.setColour (otoha::theme::colors::borderSubtle());
         g.drawRoundedRectangle (area, 10.0f, 1.0f);
 
         if (doc == nullptr || doc->getClips().empty())
         {
-            g.setColour (juce::Colours::grey);
-            g.setFont (juce::FontOptions (15.0f));
+            g.setColour (otoha::theme::colors::textMuted());
+            g.setFont (otoha::theme::font (otoha::theme::TextSize::body));
             g.drawText ("No recording open.", area, juce::Justification::centred);
             return;
         }
@@ -149,15 +150,15 @@ public:
         {
             const float sx = (float) sampleToX (sel.start);
             const float ex = (float) sampleToX (sel.end);
-            g.setColour (juce::Colour (0xff4fc3a1).withAlpha (0.22f));
+            g.setColour (otoha::theme::colors::waveform().withAlpha (0.22f));
             g.fillRect (sx, area.getY(), std::max (2.0f, ex - sx), area.getHeight());
-            g.setColour (juce::Colour (0xff4fc3a1));
+            g.setColour (otoha::theme::colors::waveform());
             g.drawVerticalLine ((int) sx, area.getY(), area.getBottom());
             g.drawVerticalLine ((int) ex, area.getY(), area.getBottom());
         }
 
         // --- waveform bars ---------------------------------------------------------
-        g.setColour (juce::Colour (0xff4fc3a1));
+        g.setColour (otoha::theme::colors::waveform());
         const int bucketCount = (int) peaks.size();
         const float midY = area.getCentreY();
         const float halfHeight = area.getHeight() * 0.46f;
@@ -191,13 +192,13 @@ public:
         const auto playPos = view.playbackPositionSamples();
         if (playPos >= viewStartSample && playPos <= viewEnd)
         {
-            g.setColour (juce::Colours::white);
+            g.setColour (otoha::theme::colors::playhead());
             g.drawVerticalLine ((int) sampleToX (playPos), area.getY(), area.getBottom());
         }
 
         // --- time ruler ------------------------------------------------------------------
-        g.setColour (juce::Colours::grey);
-        g.setFont (juce::FontOptions (11.0f));
+        g.setColour (otoha::theme::colors::textMuted());
+        g.setFont (otoha::theme::font (otoha::theme::TextSize::caption));
         g.drawText (otoha::formatDuration ((double) viewStartSample / doc->getSampleRate()),
                     area.removeFromTop (16).withTrimmedLeft (6), juce::Justification::centredLeft);
         g.drawText (otoha::formatDuration ((double) juce::jmin (viewEnd, total) / doc->getSampleRate()),
@@ -278,7 +279,7 @@ EditorView::EditorView (Player& pl, LibraryService& lib, std::function<void()> b
         });
     };
 
-    titleLabel.setFont (juce::FontOptions (20.0f, juce::Font::bold));
+    titleLabel.setFont (otoha::theme::font (otoha::theme::TextSize::title));
     titleLabel.setJustificationType (juce::Justification::centredLeft);
     addAndMakeVisible (titleLabel);
 
@@ -310,9 +311,9 @@ EditorView::EditorView (Player& pl, LibraryService& lib, std::function<void()> b
     wave = std::make_unique<WaveformDisplay> (*this);
     addAndMakeVisible (*wave);
 
-    timeLabel.setFont (juce::FontOptions (14.0f));
+    timeLabel.setFont (otoha::theme::font (otoha::theme::TextSize::bodySmall));
     timeLabel.setJustificationType (juce::Justification::centred);
-    timeLabel.setColour (juce::Label::textColourId, juce::Colours::grey);
+    timeLabel.setColour (juce::Label::textColourId, otoha::theme::colors::textMuted());
     addAndMakeVisible (timeLabel);
 
     for (auto* b : { &cutButton, &copyButton, &pasteButton, &rippleDeleteButton,
@@ -382,7 +383,7 @@ EditorView::EditorView (Player& pl, LibraryService& lib, std::function<void()> b
     refreshButtonsAndTitle();
     // M14 #28: transient edit feedback ("Deleted 12 s"), auto-clearing.
     feedbackLabel.setFont (otoha::theme::font (otoha::theme::TextSize::body));
-    feedbackLabel.setColour (juce::Label::textColourId, otoha::theme::sakura());
+    feedbackLabel.setColour (juce::Label::textColourId, otoha::theme::colors::accent());
     feedbackLabel.setJustificationType (juce::Justification::centred);
     feedbackLabel.setInterceptsMouseClicks (false, false);
     addChildComponent (feedbackLabel);

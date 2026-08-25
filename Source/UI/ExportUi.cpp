@@ -1,5 +1,7 @@
 #include "ExportUi.h"
 
+#include "OtohaTheme.h"
+
 namespace otoha
 {
 // =============================================================================
@@ -13,7 +15,7 @@ ExportOptionsComponent::ExportOptionsComponent (const ExportSettingsStore& store
     juce::ignoreUnused (locator, info);   // availability passed in by caller
 
     addAndMakeVisible (formatLabel);
-    formatLabel.setFont (juce::FontOptions (14.0f));
+    formatLabel.setFont (otoha::theme::font (otoha::theme::TextSize::bodySmall));
     formatLabel.setText (numFiles > 1 ? "Format (all files)" : "Format",
                          juce::dontSendNotification);
     addAndMakeVisible (formatCombo);
@@ -29,7 +31,7 @@ ExportOptionsComponent::ExportOptionsComponent (const ExportSettingsStore& store
     formatCombo.setSelectedItemIndex ((int) store.getLastFormat(), juce::dontSendNotification);
 
     addAndMakeVisible (qualityLabel);
-    qualityLabel.setFont (juce::FontOptions (14.0f));
+    qualityLabel.setFont (otoha::theme::font (otoha::theme::TextSize::bodySmall));
     addAndMakeVisible (qualityCombo);
 
     auto refreshQualityItems = [this, &store]

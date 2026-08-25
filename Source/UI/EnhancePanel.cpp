@@ -1,5 +1,7 @@
 #include "EnhancePanel.h"
 
+#include "OtohaTheme.h"
+
 #include <cmath>
 
 namespace
@@ -194,17 +196,18 @@ void EnhancePanel::timerCallback()
 
 void EnhancePanel::paint (juce::Graphics& g)
 {
-    g.setColour (findColour (juce::ResizableWindow::backgroundColourId).contrasting (0.04f));
+    g.setColour (otoha::theme::colors::surface());
     g.fillRoundedRectangle (getLocalBounds().toFloat().reduced (4.0f), 10.0f);
+    g.setColour (otoha::theme::colors::borderSubtle());
     g.drawRoundedRectangle (getLocalBounds().toFloat().reduced (4.0f), 10.0f, 1.0f);
 
-    g.setColour (juce::Colours::white);
-    g.setFont (juce::FontOptions (16.0f, juce::Font::bold));
+    g.setColour (otoha::theme::colors::textPrimary());
+    g.setFont (otoha::theme::font (otoha::theme::TextSize::heading));
     g.drawText ("Enhance", getLocalBounds().removeFromTop (26).reduced (10, 0),
                 juce::Justification::centredLeft);
 
-    g.setColour (juce::Colours::grey);
-    g.setFont (juce::FontOptions (12.0f));
+    g.setColour (otoha::theme::colors::textMuted());
+    g.setFont (otoha::theme::font (otoha::theme::TextSize::caption));
     auto labelAt = [&g] (juce::Rectangle<int> r, const juce::String& text)
     {
         g.drawText (text, r.removeFromLeft (110), juce::Justification::centredLeft);
