@@ -96,9 +96,10 @@ inline const AccentEntry& accentByName (const juce::String& name)
 /** Every colour in the app, named by meaning. One instance = one full look. */
 struct ThemeColors
 {
-    // surfaces (hierarchy: background → surface → elevated → interactive)
+    // surfaces (hierarchy: background → surface → subtle → elevated → interactive)
     juce::Colour background;
     juce::Colour surface;
+    juce::Colour surfaceSubtle;     // between surface and elevated — list row tints
     juce::Colour surfaceElevated;
     juce::Colour surfaceHover;
     juce::Colour surfacePressed;
@@ -106,6 +107,7 @@ struct ThemeColors
     // lines
     juce::Colour border;
     juce::Colour borderSubtle;
+    juce::Colour borderStrong;      // stronger emphasis — active input, selected card
     juce::Colour focusRing;
 
     // text
@@ -158,12 +160,14 @@ inline Theme makeDefaultDarkTheme()
     ThemeColors c;
     c.background         = juce::Colour (0xff050505);   // Kaiteyo OLED Black
     c.surface            = juce::Colour (0xff0d0d0d);   // Kaiteyo surface
+    c.surfaceSubtle      = juce::Colour (0xff0f0f0f);   // subtle tint between surface and elevated
     c.surfaceElevated    = juce::Colour (0xff101010);   // Kaiteyo surfaceElevated
     c.surfaceHover       = juce::Colour (0xff1a1a1a);   // Kaiteyo surfaceInteractive
     c.surfacePressed     = juce::Colour (0xff222222);   // Kaiteyo surfaceActive
 
     c.border             = juce::Colour (0xff2a2a2a);   // Kaiteyo border
     c.borderSubtle       = juce::Colour (0x33ffffff);   // Kaiteyo surfaceBorderSubtle
+    c.borderStrong       = juce::Colour (0xff3a3a3a);   // stronger border for active/selected states
     c.focusRing          = juce::Colour (0xffc2fc8b);   // Kaiteyo primary accent
 
     c.textPrimary        = juce::Colour (0xfff0f0f0);   // Kaiteyo textPrimary
@@ -205,12 +209,14 @@ inline Theme makeLightTheme()
     ThemeColors c;
     c.background         = juce::Colour (0xfff5f5f5);   // Kaiteyo backgroundLight
     c.surface            = juce::Colour (0xffeeeeee);   // Kaiteyo surfaceLightDark
+    c.surfaceSubtle      = juce::Colour (0xffebebeb);   // subtle tint between surface and elevated
     c.surfaceElevated    = juce::Colour (0xffe8e8e8);   // Kaiteyo surfaceLightMedium
     c.surfaceHover       = juce::Colour (0xfffcfcfc);   // Kaiteyo surfaceLightLight
     c.surfacePressed     = juce::Colour (0xffdcdcdc);
 
     c.border             = juce::Colour (0xffd0d0d0);   // Kaiteyo surfaceBorderLight
     c.borderSubtle       = juce::Colour (0x18000000);
+    c.borderStrong       = juce::Colour (0xffb0b0b0);   // stronger border for active/selected states
     c.focusRing          = juce::Colour (0xff9ce85e);   // Kaiteyo primaryDark for light
 
     c.textPrimary        = juce::Colour (0xff1a1a1a);   // Kaiteyo textPrimaryLight
@@ -330,7 +336,7 @@ inline void applyToDesktopLookAndFeel()
     laf.setColour (juce::Label::textColourId,                   c.textPrimary);
     laf.setColour (juce::Slider::backgroundColourId,            c.surfaceHover);
     laf.setColour (juce::Slider::trackColourId,                 c.accent);
-    laf.setColour (juce::Slider::thumbColourId,                 c.textPrimary);
+    laf.setColour (juce::Slider::thumbColourId,                 c.accent);
     laf.setColour (juce::Slider::textBoxTextColourId,           c.textPrimary);
     laf.setColour (juce::ScrollBar::backgroundColourId,         c.surface);
     laf.setColour (juce::ScrollBar::thumbColourId,              c.surfaceHover);
@@ -345,12 +351,14 @@ namespace colors
 {
     inline juce::Colour background()         { return current().colors.background; }
     inline juce::Colour surface()            { return current().colors.surface; }
+    inline juce::Colour surfaceSubtle()     { return current().colors.surfaceSubtle; }
     inline juce::Colour surfaceElevated()    { return current().colors.surfaceElevated; }
     inline juce::Colour surfaceHover()       { return current().colors.surfaceHover; }
     inline juce::Colour surfacePressed()     { return current().colors.surfacePressed; }
 
     inline juce::Colour border()             { return current().colors.border; }
     inline juce::Colour borderSubtle()       { return current().colors.borderSubtle; }
+    inline juce::Colour borderStrong()       { return current().colors.borderStrong; }
     inline juce::Colour focusRing()          { return current().colors.focusRing; }
 
     inline juce::Colour textPrimary()        { return current().colors.textPrimary; }
@@ -471,6 +479,26 @@ namespace Metrics
     inline constexpr int sidebarWidth     = 200;  // M19: full floating sidebar
     inline constexpr int sidebarCollapsed = 56;   // M19: icon-only mode
     inline constexpr int sidebarPadding   = 8;    // M19: inner padding
+}
+
+// --- responsive breakpoints (px) — Kaiteyo DsWidthTiers --------------------------------------
+
+namespace Breakpoints
+{
+    inline constexpr int compact  = 720;   // below this: horizontal tab bar
+    inline constexpr int standard = 1024;  // typical restored window
+    inline constexpr int wide     = 1440;  // grids spread into more columns
+    inline constexpr int extraWide = 1920; // maximized on large monitors
+}
+
+/** Width tier ordinal (0=compact → 4=extraWide) for adaptive grid columns. */
+inline int widthTier (int availableWidth)
+{
+    if (availableWidth < Breakpoints::compact)  return 0;
+    if (availableWidth < Breakpoints::standard) return 1;
+    if (availableWidth < Breakpoints::wide)     return 2;
+    if (availableWidth < Breakpoints::extraWide) return 3;
+    return 4;
 }
 
 // Back-compat aliases (legacy M14 names) — prefer the namespaces above.
