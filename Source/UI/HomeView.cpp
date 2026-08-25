@@ -178,7 +178,7 @@ void HomeView::resized()
     {
         auto r = content.removeFromTop (cardH + 20);
         recordCard.setBounds (r);
-        auto inner = r.reduced (otoha::theme::Metrics::cardPadding);
+        auto inner = recordCard.getLocalBounds().reduced (otoha::theme::Metrics::cardPadding);
         recordTitle.setBounds (inner.removeFromTop (26));
         recordHint.setBounds  (inner.removeFromTop (18).withTrimmedLeft (2));
     }

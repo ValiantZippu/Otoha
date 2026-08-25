@@ -77,6 +77,9 @@ void SoundView::buildUi()
     // --- enhance amount ---------------------------------------------------------
     enhanceSlider.setRange (0.0, 1.0, 0.01);
     enhanceSlider.setValue (1.0);
+    addAndMakeVisible (enhanceLabel);
+    enhanceLabel.setFont (otoha::theme::font (otoha::theme::TextSize::caption));
+    enhanceLabel.setColour (juce::Label::textColourId, otoha::theme::colors::textSecondary());
     addAndMakeVisible (enhanceSlider);
     enhanceSlider.onValueChange = [this]
     {
@@ -87,6 +90,12 @@ void SoundView::buildUi()
     engine.setEnhanceAmount (1.0f);
 
     // --- tonal controls (map onto ProcessingState, same as Studio) ---------------
+    for (auto* lbl : { &bassLabel, &clarityLabel, &spaceLabel })
+    {
+        lbl->setFont (otoha::theme::font (otoha::theme::TextSize::caption));
+        lbl->setColour (juce::Label::textColourId, otoha::theme::colors::textSecondary());
+        addAndMakeVisible (*lbl);
+    }
     for (auto* s : { &bassSlider, &claritySlider, &spaceSlider })
     {
         s->setRange (0.0, 1.0, 0.01);
@@ -141,8 +150,8 @@ void SoundView::buildUi()
     };
 
     // --- status / meter / advanced ----------------------------------------------------
-    statusLabel.setFont (otoha::theme::font (otoha::theme::TextSize::title));
-    statusLabel.setColour (juce::Label::textColourId, otoha::theme::colors::textPrimary());
+    statusLabel.setFont (otoha::theme::font (otoha::theme::TextSize::heading));
+    statusLabel.setColour (juce::Label::textColourId, otoha::theme::colors::textSecondary());
     statusLabel.setJustificationType (juce::Justification::centred);
     addAndMakeVisible (statusLabel);
 
@@ -535,15 +544,35 @@ void SoundView::resized()
     auto bounds = getLocalBounds().reduced (24).withTrimmedTop (12);
     const int rowH = 34, gap = 10;
 
-    statusLabel.setBounds (bounds.removeFromTop (48));
+    statusLabel.setBounds (bounds.removeFromTop (32));
     bounds.reduce (40, 0);
     powerToggle.setBounds (bounds.removeFromTop (rowH + 6));
     bounds.translate (0, gap);
 
-    enhanceSlider.setBounds (bounds.removeFromTop (rowH));  bounds.translate (0, gap);
-    bassSlider.setBounds    (bounds.removeFromTop (rowH));  bounds.translate (0, gap);
-    claritySlider.setBounds (bounds.removeFromTop (rowH));  bounds.translate (0, gap);
-    spaceSlider.setBounds   (bounds.removeFromTop (rowH));  bounds.translate (0, gap);
+    {
+        auto row = bounds.removeFromTop (rowH);
+        enhanceLabel.setBounds (row.removeFromLeft (80));
+        enhanceSlider.setBounds (row);
+    }
+    bounds.translate (0, gap);
+    {
+        auto row = bounds.removeFromTop (rowH);
+        bassLabel.setBounds (row.removeFromLeft (80));
+        bassSlider.setBounds (row);
+    }
+    bounds.translate (0, gap);
+    {
+        auto row = bounds.removeFromTop (rowH);
+        clarityLabel.setBounds (row.removeFromLeft (80));
+        claritySlider.setBounds (row);
+    }
+    bounds.translate (0, gap);
+    {
+        auto row = bounds.removeFromTop (rowH);
+        spaceLabel.setBounds (row.removeFromLeft (80));
+        spaceSlider.setBounds (row);
+    }
+    bounds.translate (0, gap);
 
     auto profileRow = bounds.removeFromTop (rowH);
     presetLabel.setBounds  (profileRow.removeFromLeft (80));

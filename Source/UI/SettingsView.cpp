@@ -177,7 +177,7 @@ void SettingsView::resized()
     int x = 0;
     for (auto& s : swatches)
     {
-        s->setBounds (x, 0, swatchSize, swatchSize);
+        s->setBounds (swatchRow.getX() + x, swatchRow.getY(), swatchSize, swatchSize);
         x += swatchSize + swatchGap;
     }
     content.removeFromTop (Spacing::xl);
