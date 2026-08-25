@@ -80,6 +80,7 @@ void SoundView::buildUi()
     addAndMakeVisible (enhanceLabel);
     enhanceLabel.setFont (otoha::theme::font (otoha::theme::TextSize::caption));
     enhanceLabel.setColour (juce::Label::textColourId, otoha::theme::colors::textSecondary());
+    enhanceLabel.setText ("Enhance", juce::dontSendNotification);
     addAndMakeVisible (enhanceSlider);
     enhanceSlider.onValueChange = [this]
     {
@@ -90,6 +91,9 @@ void SoundView::buildUi()
     engine.setEnhanceAmount (1.0f);
 
     // --- tonal controls (map onto ProcessingState, same as Studio) ---------------
+    bassLabel.setText ("Bass", juce::dontSendNotification);
+    clarityLabel.setText ("Clarity", juce::dontSendNotification);
+    spaceLabel.setText ("Space", juce::dontSendNotification);
     for (auto* lbl : { &bassLabel, &clarityLabel, &spaceLabel })
     {
         lbl->setFont (otoha::theme::font (otoha::theme::TextSize::caption));
@@ -150,9 +154,9 @@ void SoundView::buildUi()
     };
 
     // --- status / meter / advanced ----------------------------------------------------
-    statusLabel.setFont (otoha::theme::font (otoha::theme::TextSize::heading));
-    statusLabel.setColour (juce::Label::textColourId, otoha::theme::colors::textSecondary());
-    statusLabel.setJustificationType (juce::Justification::centred);
+    statusLabel.setFont (otoha::theme::font (otoha::theme::TextSize::caption));
+    statusLabel.setColour (juce::Label::textColourId, otoha::theme::colors::textMuted());
+    statusLabel.setJustificationType (juce::Justification::centredLeft);
     addAndMakeVisible (statusLabel);
 
     latencyLabel.setJustificationType (juce::Justification::centred);
@@ -551,36 +555,36 @@ void SoundView::resized()
 
     {
         auto row = bounds.removeFromTop (rowH);
-        enhanceLabel.setBounds (row.removeFromLeft (80));
+        enhanceLabel.setBounds (row.removeFromLeft (90));
         enhanceSlider.setBounds (row);
     }
     bounds.translate (0, gap);
     {
         auto row = bounds.removeFromTop (rowH);
-        bassLabel.setBounds (row.removeFromLeft (80));
+        bassLabel.setBounds (row.removeFromLeft (90));
         bassSlider.setBounds (row);
     }
     bounds.translate (0, gap);
     {
         auto row = bounds.removeFromTop (rowH);
-        clarityLabel.setBounds (row.removeFromLeft (80));
+        clarityLabel.setBounds (row.removeFromLeft (90));
         claritySlider.setBounds (row);
     }
     bounds.translate (0, gap);
     {
         auto row = bounds.removeFromTop (rowH);
-        spaceLabel.setBounds (row.removeFromLeft (80));
+        spaceLabel.setBounds (row.removeFromLeft (90));
         spaceSlider.setBounds (row);
     }
     bounds.translate (0, gap);
 
     auto profileRow = bounds.removeFromTop (rowH);
-    presetLabel.setBounds  (profileRow.removeFromLeft (80));
+    presetLabel.setBounds  (profileRow.removeFromLeft (90));
     presetCombo.setBounds  (profileRow);
     bounds.translate (0, gap);
 
     auto outputRow = bounds.removeFromTop (rowH);
-    outputLabel.setBounds (outputRow.removeFromLeft (80));
+    outputLabel.setBounds (outputRow.removeFromLeft (90));
     outputCombo.setBounds (outputRow);
     bounds.translate (0, gap);
 

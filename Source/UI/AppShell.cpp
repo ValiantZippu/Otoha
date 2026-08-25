@@ -38,7 +38,6 @@ AppShell::AppShell (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl, Lib
 
     // --- M19: floating sidebar navigation ----------------------------------------
     addAndMakeVisible (sidebar);
-    addAndMakeVisible (contentArea);
 
     sidebar.addItem (idStudio,  "Studio",  otoha::icons::home(),     "Studio",  false);
     sidebar.addItem (idRecord,  "Record",  otoha::icons::record(),   "Record",  false);
