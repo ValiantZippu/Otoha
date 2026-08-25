@@ -16,6 +16,7 @@
 #include "RecordView.h"
 #include "SoundView.h"
 #include "Components/DsNavigation.h"
+#include "SettingsView.h"
 
 /*
     AppShell — Otoha application shell (M19):
@@ -59,6 +60,7 @@ private:
     void showRecording();
     void showEditor();
     void showSound();
+    void showSettings();
     void showPage (int pageId);
     void navigateTo (int id);
 
@@ -81,6 +83,7 @@ private:
     std::unique_ptr<LibraryView> libraryView;
     std::unique_ptr<EditorView> editorView;
     std::unique_ptr<SoundView> soundView;
+    std::unique_ptr<SettingsView> settingsView;
     std::unique_ptr<otoha::ComponentsGallery> gallery;   // dev-only (Ctrl+Shift+D)
     std::unique_ptr<OnboardingView> onboarding;   // first launch only (#3)
 

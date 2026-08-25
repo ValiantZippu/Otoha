@@ -36,6 +36,10 @@ struct AppSettings
     bool         startWithSystem      = false;   // explicit opt-in only (#38)
     juce::String lastRunVersion;                     // informational only
 
+    // M24 appearance
+    juce::String appearanceMode  = "system";   // "system" / "light" / "dark"
+    juce::String accentName      = "Sakura";   // key into accentPalette()
+
     // Session-scoped: set from the --safe-mode command line (#45), never
     // persisted, never sticky across restarts.
     bool         safeModeSession      = false;
@@ -72,6 +76,8 @@ inline juce::var settingsToVar (const AppSettings& s)
     root->setProperty ("firstLaunchComplete", s.firstLaunchComplete);
     root->setProperty ("startWithSystem", s.startWithSystem);
     root->setProperty ("lastRunVersion", s.lastRunVersion);
+    root->setProperty ("appearanceMode", s.appearanceMode);
+    root->setProperty ("accentName", s.accentName);
 
     auto* snd = new juce::DynamicObject();
     snd->setProperty ("enabled", s.sound.enabled);
@@ -112,6 +118,8 @@ inline AppSettings settingsFromVar (const juce::var& v)
     s.firstLaunchComplete = (bool) (int) propOr (*obj, "firstLaunchComplete", 0);
     s.startWithSystem     = (bool) (int) propOr (*obj, "startWithSystem", 0);
     s.lastRunVersion      = propOr (*obj, "lastRunVersion").toString();
+    s.appearanceMode      = propOr (*obj, "appearanceMode", "system").toString();
+    s.accentName          = propOr (*obj, "accentName", "Sakura").toString();
 
     const auto snd = propOr (*obj, "sound");
     s.sound.enabled            = (bool) (int) snd.getProperty ("enabled", 0);

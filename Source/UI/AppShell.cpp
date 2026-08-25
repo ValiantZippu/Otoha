@@ -30,6 +30,12 @@ AppShell::AppShell (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl, Lib
     addChildComponent (*editorView);
     addChildComponent (*soundView);
 
+    if (settings != nullptr)
+    {
+        settingsView = std::make_unique<SettingsView> (*settings);
+        addChildComponent (*settingsView);
+    }
+
     // --- M19: floating sidebar navigation ----------------------------------------
     addAndMakeVisible (sidebar);
     addAndMakeVisible (contentArea);
@@ -42,6 +48,20 @@ AppShell::AppShell (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl, Lib
 
     sidebar.onNavigate = [this] (int id) { navigateTo (id); };
     sidebar.setActiveItem (idStudio);
+
+    // M24: apply saved appearance before showing any views.
+    if (settings != nullptr)
+    {
+        auto mode = settings->appearanceMode;
+        if (mode.equalsIgnoreCase ("system"))
+            mode = juce::Desktop::getInstance().isDarkModeActive() ? "dark" : "light";
+        const auto accent = otoha::theme::accentByName (settings->accentName);
+        if (mode.equalsIgnoreCase ("light"))
+            otoha::theme::setTheme (otoha::theme::lightThemeWithAccent (accent));
+        else
+            otoha::theme::setTheme (otoha::theme::darkThemeWithAccent (accent));
+        otoha::theme::applyToDesktopLookAndFeel();
+    }
 
     // Studio Home is the landing screen (M11 #2/#3)
     showHome();
@@ -88,7 +108,7 @@ void AppShell::navigateTo (int id)
         case idLibrary:  showLibrary();   break;
         case idRecord:   showRecording(); break;
         case idSound:    showSound();     break;
-        case idSettings: /* placeholder */ break;
+        case idSettings: showSettings(); break;
     }
 }
 
@@ -106,6 +126,7 @@ void AppShell::showHome()
     libraryView->setVisible (false);
     editorView->setVisible (false);
     soundView->setVisible (false);
+    if (settingsView != nullptr) settingsView->setVisible (false);
     homeView->refreshRecents();
     homeView->setVisible (true);
 }
@@ -163,6 +184,7 @@ void AppShell::resized()
     libraryView->setBounds (content);
     editorView->setBounds  (content);
     soundView->setBounds   (content);
+    if (settingsView != nullptr) settingsView->setBounds (content);
 
     if (gallery != nullptr)
         gallery->setBounds (getLocalBounds());
@@ -188,6 +210,7 @@ void AppShell::showLibrary()
     recordView->setVisible (false);
     editorView->setVisible (false);
     soundView->setVisible (false);
+    if (settingsView != nullptr) settingsView->setVisible (false);
     libraryView->setVisible (true);
     libraryView->refreshItemsForDisplay();
     libraryView->grabDefaultFocus();
@@ -201,6 +224,7 @@ void AppShell::showRecording()
     libraryView->setVisible (false);
     editorView->setVisible (false);
     soundView->setVisible (false);
+    if (settingsView != nullptr) settingsView->setVisible (false);
     recordView->setVisible (true);
     recordView->grabKeyboardFocus();
 }
@@ -212,6 +236,7 @@ void AppShell::showEditor()
     libraryView->setVisible (false);
     recordView->setVisible (false);
     soundView->setVisible (false);
+    if (settingsView != nullptr) settingsView->setVisible (false);
     editorView->setVisible (true);
     editorView->grabKeyboardFocus();
 }
@@ -225,6 +250,20 @@ void AppShell::showSound()
     recordView->setVisible (false);
     editorView->setVisible (false);
     soundView->setVisible (true);
+    if (settingsView != nullptr) settingsView->setVisible (false);
+}
+
+void AppShell::showSettings()
+{
+    if (gallery != nullptr) gallery->setVisible (false);
+    if (settingsView == nullptr) return;
+    showPage (idSettings);
+    homeView->setVisible (false);
+    libraryView->setVisible (false);
+    recordView->setVisible (false);
+    editorView->setVisible (false);
+    soundView->setVisible (false);
+    settingsView->setVisible (true);
 }
 
 bool AppShell::openInEditor (const otoha::MediaItem& item)

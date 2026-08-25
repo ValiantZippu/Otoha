@@ -79,7 +79,8 @@ target_sources(Otoha PRIVATE
     Source/UI/LibraryView.cpp
     Source/UI/OnboardingView.cpp
     Source/UI/RecordView.cpp
-    Source/UI/SoundView.cpp)
+    Source/UI/SoundView.cpp
+    Source/UI/SettingsView.cpp)
 
 # M12: the WASAPI Sound backend is Windows-only; other platforms build the app
 # (Studio + honest unsupported-Sound placeholder) without it.
