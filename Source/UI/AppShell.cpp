@@ -48,6 +48,21 @@ AppShell::AppShell (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl, Lib
     sidebar.onNavigate = [this] (int id) { navigateTo (id); };
     sidebar.setActiveItem (idStudio);
 
+    // M27: overflow menu shows Appearance and About
+    sidebar.onOverflow = [this]
+    {
+        juce::PopupMenu menu;
+        menu.addItem (1, "Appearance…");
+        menu.addItem (2, "About Otoha");
+        menu.showMenuAsync (juce::PopupMenu::Options(), [this] (int result)
+        {
+            if (result == 1 && settingsView != nullptr)
+                navigateTo (idSettings);
+            else if (result == 2)
+                otoha::ui::showAboutWindow();
+        });
+    };
+
     // M24: apply saved appearance before showing any views.
     if (settings != nullptr)
     {
