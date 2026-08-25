@@ -1,6 +1,7 @@
 #pragma once
 
 #include <juce_gui_basics/juce_gui_basics.h>
+#include <vector>
 
 /*
     OtohaTheme — the one place that knows what Otoha looks like (M14 #1/#63, M17).
@@ -36,6 +37,60 @@
 
 namespace otoha::theme
 {
+// --- M24 appearance mode -------------------------------------------------------
+
+enum class AppearanceMode { system, light, dark };
+
+// --- M24 accent palette --------------------------------------------------------
+
+struct AccentEntry
+{
+    juce::String name;
+    juce::Colour base;          // the primary accent colour
+    juce::Colour hover;         // lighter variant
+    juce::Colour pressed;       // darker variant
+    juce::Colour soft;          // tinted background
+    juce::Colour contrast;      // text on accent
+};
+
+/** Curated accent palette — accessible names, guaranteed contrast. */
+inline const std::vector<AccentEntry>& accentPalette()
+{
+    static const std::vector<AccentEntry> palettes =
+    {
+        { "Sakura",     juce::Colour (0xffff9ecf), juce::Colour (0xffffb1d9),
+          juce::Colour (0xffe585bc), juce::Colour (0xff2a1620), juce::Colour (0xff2a1018) },
+        { "Ocean",      juce::Colour (0xff64b5f6), juce::Colour (0xff90caf9),
+          juce::Colour (0xff42a5f5), juce::Colour (0xff0d1f33), juce::Colour (0xff0a1929) },
+        { "Mint",       juce::Colour (0xff4fc3a1), juce::Colour (0xff80cbc4),
+          juce::Colour (0xff26a69a), juce::Colour (0xff0d2924), juce::Colour (0xff0a201c) },
+        { "Amber",      juce::Colour (0xffffb74d), juce::Colour (0xffffcc80),
+          juce::Colour (0xffffa726), juce::Colour (0xff33220a), juce::Colour (0xff2a1b06) },
+        { "Lavender",   juce::Colour (0xffb39ddb), juce::Colour (0xffd1c4e9),
+          juce::Colour (0xff9575cd), juce::Colour (0xff1a1528), juce::Colour (0xff130f20) },
+        { "Coral",      juce::Colour (0xffff8a80), juce::Colour (0xffffab91),
+          juce::Colour (0xffff7043), juce::Colour (0xff331210), juce::Colour (0xff2a0d0b) },
+        { "Sky",        juce::Colour (0xff4dd0e1), juce::Colour (0xff80deea),
+          juce::Colour (0xff26c6da), juce::Colour (0xff0a2a2e), juce::Colour (0xff072225) },
+        { "Rose",       juce::Colour (0xfff48fb1), juce::Colour (0xfff8bbd0),
+          juce::Colour (0xffec407a), juce::Colour (0xff33121e), juce::Colour (0xff2a0e18) },
+        { "Sage",       juce::Colour (0xffa5d6a7), juce::Colour (0xffc8e6c9),
+          juce::Colour (0xff81c784), juce::Colour (0xff122414), juce::Colour (0xff0e1c10) },
+        { "Peach",      juce::Colour (0xffffab91), juce::Colour (0xffffccbc),
+          juce::Colour (0xffff8a65), juce::Colour (0xff331a12), juce::Colour (0xff2a140e) },
+    };
+    return palettes;
+}
+
+/** Look up an accent by name; falls back to index 0 if not found. */
+inline const AccentEntry& accentByName (const juce::String& name)
+{
+    const auto& pal = accentPalette();
+    for (const auto& e : pal)
+        if (e.name.equalsIgnoreCase (name)) return e;
+    return pal[0];
+}
+
 // --- theme data ---------------------------------------------------------------
 
 /** Every colour in the app, named by meaning. One instance = one full look. */
@@ -142,6 +197,79 @@ inline Theme makeDefaultDarkTheme()
     c.favorite           = juce::Colour (0xffe8c35a);
 
     return { "Dark (AMOLED + Sakura)", c };
+}
+
+/** A clean light look: white surfaces, muted borders, dark text. */
+inline Theme makeLightTheme()
+{
+    ThemeColors c;
+    c.background         = juce::Colour (0xfff5f5f5);
+    c.surface            = juce::Colour (0xffffffff);
+    c.surfaceElevated    = juce::Colour (0xfff0f0f0);
+    c.surfaceHover       = juce::Colour (0xffe8e8e8);
+    c.surfacePressed     = juce::Colour (0xffdcdcdc);
+
+    c.border             = juce::Colour (0xffd0d0d0);
+    c.borderSubtle       = juce::Colour (0x18000000);
+    c.focusRing          = juce::Colour (0xffff9ecf);
+
+    c.textPrimary        = juce::Colour (0xff1a1a1a);
+    c.textSecondary      = juce::Colour (0xff555555);
+    c.textMuted          = juce::Colour (0xff888888);
+    c.textDisabled       = juce::Colour (0xffbbbbbb);
+
+    c.accent             = juce::Colour (0xffff9ecf);
+    c.accentHover        = juce::Colour (0xffffb1d9);
+    c.accentPressed      = juce::Colour (0xffe585bc);
+    c.accentSoft         = juce::Colour (0xfffff0f6);
+    c.accentContrast     = juce::Colour (0xff2a1018);
+
+    c.success            = juce::Colour (0xff388e3c);
+    c.warning            = juce::Colour (0xffef6c00);
+    c.danger             = juce::Colour (0xffd32f2f);
+    c.info               = juce::Colour (0xff1976d2);
+
+    c.waveform           = juce::Colour (0xff388e3c);
+    c.waveformMuted      = juce::Colour (0xffa5d6a7);
+    c.selection          = juce::Colour (0xffe3f2fd);
+    c.playhead           = juce::Colour (0xff1a1a1a);
+    c.meterSafe          = juce::Colour (0xff388e3c);
+    c.meterWarning       = juce::Colour (0xffef6c00);
+    c.meterClip          = juce::Colour (0xffd32f2f);
+
+    c.recording            = juce::Colour (0xffd32f2f);
+    c.recordingPulse       = juce::Colour (0xffff5252);
+    c.recordingBackground  = juce::Colour (0xffffebee);
+
+    c.favorite           = juce::Colour (0xffef6c00);
+
+    return { "Light", c };
+}
+
+/** Returns a Theme with the given accent swapped in (dark base). */
+inline Theme darkThemeWithAccent (const AccentEntry& accent)
+{
+    auto t = makeDefaultDarkTheme();
+    t.colors.accent        = accent.base;
+    t.colors.accentHover   = accent.hover;
+    t.colors.accentPressed = accent.pressed;
+    t.colors.accentSoft    = accent.soft;
+    t.colors.accentContrast = accent.contrast;
+    t.colors.focusRing     = accent.base;
+    return t;
+}
+
+/** Returns a Theme with the given accent swapped in (light base). */
+inline Theme lightThemeWithAccent (const AccentEntry& accent)
+{
+    auto t = makeLightTheme();
+    t.colors.accent        = accent.base;
+    t.colors.accentHover   = accent.hover;
+    t.colors.accentPressed = accent.pressed;
+    t.colors.accentSoft    = accent.soft;
+    t.colors.accentContrast = accent.contrast;
+    t.colors.focusRing     = accent.base;
+    return t;
 }
 
 namespace detail

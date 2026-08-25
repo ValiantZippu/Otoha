@@ -277,3 +277,29 @@ The existing editor and sound/DSP controls are re-skinned with M18 design-system
 - **A/B switch** — Original/Enhanced toggle for comparison.
 - **Advanced section** — expanded EQ, compressor detail, limiter ceiling, NR strength.
 - All visuals consume `OtohaTheme` tokens.  No new DSP added.
+
+---
+
+## Appearance picker (M24 — `SettingsView.h/.cpp`, `OtohaTheme.h` additions)
+
+User-facing theme system built on top of M17's token infrastructure.
+
+**Appearance modes** (`AppearanceMode` enum): System, Light, Dark.
+- System follows `juce::Desktop::isDarkModeActive()` at startup and can update at runtime.
+- Light mode: `makeLightTheme()` — white surfaces, dark text, proper contrast.
+- Dark mode: `darkThemeWithAccent()` — AMOLED black base.
+
+**Accent palette**: 10 curated accents (Sakura, Ocean, Mint, Amber, Lavender, Coral, Sky, Rose, Sage, Peach).  Each provides: base, hover, pressed, soft, contrast — all with guaranteed accessibility contrast.
+
+**Settings UI** (`SettingsView`):
+- Mode selector: `ds::ComboBox` (System / Light / Dark).
+- Accent picker: grid of coloured circle swatches with checkmark for selected state.
+- Live preview: primary/secondary/danger buttons, text, tag, slider — all recolor immediately.
+
+**Persistence**: `AppSettings::appearanceMode` + `AppSettings::accentName` saved to `settings.json`.
+
+**Startup flow**: Load saved appearance → resolve System mode → build Theme → `setTheme()` → `applyToDesktopLookAndFeel()` → create UI.  No flash between default and saved theme.
+
+**Live recolor**: `setTheme()` + `sendSynchronousChangeMessage()` → all `ThemeWatcher` components repaint instantly.  No app restart, no window rebuild.
+
+**Semantic safety**: Accent changes do not replace danger/warning/success/recording tokens.  Errors remain red, recording remains red, warnings remain amber regardless of accent choice.
