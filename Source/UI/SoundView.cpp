@@ -3,6 +3,9 @@
 #include "AboutWindow.h"
 #include "OtohaTheme.h"
 #include "SoundAdvancedPanel.h"
+#include "Components/DsButton.h"
+#include "Components/DsControls.h"
+#include "Components/DsSurfaces.h"
 
 #include "../Dsp/Presets.h"
 #include "../Sound/DiagnosticsReport.h"
@@ -57,6 +60,8 @@ void SoundView::buildUi()
     addAndMakeVisible (powerToggle);
     powerToggle.setClickingTogglesState (true);
     powerToggle.setColour (juce::ToggleButton::textColourId, otoha::theme::colors::textPrimary());
+    powerToggle.setName ("Sound power");
+    powerToggle.setDescription ("Toggle Otoha Sound processing on or off");
     powerToggle.onClick = [this]
     {
         engine.setEnabled (powerToggle.getToggleState());
@@ -136,7 +141,8 @@ void SoundView::buildUi()
     };
 
     // --- status / meter / advanced ----------------------------------------------------
-    statusLabel.setFont (juce::FontOptions (28.0f, juce::Font::bold));   // intentional: big status readout (M18 will tokenize)
+    statusLabel.setFont (otoha::theme::font (otoha::theme::TextSize::title));
+    statusLabel.setColour (juce::Label::textColourId, otoha::theme::colors::textPrimary());
     statusLabel.setJustificationType (juce::Justification::centred);
     addAndMakeVisible (statusLabel);
 
@@ -144,6 +150,8 @@ void SoundView::buildUi()
     addAndMakeVisible (latencyLabel);
     addAndMakeVisible (meterLabel);
     addAndMakeVisible (advancedButton);
+    otoha::theme::styleCardButton (advancedButton);
+    otoha::theme::label (advancedButton, "Advanced", "EQ, compressor, limiter, diagnostics");
     advancedButton.onClick = [this] { showAdvancedMenu(); };
 
     // --- restore persisted preferences -------------------------------------------
