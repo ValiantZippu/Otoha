@@ -175,3 +175,23 @@ The application shell uses a **floating sidebar** (`otoha::ds::Sidebar`) for all
 **Keyboard navigation**: arrow keys cycle between sidebar items, Enter/Space activate.  Number keys 1-5 provide direct page access.  Focus ring uses the shared M17 focus treatment.
 
 **Theme integration**: sidebar recolors instantly via `ThemeWatcher`.  Accent colour drives the active indicator bar and active label colour.  All sidebar dimensions consume `Metrics::sidebarWidth`, `sidebarCollapsed`, `sidebarPadding`.
+
+---
+
+## Studio home (M20 — `HomeView.h/.cpp`)
+
+The Studio landing screen answers three questions immediately: What can I do? What did I work on recently? Where do I go next?  Built from the M18 component kit, all visuals consume `OtohaTheme` tokens.
+
+**Layout** (vertical, max content width 720px):
+1. **Header** — time-of-day greeting + tagline.
+2. **Primary action** — prominent `ds::Card` with accent tint and accent border. Routes to the existing Record screen.
+3. **Recent** — up to 5 newest recordings from `LibraryService::query(newestFirst)`.  Each is a compact `ds::Card` showing name, duration, and friendly relative date.  Click → Editor.  Empty state uses `ds::EmptyState` with a Record action button.
+4. **Quick actions** — two `ds::Card`s: Library (browse all recordings) and Sound (microphone/audio settings).
+
+**Data source**: `LibraryService` — real library metadata only.  No fake recordings, no analytics.
+
+**Empty state** (`ds::EmptyState`): icon (microphone), title, description, primary Record button.
+
+**Keyboard navigation**: digit shortcuts (1-5) via the existing AppShell infrastructure map to sidebar destinations; Record is digit 3.
+
+**Component reuse**: `ds::Card` (with `setProminent` for hero), `ds::EmptyState`, `ds::Button`.  `Card::setProminent(true)` tints toward `accentSoft` background and `accent` border — a generic DS variant, not screen-specific styling.

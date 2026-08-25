@@ -27,6 +27,9 @@ public:
     void setSelected (bool shouldBeSelected) { selected = shouldBeSelected; repaint(); }
     bool isSelected() const                  { return selected; }
 
+    /** Prominent cards (e.g. a hero action) tint toward the accent. Still just tokens. */
+    void setProminent (bool shouldBeProminent) { prominent = shouldBeProminent; repaint(); }
+
     /** Where callers place children. */
     juce::Rectangle<int> contentBounds() const
     {
@@ -43,6 +46,7 @@ public:
         {
             if (down) fill = theme::colors::surfacePressed();
             else if (over) fill = theme::colors::surfaceHover();
+            else if (prominent) fill = theme::colors::accentSoft();
         }
         else if (! isEnabled())
             fill = theme::colors::surface().darker (0.3f);
@@ -50,8 +54,9 @@ public:
         g.setColour (fill);
         g.fillRoundedRectangle (bounds, r);
 
-        g.setColour (selected ? theme::colors::accent() : theme::colors::borderSubtle());
-        g.drawRoundedRectangle (bounds.reduced (0.5f), r, selected ? 1.5f : 1.0f);
+        const bool accentEdge = selected || (prominent && isEnabled());
+        g.setColour (accentEdge ? theme::colors::accent() : theme::colors::borderSubtle());
+        g.drawRoundedRectangle (bounds.reduced (0.5f), r, accentEdge ? 1.5f : 1.0f);
 
         if (interactive && hasKeyboardFocus (true))
             drawFocusRing (g, bounds, r);
@@ -66,6 +71,7 @@ public:
 private:
     bool interactive;
     bool selected = false;
+    bool prominent = false;
     std::unique_ptr<ThemeWatcher> watcher;
 };
 

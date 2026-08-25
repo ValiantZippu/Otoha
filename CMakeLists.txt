@@ -267,10 +267,17 @@ target_sources(otoha_qa_tests PRIVATE
 
 target_link_libraries(otoha_qa_tests PRIVATE juce::juce_audio_formats)
 
-# --- Milestone 18: design-system component kit --------------------------------
+# --- Milestone 18/20: design-system component kit + Studio home ----------------
 juce_add_console_app(otoha_ds_tests PRODUCT_NAME "otoha_ds_tests")
-target_sources(otoha_ds_tests PRIVATE Tests/DsComponentsTests.cpp)
-target_link_libraries(otoha_ds_tests PRIVATE juce::juce_gui_basics)
+target_sources(otoha_ds_tests PRIVATE
+    Tests/DsComponentsTests.cpp
+    Source/UI/HomeView.cpp
+    Source/Library/Database.cpp
+    Source/Library/LibraryService.cpp
+    Source/Library/WaveformCache.cpp
+    Source/Core/RecordingSupport.cpp)
+target_include_directories(otoha_ds_tests PRIVATE ${SQLite3_INCLUDE_DIRS})
+target_link_libraries(otoha_ds_tests PRIVATE juce::juce_gui_basics ${SQLite3_LIBRARIES})
 target_compile_definitions(otoha_ds_tests PRIVATE JUCE_MODAL_LOOPS_PERMITTED=1)
 
 # All console test targets: disable web-browser/curl so headless Linux CI

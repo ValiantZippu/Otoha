@@ -11,6 +11,28 @@
 #include "../Source/UI/Components/DsToast.h"
 #include "../Source/UI/Components/DsNavigation.h"
 #include "../Source/UI/Components/OtohaIcons.h"
+#include "../Source/UI/HomeView.h"
+
+#include <juce_audio_formats/juce_audio_formats.h>
+
+namespace
+{
+/** Minimal silent wav for Studio tests (same approach as LibraryTests). */
+juce::File writeTestWav (const juce::File& dir, const juce::String& name, int seconds = 1)
+{
+    juce::WavAudioFormat wavFormat;
+    const auto file = dir.getChildFile (name);
+    auto stream = file.createOutputStream();
+    if (stream == nullptr) return {};
+    std::unique_ptr<juce::AudioFormatWriter> writer (
+        wavFormat.createWriterFor (stream.release(), 48000.0, 1, 16, {}, 0));
+    if (writer == nullptr) return {};
+    juce::AudioBuffer<float> silence (1, seconds * 48000);
+    writer->writeFromAudioSampleBuffer (silence, 0, silence.getNumSamples());
+    writer.reset();
+    return file;
+}
+} // namespace
 
 #include <cstdio>
 
@@ -262,6 +284,108 @@ int main()
         sb.setBounds (0, 0, otoha::ds::NavItem::compactWidth(), 600);
         ok &= expect (smokePaint (sb, otoha::ds::NavItem::compactWidth(), 600),
                       "sidebar paints in compact mode");
+    }
+
+    // --- Prominent Card variant (M20 hero action) ---------------------------------------------
+    {
+        otoha::ds::Card hero ("Hero", true);
+        hero.setProminent (true);
+        ok &= expect (smokePaint (hero, 280, 72), "prominent card paints");
+        auto altTheme = theme::makeDefaultDarkTheme();
+        altTheme.colors.accent = juce::Colours::lime;
+        theme::setTheme (altTheme);
+        ok &= expect (smokePaint (hero), "prominent card paints after theme swap");
+        theme::setTheme (theme::makeDefaultDarkTheme());
+    }
+
+    // --- Studio home (M20) — real LibraryService, real data -------------------------------
+    {
+        const auto root = juce::File::getSpecialLocation (juce::File::tempDirectory)
+                              .getChildFile ("otoha_studio_test_" + juce::String::toHexString (juce::Random::getSystemRandom().nextInt()));
+        root.createDirectory();
+
+        LibraryService service (root);
+        juce::String err;
+        ok &= expect (service.initialise (err), "library service initialises for studio test");
+
+        // Empty state first — no recordings yet.
+        {
+            HomeView emptyStudio (service);
+            emptyStudio.setBounds (0, 0, 800, 600);
+            ok &= expect (smokePaint (emptyStudio, 800, 600), "empty studio paints");
+
+            // The empty-state Record action must be present and named.
+            bool foundRecordButton = false;
+            for (auto* c : emptyStudio.getChildren())
+                if (c->getName() == "Record") { foundRecordButton = true; break; }
+            ok &= expect (foundRecordButton, "empty state exposes a named Record action");
+        }
+
+        // Register real recordings through the actual data layer.
+        const auto audioDir = root.getChildFile ("Library").getChildFile ("Audio");
+        audioDir.createDirectory();
+        const auto w1 = writeTestWav (audioDir, "idea.wav", 2);
+        const auto w2 = writeTestWav (audioDir, "memo.wav", 1);
+        ok &= expect (w1.existsAsFile() && w2.existsAsFile(), "test recordings written");
+        ok &= expect (service.registerAudioFile (w1) != 0, "recording one registered");
+        ok &= expect (service.registerAudioFile (w2) != 0, "recording two registered");
+
+        HomeView studio (service);
+        int recordNav = 0, libraryNav = 0, soundNav = 0, itemOpens = 0;
+        studio.onRecord      = [&] { ++recordNav; };
+        studio.onViewLibrary = [&] { ++libraryNav; };
+        studio.onViewSound   = [&] { ++soundNav; };
+        studio.onOpenItem    = [&] (const otoha::MediaItem&) { ++itemOpens; };
+
+        studio.refreshRecents();
+        studio.setBounds (0, 0, 800, 600);
+
+        // Recent cards exist and carry accessible names built from real metadata.
+        int recentCards = 0;
+        bool hasNamedCard = false;
+        bool hasLibraryCard = false, hasSoundCard = false;
+        for (auto* c : studio.getChildren())
+            if (auto* card = dynamic_cast<otoha::ds::Card*> (c))
+            {
+                ++recentCards;
+                if (card->getName().contains ("idea") || card->getName().contains ("memo")) hasNamedCard = true;
+                if (card->getName() == "Library") hasLibraryCard = true;
+                if (card->getName() == "Sound") hasSoundCard = true;
+            }
+        ok &= expect (recentCards == 5, "record + 2 recent + library + sound cards");
+        ok &= expect (hasNamedCard, "recent cards carry the recording display name");
+        ok &= expect (hasLibraryCard && hasSoundCard, "library and sound quick action cards exist");
+
+        // Clicking a recent card routes to the editor with fresh data.
+        for (auto* c : studio.getChildren())
+            if (auto* card = dynamic_cast<otoha::ds::Card*> (c))
+                if (card->getName().contains ("idea")) { card->triggerClick(); break; }
+        pumpMessages();
+        ok &= expect (itemOpens == 1, "recent card opens the item in the editor");
+
+        // Quick actions navigate to their existing routes.
+        for (auto* c : studio.getChildren())
+            if (auto* card = dynamic_cast<otoha::ds::Card*> (c))
+            {
+                if (card->getName() == "Library") card->triggerClick();
+                else if (card->getName() == "Sound") card->triggerClick();
+            }
+        pumpMessages();
+        ok &= expect (libraryNav == 1 && soundNav == 1,
+                      "quick actions navigate to Library and Sound");
+
+        ok &= expect (smokePaint (studio, 800, 600), "studio paints at normal desktop width");
+        ok &= expect (smokePaint (studio, 1100, 700), "studio paints at large desktop width");
+        ok &= expect (smokePaint (studio, 520, 640), "studio paints at narrow width");
+
+        // Runtime recolor of the whole studio (M17 infrastructure).
+        auto alt = theme::makeDefaultDarkTheme();
+        alt.colors.accent = juce::Colours::orange;
+        theme::setTheme (alt);
+        ok &= expect (smokePaint (studio), "studio repaints after runtime theme change");
+        theme::setTheme (theme::makeDefaultDarkTheme());
+
+        root.deleteRecursively();
     }
 
     // --- Runtime theme swap (M24 prep) ------------------------------------------------------------
