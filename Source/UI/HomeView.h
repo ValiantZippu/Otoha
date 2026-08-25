@@ -64,8 +64,7 @@ private:
     };
     std::vector<std::unique_ptr<RecentCard>> recents;
 
-    // Empty state (M18 pattern): icon + title + description + action.
-    otoha::ds::Button emptyRecordButton { "Record", otoha::ds::ButtonVariant::secondary };
+    // Empty state (M18 pattern): icon + title + description.
     std::unique_ptr<otoha::ds::EmptyState> emptyState;
 
     // Quick actions
