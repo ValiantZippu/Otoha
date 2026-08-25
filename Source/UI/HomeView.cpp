@@ -57,13 +57,10 @@ HomeView::HomeView (LibraryService& lib) : library (lib)
     addAndMakeVisible (recentHeader);
 
     // --- empty state --------------------------------------------------------------
-    otoha::theme::label (emptyRecordButton, "Record", "Start a new recording");
-    emptyRecordButton.onClick = [this] { if (onRecord) onRecord(); };
     otoha::ds::EmptyState::Setup emptySetup;
     emptySetup.icon        = otoha::icons::microphone();
     emptySetup.title       = "No recordings yet.";
     emptySetup.description = "Record something and it will appear here.";
-    emptySetup.action      = &emptyRecordButton;
     emptyState = std::make_unique<otoha::ds::EmptyState> (emptySetup);
     addAndMakeVisible (*emptyState);
 
