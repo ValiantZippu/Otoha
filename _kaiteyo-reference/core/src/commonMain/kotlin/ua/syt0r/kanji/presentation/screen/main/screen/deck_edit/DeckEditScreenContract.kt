@@ -1,0 +1,58 @@
+package ua.syt0r.kanji.presentation.screen.main.screen.deck_edit
+
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import kotlinx.coroutines.flow.StateFlow
+import ua.syt0r.kanji.presentation.screen.main.screen.deck_edit.use_case.SearchResult
+import ua.syt0r.kanji.presentation.screen.main.screen.vocab_card.VocabCardEditResult
+
+interface DeckEditScreenContract {
+
+    interface ViewModel {
+        val state: StateFlow<ScreenState>
+        fun initialize(configuration: DeckEditScreenConfiguration)
+        fun notifyVocabCardResult(editResult: VocabCardEditResult)
+        fun searchCharacters(input: String)
+        fun dismissSearchResult()
+        fun toggleRemoval(item: DeckEditListItem)
+        fun resetSrs(item: DeckEditListItem)
+        fun saveDeck()
+        fun deleteDeck()
+        fun toggleArchive()
+    }
+
+    sealed interface ScreenState {
+
+        data object Loading : ScreenState
+
+        sealed interface Loaded : ScreenState {
+            val title: MutableState<String>
+            val confirmExit: State<Boolean>
+            val isArchived: MutableState<Boolean>
+            val isArchiveEnabled: Boolean
+            fun getCurrentList(): List<DeckEditListItem>
+        }
+
+        interface LetterDeckEditing : Loaded {
+            val searching: State<Boolean>
+            val listState: State<List<LetterDeckEditListItem>>
+            val lastSearchResult: State<SearchResult?>
+            override fun getCurrentList(): List<LetterDeckEditListItem> {
+                return listState.value
+            }
+        }
+
+        interface VocabDeckEditing : Loaded {
+            val list: State<List<VocabDeckEditListItem>>
+            override fun getCurrentList(): List<VocabDeckEditListItem> = list.value
+        }
+
+        data object SavingChanges : ScreenState
+        data object Deleting : ScreenState
+
+        data class Completed(val wasDeleted: Boolean) : ScreenState
+
+    }
+
+}
+

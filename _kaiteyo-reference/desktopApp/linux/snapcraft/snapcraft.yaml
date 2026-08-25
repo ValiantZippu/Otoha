@@ -1,0 +1,62 @@
+name: kaiteyo
+title: Kaiteyo
+icon: preview_assets/inkscape_icon.svg
+summary: Application for practicing writing and reading Japanese characters
+description: |
+  Learn & practice writing Japanese characters
+  
+  **Features**
+  - Study kana (both Hiragana and Katakana) and kanji
+  - Practice by following JLPT levels or school grades
+  - Create your own list to study, more than 6000 characters in total are available
+  - Works offline
+
+license: GPL-3.0+
+
+source-code: https://github.com/ValiantZippu/Kaiteyo
+issues: [https://github.com/ValiantZippu/Kaiteyo/issues]
+
+base: core22
+version: '1.7'
+architectures: [amd64]
+grade: stable
+confinement: strict
+
+plugs:
+  kaiteyo-data:
+    interface: personal-files
+    write:
+      - $HOME/.skiko
+      - $HOME/.local/share/kaiteyo
+      - $HOME/.kaiteyo
+
+apps:
+  kaiteyo:
+    command: ./launch-kaiteyo.sh
+    desktop: meta/gui/kaiteyo.desktop
+    plugs:
+      - desktop
+      - desktop-legacy
+      - home
+      - opengl
+      - wayland
+      - x11
+      - kaiteyo-data
+
+parts:
+  jre:
+    plugin: nil
+    stage-packages:
+      - openjdk-17-jre
+  app:
+    plugin: nil
+    source: core/build/compose/jars
+    override-build: |
+      mkdir -p $SNAPCRAFT_PART_INSTALL/
+      cp *.jar $SNAPCRAFT_PART_INSTALL/
+  launcher:
+    plugin: nil
+    source: snapcraft/local
+    override-build: |
+      mkdir -p $SNAPCRAFT_PART_INSTALL/
+      cp launch-kaiteyo.sh $SNAPCRAFT_PART_INSTALL/

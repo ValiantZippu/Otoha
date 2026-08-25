@@ -1,0 +1,6 @@
+/build
+Pods/
+xcuserdata/
+*.xcworkspace
+GoogleService-Info.plist
+Config.xcconfig

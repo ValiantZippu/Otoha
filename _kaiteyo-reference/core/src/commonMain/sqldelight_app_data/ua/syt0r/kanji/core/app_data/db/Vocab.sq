@@ -1,0 +1,332 @@
+CREATE TABLE vocab_entry (
+    id INTEGER UNIQUE PRIMARY KEY
+);
+
+CREATE TABLE vocab_kanji_element (
+    element_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    entry_id INTEGER NOT NULL,
+    reading TEXT NOT NULL,
+    priority INTEGER,
+    FOREIGN KEY (entry_id) REFERENCES vocab_entry(id) ON DELETE CASCADE
+);
+
+CREATE TABLE vocab_kanji_information (
+    element_id INTEGER NOT NULL,
+    information TEXT NOT NULL,
+    PRIMARY KEY(element_id, information),
+    FOREIGN KEY (element_id) REFERENCES vocab_kanji_element(element_id) ON DELETE CASCADE
+);
+
+CREATE TABLE vocab_kanji_priority (
+    element_id INTEGER NOT NULL,
+    priority TEXT NOT NULL,
+    PRIMARY KEY(element_id, priority),
+    FOREIGN KEY (element_id) REFERENCES vocab_kanji_element(element_id) ON DELETE CASCADE
+);
+
+CREATE TABLE vocab_kana_element (
+    element_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    entry_id INTEGER NOT NULL,
+    reading TEXT NOT NULL,
+    no_kanji INTEGER NOT NULL,
+    priority INTEGER,
+    FOREIGN KEY (entry_id) REFERENCES vocab_entry(id) ON DELETE CASCADE
+);
+
+CREATE TABLE vocab_kana_restriction (
+    element_id INTEGER NOT NULL,
+    restricted_kanji TEXT NOT NULL,
+    PRIMARY KEY(element_id, restricted_kanji),
+    FOREIGN KEY (element_id) REFERENCES vocab_kana_element(element_id) ON DELETE CASCADE
+);
+
+CREATE TABLE vocab_kana_information (
+    element_id INTEGER NOT NULL,
+    information TEXT NOT NULL,
+    PRIMARY KEY(element_id, information),
+    FOREIGN KEY (element_id) REFERENCES vocab_kana_element(element_id) ON DELETE CASCADE
+);
+
+CREATE TABLE vocab_kana_priority (
+    element_id INTEGER NOT NULL,
+    priority TEXT NOT NULL,
+    PRIMARY KEY(element_id, priority),
+    FOREIGN KEY (element_id) REFERENCES vocab_kana_element(element_id) ON DELETE CASCADE
+);
+
+CREATE TABLE vocab_sense (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    entry_id INTEGER NOT NULL,
+    FOREIGN KEY (entry_id) REFERENCES vocab_entry(id) ON DELETE CASCADE
+);
+
+CREATE TABLE vocab_sense_kanji_restriction (
+    sense_id INTEGER NOT NULL,
+    reading TEXT NOT NULL,
+    PRIMARY KEY(sense_id, reading),
+    FOREIGN KEY (sense_id) REFERENCES vocab_sense(id) ON DELETE CASCADE
+);
+
+CREATE TABLE vocab_sense_kana_restriction (
+    sense_id INTEGER NOT NULL,
+    reading TEXT NOT NULL,
+    PRIMARY KEY(sense_id, reading),
+    FOREIGN KEY (sense_id) REFERENCES vocab_sense(id) ON DELETE CASCADE
+);
+
+CREATE TABLE vocab_sense_part_of_speech (
+    sense_id INTEGER NOT NULL,
+    part_of_speech TEXT NOT NULL,
+    PRIMARY KEY(sense_id, part_of_speech),
+    FOREIGN KEY (sense_id) REFERENCES vocab_sense(id) ON DELETE CASCADE
+);
+
+CREATE TABLE vocab_sense_cross_reference (
+    sense_id INTEGER NOT NULL,
+    reading TEXT NOT NULL,
+    PRIMARY KEY(sense_id, reading),
+    FOREIGN KEY (sense_id) REFERENCES vocab_sense(id) ON DELETE CASCADE
+);
+
+CREATE TABLE vocab_sense_antonym (
+    sense_id INTEGER NOT NULL,
+    antonym TEXT NOT NULL,
+    PRIMARY KEY(sense_id, antonym),
+    FOREIGN KEY (sense_id) REFERENCES vocab_sense(id) ON DELETE CASCADE
+);
+
+CREATE TABLE vocab_sense_field (
+    sense_id INTEGER NOT NULL,
+    field_name TEXT NOT NULL,
+    PRIMARY KEY(sense_id, field_name),
+    FOREIGN KEY (sense_id) REFERENCES vocab_sense(id) ON DELETE CASCADE
+);
+
+CREATE TABLE vocab_sense_miscellaneous (
+    sense_id INTEGER NOT NULL,
+    miscellaneous_info TEXT NOT NULL,
+    PRIMARY KEY(sense_id, miscellaneous_info),
+    FOREIGN KEY (sense_id) REFERENCES vocab_sense(id) ON DELETE CASCADE
+);
+
+CREATE TABLE vocab_sense_dialect (
+    sense_id INTEGER NOT NULL,
+    dialect TEXT NOT NULL,
+    PRIMARY KEY(sense_id, dialect),
+    FOREIGN KEY (sense_id) REFERENCES vocab_sense(id) ON DELETE CASCADE
+);
+
+CREATE TABLE vocab_sense_gloss (
+    sense_id INTEGER NOT NULL,
+    gloss_text TEXT NOT NULL,
+    language TEXT DEFAULT 'eng',
+    type TEXT DEFAULT NULL,
+    PRIMARY KEY(sense_id, gloss_text),
+    FOREIGN KEY (sense_id) REFERENCES vocab_sense(id) ON DELETE CASCADE
+);
+
+CREATE TABLE vocab_sense_information (
+    sense_id INTEGER NOT NULL,
+    information TEXT NOT NULL,
+    PRIMARY KEY(sense_id, information),
+    FOREIGN KEY (sense_id) REFERENCES vocab_sense(id) ON DELETE CASCADE
+);
+
+CREATE TABLE vocab_sense_example(
+    sense_id INTEGER NOT NULL,
+    reading TEXT NOT NULL,
+    tatoeba_id INTEGER NOT NULL,
+    PRIMARY KEY(sense_id, reading, tatoeba_id),
+    FOREIGN KEY (sense_id) REFERENCES vocab_sense(id) ON DELETE CASCADE
+);
+
+CREATE TABLE sentence(
+    tatoeba_id INTEGER PRIMARY KEY NOT NULL,
+    sentence TEXT NOT NULL,
+    translation TEXT NOT NULL,
+    score REAL NOT NULL,
+    furigana TEXT NOT NULL
+);
+
+CREATE TABLE vocab_entity(
+    name TEXT NOT NULL,
+    explanation TEXT NOT NULL,
+    PRIMARY KEY(name, explanation)
+);
+
+CREATE TABLE vocab_furigana(
+    text TEXT NOT NULL,
+    reading TEXT NOT NULL,
+    furigana TEXT NOT NULL,
+    PRIMARY KEY(text, reading)
+);
+
+CREATE TABLE vocab_deck_card(
+    jmdict_seq INTEGER NOT NULL,
+    kanji TEXT,
+    kana TEXT NOT NULL,
+    definition TEXT,
+    priority INTEGER,
+    deck TEXT NOT NULL,
+    PRIMARY KEY (jmdict_seq, kanji, kana, deck)
+);
+
+getVocabDeckCardsCount:
+SELECT COUNT(*)
+FROM vocab_deck_card
+WHERE deck = ?;
+
+getVocabDeckCards:
+SELECT *
+FROM vocab_deck_card
+WHERE deck = ?;
+
+getVocabKanaReadingsOfLength:
+SELECT DISTINCT reading
+FROM vocab_kana_element
+WHERE LENGTH(reading) = :length
+ORDER BY RANDOM()
+LIMIT :limit;
+
+getVocabKanjiElementsWithDetails:
+WITH
+    KanjiReadings AS (SELECT * FROM vocab_kanji_element WHERE entry_id = :wordId),
+    KanjiElements AS (SELECT element_id FROM KanjiReadings),
+    KanjiInformations AS (SELECT * FROM vocab_kanji_information WHERE element_id IN KanjiElements),
+    KanjiPriorities AS (SELECT * FROM vocab_kanji_priority WHERE element_id IN KanjiElements)
+SELECT KanjiReadings.element_id,
+       KanjiReadings.reading,
+       group_concat(KanjiInformations.information, :delimiter) AS informations,
+       group_concat(KanjiPriorities.priority, :delimiter)      AS priorities
+FROM KanjiReadings
+         LEFT JOIN KanjiInformations ON KanjiReadings.element_id = KanjiInformations.element_id
+         LEFT JOIN KanjiPriorities ON KanjiReadings.element_id = KanjiPriorities.priority
+GROUP BY KanjiReadings.element_id;
+
+getVocabKanaElementsWithDetails:
+WITH
+    KanaReadings AS (SELECT * FROM vocab_kana_element WHERE entry_id = :wordId),
+    KanaElements AS (SELECT element_id FROM KanaReadings),
+    KanaRestrictions AS (SELECT * FROM vocab_kana_restriction WHERE element_id IN KanaElements),
+    KanaInformations AS (SELECT * FROM vocab_kana_information WHERE element_id IN KanaElements),
+    KanaPriorities AS (SELECT * FROM vocab_kana_priority WHERE element_id IN KanaElements)
+SELECT KanaReadings.element_id,
+       KanaReadings.reading,
+       group_concat(KanaInformations.information, :delimiter)      AS informations,
+       group_concat(KanaPriorities.priority, :delimiter)           AS priorities,
+       KanaReadings.no_kanji,
+       group_concat(KanaRestrictions.restricted_kanji, :delimiter) AS restricted_kanji
+FROM KanaReadings
+         LEFT JOIN KanaInformations ON KanaReadings.element_id = KanaInformations.element_id
+         LEFT JOIN KanaPriorities ON KanaReadings.element_id = KanaPriorities.element_id
+         LEFT JOIN KanaRestrictions ON KanaReadings.element_id = KanaRestrictions.element_id
+WHERE KanaReadings.element_id IN KanaElements
+GROUP BY KanaReadings.element_id;
+
+searchFurigana:
+SELECT furigana
+FROM vocab_furigana
+WHERE text = ? AND reading = ?;
+
+getCountOfVocabReadingsWithText:
+WITH
+    kanji AS (SELECT entry_id, element_id, reading, priority, 0 AS isKana
+              FROM vocab_kanji_element
+              WHERE reading LIKE '%' || :text || '%'
+                AND :includeKanjiReadings),
+    kana AS (SELECT entry_id, element_id, reading, priority, 1 AS isKana
+             FROM vocab_kana_element
+             WHERE reading LIKE '%' || :text || '%'),
+    combined AS (SELECT * FROM kanji UNION SELECT * FROM kana),
+    grouped AS (SELECT * FROM combined GROUP BY entry_id ORDER BY element_id)
+SELECT COUNT(*)
+FROM grouped
+ORDER BY priority IS NULL, priority;
+
+getVocabReadingsWithText:
+WITH
+    kanji AS (SELECT entry_id, element_id, reading, priority, 0 AS isKana
+              FROM vocab_kanji_element
+              WHERE reading LIKE '%' || :text || '%'
+                AND :includeKanjiReadings),
+    kana AS (SELECT entry_id, element_id, reading, priority, 1 AS isKana
+             FROM vocab_kana_element
+             WHERE reading LIKE '%' || :text || '%'),
+    combined AS (SELECT * FROM kanji UNION SELECT * FROM kana),
+    grouped AS (SELECT * FROM combined GROUP BY entry_id ORDER BY element_id)
+SELECT *
+FROM grouped
+ORDER BY priority IS NULL, priority
+LIMIT :offset, :limit;
+
+findVocabElementsByIdOrReading:
+WITH
+    kanji AS (SELECT entry_id, element_id, reading, 0 AS isKana
+              FROM vocab_kanji_element
+              WHERE entry_id = :entryId
+                 OR reading = :kanjiReading),
+    kana AS (SELECT entry_id, element_id, reading, 1 AS isKana
+             FROM vocab_kana_element
+             WHERE entry_id = :entryId
+                OR reading = :kanaReading),
+    combined AS (SELECT * FROM kanji UNION SELECT * FROM kana)
+SELECT *
+FROM combined
+GROUP BY entry_id;
+
+getVocabSensesWithDetails:
+WITH
+    Senses AS (SELECT id, entry_id FROM vocab_sense WHERE entry_id IN :words),
+    SenseIds AS (SELECT id FROM Senses),
+    KanjiRestrictions AS (SELECT sense_id, GROUP_CONCAT(reading, :delimiter) AS kanji_restrictions
+                          FROM vocab_sense_kanji_restriction
+                          WHERE sense_id IN SenseIds
+                          GROUP BY sense_id),
+    KanaRestrictions AS (SELECT sense_id, GROUP_CONCAT(reading, :delimiter) AS kana_restrictions
+                         FROM vocab_sense_kana_restriction
+                         WHERE sense_id IN SenseIds
+                         GROUP BY sense_id),
+    UngroupedGlosses AS (SELECT sense_id, gloss_text
+                         FROM vocab_sense_gloss
+                         WHERE sense_id IN SenseIds
+                         ORDER BY rowid),
+    GroupedGlosses AS (SELECT sense_id, GROUP_CONCAT(gloss_text, :delimiter) AS glosses
+                       FROM UngroupedGlosses
+                       GROUP BY sense_id),
+    UngroupedPos AS (SELECT sense_id, part_of_speech, explanation
+                     FROM vocab_sense_part_of_speech
+                              INNER JOIN vocab_entity ON part_of_speech = name
+                     WHERE sense_id IN SenseIds
+                     ORDER BY vocab_sense_part_of_speech.rowid),
+    GroupedPos AS (SELECT sense_id, GROUP_CONCAT(explanation, :delimiter) AS explanations
+                   FROM UngroupedPos
+                   GROUP BY sense_id),
+    Informations AS (SELECT sense_id, GROUP_CONCAT(information, :delimiter) AS info
+                     FROM vocab_sense_information
+                     WHERE sense_id IN SenseIds
+                     GROUP BY sense_id)
+SELECT Senses.entry_id,
+       Senses.id,
+       KanjiRestrictions.kanji_restrictions,
+       KanaRestrictions.kana_restrictions,
+       GroupedGlosses.glosses,
+       GroupedPos.explanations,
+       Informations.info
+FROM Senses
+         LEFT JOIN KanjiRestrictions ON Senses.id = KanjiRestrictions.sense_id
+         LEFT JOIN KanaRestrictions ON Senses.id = KanaRestrictions.sense_id
+         LEFT JOIN GroupedGlosses ON Senses.id = GroupedGlosses.sense_id
+         LEFT JOIN GroupedPos ON Senses.id = GroupedPos.sense_id
+         LEFT JOIN Informations ON Senses.id = Informations.sense_id;
+
+getSentencesWithTextCount:
+SELECT COUNT(*)
+FROM sentence
+WHERE sentence LIKE '%' || :text || '%';
+
+getSentencesWithText:
+SELECT sentence, translation, furigana
+FROM sentence
+WHERE sentence LIKE '%' || :text || '%'
+ORDER BY score
+LIMIT :offset, :limit;

@@ -1,0 +1,492 @@
+PRAGMA user_version = 16;
+
+getLastInsertRowId:
+SELECT last_insert_rowid();
+
+------- LETTER DECKS -------
+
+CREATE TABLE IF NOT EXISTS letter_deck (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    name TEXT NOT NULL,
+    position INTEGER NOT NULL DEFAULT 0, -- bigger values are at the top of the list
+    is_archived INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS letter_deck_entry (
+    character TEXT NOT NULL,
+    deck_id INTEGER NOT NULL,
+    PRIMARY KEY(character, deck_id),
+    FOREIGN KEY(deck_id) REFERENCES letter_deck(id) ON UPDATE NO ACTION ON DELETE CASCADE
+);
+
+insertLetterDeck:
+INSERT INTO letter_deck(name, position)
+SELECT ?, IFNULL(MAX(position) + 1, 0) FROM letter_deck;
+
+deleteLetterDeck {
+    DELETE FROM letter_deck WHERE id=:id;
+    DELETE FROM letter_deck_entry WHERE deck_id=:id;
+}
+
+deleteLetterDecks {
+    DELETE FROM letter_deck WHERE id IN :deckIds;
+    DELETE FROM letter_deck_entry WHERE deck_id IN :deckIds;
+}
+
+updateLetterDeckTitle:
+UPDATE letter_deck SET name=? WHERE id=?;
+
+updateLetterDeckPosition:
+UPDATE letter_deck SET position=? WHERE id=?;
+
+updateLetterDeckArchived:
+UPDATE letter_deck SET is_archived=? WHERE id=?;
+
+getAllLetterDecks:
+SELECT id, name, position, is_archived FROM letter_deck;
+
+getLetterDeck:
+SELECT id, name, position, is_archived FROM letter_deck WHERE id=?;
+
+insertOrIgnoreLetterDeckEntry:
+INSERT OR IGNORE INTO letter_deck_entry (character,deck_id) VALUES (?,?);
+
+deleteLetterDeckEntry:
+DELETE FROM letter_deck_entry WHERE deck_id=? AND character=?;
+
+migrateLetterDeckEntries:
+UPDATE OR REPLACE letter_deck_entry
+SET deck_id = :deckId
+WHERE deck_id IN :deckIdToMigrate;
+
+getEntriesForLetterDeck:
+SELECT * FROM letter_deck_entry WHERE deck_id=?;
+
+------- VOCAB DECKS -------
+
+CREATE TABLE IF NOT EXISTS vocab_deck (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    title TEXT NOT NULL,
+    position INTEGER NOT NULL DEFAULT 0, -- bigger values are at the top of the list
+    is_archived INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS vocab_deck_entry (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    deck_id INTEGER NOT NULL,
+    kanji_reading TEXT,
+    kana_reading TEXT NOT NULL,
+    meaning TEXT,
+    word_id INTEGER,
+    FOREIGN KEY(deck_id) REFERENCES vocab_deck(id) ON UPDATE NO ACTION ON DELETE CASCADE
+);
+
+insertVocabDeck:
+INSERT INTO vocab_deck(title, position)
+SELECT :title, IFNULL(MAX(position) + 1, 0) FROM vocab_deck;
+
+updateVocabDeckTitle:
+UPDATE vocab_deck SET title = ? WHERE id = ?;
+
+deleteVocabDeck:
+DELETE FROM vocab_deck WHERE id = :deckId;
+
+updateVocabDeckPosition:
+UPDATE vocab_deck SET position=? WHERE id=?;
+
+updateVocabDeckArchived:
+UPDATE vocab_deck SET is_archived=? WHERE id=?;
+
+insertVocabDeckEntry:
+INSERT OR IGNORE INTO vocab_deck_entry(deck_id, kanji_reading, kana_reading, meaning, word_id)
+VALUES (?, ?, ?, ?, ?);
+
+updateVocabDeckEntry:
+UPDATE vocab_deck_entry SET kanji_reading=?, kana_reading=?, meaning=? WHERE id=?;
+
+deleteVocabDeckEntry:
+DELETE FROM vocab_deck_entry WHERE id = ?;
+
+migrateVocabDeckEntries:
+UPDATE OR REPLACE vocab_deck_entry
+SET deck_id = :deckId
+WHERE deck_id IN :deckIdToMigrate;
+
+getVocabDecks:
+SELECT id, title, position, is_archived FROM vocab_deck;
+
+getVocabDeckEntryIds:
+SELECT id FROM vocab_deck_entry WHERE deck_id = :deckId;
+
+getVocabDeckEntries:
+SELECT * FROM vocab_deck_entry;
+
+getVocabDecksWithEntryLike:
+SELECT DISTINCT deck_id
+FROM vocab_deck_entry
+WHERE kanji_reading = ? AND kana_reading = ?;
+
+
+------- FSRS -------
+
+CREATE TABLE IF NOT EXISTS fsrs_card (
+    key TEXT NOT NULL,
+    practice_type INTEGER NOT NULL,
+    status INTEGER NOT NULL,
+    stability REAL NOT NULL,
+    difficulty REAL NOT NULL,
+    lapses INTEGER NOT NULL,
+    repeats INTEGER NOT NULL,
+    last_review INTEGER NOT NULL,
+    interval INTEGER NOT NULL,
+    PRIMARY KEY(key, practice_type)
+);
+
+upsertFsrsCard:
+INSERT OR REPLACE INTO fsrs_card
+VALUES ?;
+
+getFsrsCards:
+SELECT * FROM fsrs_card;
+
+------- REVIEW HISTORY -------
+
+CREATE TABLE IF NOT EXISTS review_history(
+    key TEXT NOT NULL,
+    practice_type INTEGER NOT NULL,
+    timestamp INTEGER NOT NULL,
+    duration INTEGER NOT NULL,
+    grade INTEGER NOT NULL,
+    mistakes INTEGER NOT NULL,
+    interval INTEGER NOT NULL DEFAULT 0,
+    deck_id INTEGER NOT NULL,
+    PRIMARY KEY(key, practice_type, timestamp)
+);
+
+upsertReview:
+INSERT OR REPLACE INTO review_history(key, practice_type, timestamp, duration, grade, mistakes, interval, deck_id)
+VALUES (?,?,?,?,?,?,?,?);
+
+getReviewHistory:
+SELECT key, practice_type, timestamp, duration, grade, mistakes, interval, deck_id
+FROM review_history
+WHERE timestamp > :start AND timestamp < :end;
+
+migrateDeckForReviewHistory:
+UPDATE OR REPLACE review_history
+SET deck_id = :deckId
+WHERE deck_id IN :deckIdToMigrate AND practice_type IN :practiceTypes;
+
+getFirstReview:
+SELECT key, practice_type, timestamp, duration, grade, mistakes, interval, deck_id
+FROM review_history
+WHERE key = :itemKey AND practice_type = :practiceType
+ORDER BY timestamp
+LIMIT 1;
+
+getLastReview:
+SELECT key, practice_type, timestamp, duration, grade, mistakes, interval, deck_id
+FROM review_history
+WHERE key = :itemKey AND practice_type = :practiceType
+ORDER BY timestamp DESC
+LIMIT 1;
+
+getLastDeckReview:
+SELECT MAX(timestamp)
+FROM review_history
+WHERE deck_id = :deckId AND practice_type IN :practiceTypes
+LIMIT 1;
+
+getTotalReviewsCount:
+SELECT COUNT(*)
+FROM review_history;
+
+getTotalReviewsCountOfType:
+SELECT COUNT(*)
+FROM review_history
+WHERE key = :key AND practice_type = :practiceType;
+
+getUniqueReviewItemsCountForPracticeTypes:
+SELECT COUNT(DISTINCT key)
+FROM review_history
+WHERE practice_type IN :practiceTypes;
+
+getTotalReviewsDuration:
+SELECT SUM(CASE WHEN duration > :reviewDurationLimit THEN :reviewDurationLimit ELSE duration END)
+FROM review_history;
+
+getReviewStreaks:
+WITH DateList AS (
+    SELECT DISTINCT date(round(timestamp / 1000 - :offset_millis / 1000), 'unixepoch', 'localtime') AS date
+    FROM review_history
+),
+DateWithLag AS (
+    SELECT
+    date,
+    JULIANDAY(date) - (
+        SELECT COUNT(*)
+        FROM DateList AS inner_dates
+        WHERE inner_dates.date <= outer_dates.date
+    ) AS day_group
+    FROM DateList AS outer_dates
+),
+ContinuousGroups AS (
+    SELECT MIN(date) AS start_date, MAX(date) AS end_date, COUNT(*) AS sequence_length
+    FROM DateWithLag
+    GROUP BY day_group
+)
+SELECT *
+FROM ContinuousGroups
+ORDER BY end_date DESC;
+
+getReviewHistoryStatsForKeys:
+WITH
+    Reviews AS (SELECT * FROM review_history WHERE key IN :keys),
+    ReviewKeys AS (SELECT DISTINCT key FROM Reviews),
+    GroupedReviews AS (SELECT key, practice_type, practice_type || '|' || MIN(timestamp) || '|' || MAX(timestamp) PracticeTypeData
+                       FROM Reviews
+                       GROUP BY key, practice_type),
+    FormattedReviews AS (SELECT key, GROUP_CONCAT(PracticeTypeData, ';') AS ReviewData
+                         FROM GroupedReviews
+                         GROUP BY key)
+SELECT ReviewKeys.key, ReviewData
+FROM ReviewKeys
+LEFT JOIN FormattedReviews ON ReviewKeys.key = FormattedReviews.key;
+
+
+------- TEXT ANALYSIS -------
+
+CREATE TABLE text_analysis (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    text TEXT NOT NULL,
+    timestamp INTEGER NOT NULL,
+    translation TEXT NOT NULL,
+    annotatedTextJson TEXT NOT NULL
+);
+
+insertTextAnalysisData:
+INSERT INTO text_analysis (text, timestamp, translation, annotatedTextJson)
+VALUES (?, ?, ?, ?);
+
+countTextAnalysisData:
+SELECT COUNT(*) FROM text_analysis;
+
+selectAllTextAnalysisData:
+SELECT id, text, timestamp, translation, annotatedTextJson
+FROM text_analysis
+ORDER BY timestamp DESC
+LIMIT :offset, :limit;
+
+------- ENHANCEMENTS (TAGS, FLAGS, NOTES, HISTORY, SHORTCUTS, BACKUPS, FILTERED DECKS, PLUGINS) -------
+
+------- TAGS -------
+
+insertTag:
+INSERT INTO tag(name, color, parent_id, created_at, modified_at)
+VALUES (?, ?, ?, ?, ?);
+
+updateTag:
+UPDATE tag SET name = ?, color = ?, parent_id = ?, modified_at = ? WHERE id = ?;
+
+deleteTag:
+DELETE FROM tag WHERE id = ?;
+
+mergeTag:
+UPDATE card_tag SET tag_id = ? WHERE tag_id = ?;
+
+deleteUnusedTags:
+DELETE FROM tag WHERE id NOT IN (SELECT DISTINCT tag_id FROM card_tag);
+
+getAllTags:
+SELECT id, name, color, parent_id, created_at, modified_at FROM tag ORDER BY name;
+
+getTagById:
+SELECT id, name, color, parent_id, created_at, modified_at FROM tag WHERE id = ?;
+
+getTagsByCard:
+SELECT t.id, t.name, t.color, t.parent_id, t.created_at, t.modified_at
+FROM tag t
+INNER JOIN card_tag ct ON t.id = ct.tag_id
+WHERE ct.card_key = ? AND ct.practice_type = ?
+ORDER BY t.name;
+
+addTagToCard:
+INSERT OR IGNORE INTO card_tag(card_key, practice_type, tag_id) VALUES (?, ?, ?);
+
+removeTagFromCard:
+DELETE FROM card_tag WHERE card_key = ? AND practice_type = ? AND tag_id = ?;
+
+getCardsByTag:
+SELECT ct.card_key, ct.practice_type FROM card_tag ct WHERE ct.tag_id = ?;
+
+getTagUsageCount:
+SELECT COUNT(*) FROM card_tag WHERE tag_id = ?;
+
+searchTags:
+SELECT id, name, color, parent_id, created_at, modified_at
+FROM tag
+WHERE name LIKE ? COLLATE NOCASE
+ORDER BY name
+LIMIT ?;
+
+getChildTags:
+SELECT id, name, color, parent_id, created_at, modified_at
+FROM tag
+WHERE parent_id = ?
+ORDER BY name;
+
+------- FLAGS -------
+
+setCardFlag:
+INSERT OR REPLACE INTO card_flag(card_key, practice_type, flag_type, set_at)
+VALUES (?, ?, ?, ?);
+
+removeCardFlag:
+DELETE FROM card_flag WHERE card_key = ? AND practice_type = ?;
+
+getCardFlag:
+SELECT flag_type, set_at FROM card_flag WHERE card_key = ? AND practice_type = ?;
+
+getCardsByFlag:
+SELECT card_key, practice_type FROM card_flag WHERE flag_type = ?;
+
+getFlaggedCardCount:
+SELECT COUNT(*) FROM card_flag WHERE flag_type = ?;
+
+bulkSetFlag:
+INSERT OR REPLACE INTO card_flag(card_key, practice_type, flag_type, set_at)
+VALUES (?, ?, ?, ?);
+
+bulkRemoveFlag:
+DELETE FROM card_flag WHERE card_key = ? AND practice_type = ?;
+
+------- NOTES -------
+
+setCardNote:
+INSERT OR REPLACE INTO card_note(card_key, practice_type, content, content_format, created_at, modified_at)
+VALUES (?, ?, ?, ?, ?, ?);
+
+getCardNote:
+SELECT content, content_format, created_at, modified_at FROM card_note WHERE card_key = ? AND practice_type = ?;
+
+deleteCardNote:
+DELETE FROM card_note WHERE card_key = ? AND practice_type = ?;
+
+------- STUDY HISTORY -------
+
+insertStudyHistory:
+INSERT INTO study_history(action_type, card_key, practice_type, details, timestamp)
+VALUES (?, ?, ?, ?, ?);
+
+getRecentStudyHistory:
+SELECT id, action_type, card_key, practice_type, details, timestamp
+FROM study_history
+ORDER BY timestamp DESC
+LIMIT ?;
+
+getStudyHistoryByAction:
+SELECT id, action_type, card_key, practice_type, details, timestamp
+FROM study_history
+WHERE action_type = ?
+ORDER BY timestamp DESC
+LIMIT ?;
+
+getStudyHistoryForCard:
+SELECT id, action_type, card_key, practice_type, details, timestamp
+FROM study_history
+WHERE card_key = ? AND practice_type = ?
+ORDER BY timestamp DESC
+LIMIT ?;
+
+clearOldStudyHistory:
+DELETE FROM study_history WHERE timestamp < ?;
+
+------- KEYBOARD SHORTCUTS -------
+
+insertOrUpdateShortcut:
+INSERT OR REPLACE INTO keyboard_shortcut(action_id, primary_key, modifier_flags, is_enabled, profile_name)
+VALUES (?, ?, ?, ?, ?);
+
+getShortcut:
+SELECT id, action_id, primary_key, modifier_flags, is_enabled, profile_name
+FROM keyboard_shortcut
+WHERE action_id = ? AND profile_name = ?;
+
+getAllShortcuts:
+SELECT id, action_id, primary_key, modifier_flags, is_enabled, profile_name
+FROM keyboard_shortcut
+ORDER BY action_id;
+
+getShortcutsByProfile:
+SELECT id, action_id, primary_key, modifier_flags, is_enabled, profile_name
+FROM keyboard_shortcut
+WHERE profile_name = ?
+ORDER BY action_id;
+
+deleteShortcut:
+DELETE FROM keyboard_shortcut WHERE action_id = ? AND profile_name = ?;
+
+resetShortcutsToProfile:
+DELETE FROM keyboard_shortcut WHERE profile_name = ?;
+
+checkShortcutConflict:
+SELECT id, action_id, primary_key, modifier_flags, profile_name
+FROM keyboard_shortcut
+WHERE primary_key = ? AND modifier_flags = ? AND action_id != ? AND profile_name = ?;
+
+------- BACKUP METADATA -------
+
+insertBackupMetadata:
+INSERT INTO backup_metadata(filename, file_size, checksum, is_automatic, created_at, notes)
+VALUES (?, ?, ?, ?, ?, ?);
+
+getBackupList:
+SELECT id, filename, file_size, checksum, is_automatic, created_at, notes
+FROM backup_metadata
+ORDER BY created_at DESC
+LIMIT ? OFFSET ?;
+
+getLatestBackup:
+SELECT id, filename, file_size, checksum, is_automatic, created_at, notes
+FROM backup_metadata
+ORDER BY created_at DESC
+LIMIT 1;
+
+deleteBackupMetadata:
+DELETE FROM backup_metadata WHERE id = ?;
+
+verifyBackupChecksum:
+SELECT checksum FROM backup_metadata WHERE filename = ?;
+
+------- FILTERED DECKS -------
+
+insertFilteredDeck:
+INSERT INTO filtered_deck(name, search_query, max_cards, is_rescheduled, created_at)
+VALUES (?, ?, ?, ?, ?);
+
+getFilteredDecks:
+SELECT id, name, search_query, max_cards, is_rescheduled, created_at
+FROM filtered_deck
+ORDER BY created_at DESC;
+
+deleteFilteredDeck:
+DELETE FROM filtered_deck WHERE id = ?;
+
+------- PLUGIN REGISTRY -------
+
+insertOrUpdatePlugin:
+INSERT OR REPLACE INTO plugin_registry(plugin_id, name, version, enabled, plugin_type, config_json, installed_at, updated_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+
+getPlugin:
+SELECT id, plugin_id, name, version, enabled, plugin_type, config_json, installed_at, updated_at
+FROM plugin_registry
+WHERE plugin_id = ?;
+
+getAllPlugins:
+SELECT id, plugin_id, name, version, enabled, plugin_type, config_json, installed_at, updated_at
+FROM plugin_registry
+ORDER BY name;
+
+deletePlugin:
+DELETE FROM plugin_registry WHERE plugin_id = ?;

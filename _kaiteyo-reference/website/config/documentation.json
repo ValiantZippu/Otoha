@@ -1,0 +1,236 @@
+{
+  "comment": "Curation of the repository's /docs folder for the website. The source of truth stays in ../docs — this file only maps, titles, and orders.",
+  "sourceDir": "../docs",
+  "sections": [
+    {
+      "id": "start-here",
+      "title": "Start Here",
+      "description": "Project vision and orientation for new readers.",
+      "files": [
+        "README.md",
+        "roadmap/PROJECT_VISION.md"
+      ]
+    },
+    {
+      "id": "design",
+      "title": "Design & Branding",
+      "description": "The Kaiteyo visual identity: brand guidelines, design language, UI system, theming, and animation.",
+      "files": [
+        "branding/BRAND_GUIDELINES.md",
+        "design/DESIGN_LANGUAGE.md",
+        "branding/BRANDING.md",
+        "design/UI_SYSTEM.md",
+        "design/THEME_SYSTEM.md",
+        "design/ANIMATION_SYSTEM.md",
+        "branding/README.md",
+        "design/README.md"
+      ]
+    },
+    {
+      "id": "features",
+      "title": "Features",
+      "description": "Detailed feature overviews and feature status.",
+      "files": [
+        "features/FEATURES.md",
+        "features/DESKTOP.md",
+        "features/LIBRARY.md",
+        "features/MEDIA.md",
+        "features/STATISTICS.md",
+        "features/THEMES.md",
+        "features/README.md"
+      ]
+    },
+    {
+      "id": "architecture",
+      "title": "Architecture",
+      "description": "How Kaiteyo is built: architecture, data platform, language model, study engine, media, mining, statistics, sync, accounts, navigation, and design decisions.",
+      "files": [
+        "architecture/OVERVIEW.md",
+        "architecture/DATA_PLATFORM.md",
+        "architecture/NODE_ARCHITECTURE.md",
+        "architecture/database.md",
+        "architecture/dictionary.md",
+        "architecture/language-model.md",
+        "architecture/study-engine.md",
+        "architecture/statistics.md",
+        "architecture/exams.md",
+        "architecture/media.md",
+        "architecture/mining.md",
+        "architecture/localization.md",
+        "architecture/browser.md",
+        "architecture/SYNC.md",
+        "architecture/ACCOUNT.md",
+        "architecture/NAVIGATION.md",
+        "architecture/FILE_STRUCTURE.md",
+        "architecture/performance.md",
+        "architecture/toolchain.md",
+        "architecture/content.md",
+        "architecture/backup.md",
+        "architecture/accessibility.md",
+        "architecture/ci-cd.md",
+        "architecture/assets.md",
+        "architecture/integrations.md",
+        "architecture/journey.md",
+        "architecture/pitch-frequency.md",
+        "api/README.md"
+      ]
+    },
+    {
+      "id": "decisions",
+      "title": "Architecture Decisions",
+      "description": "Recorded architecture decision records (ADRs).",
+      "directory": "architecture/decisions"
+    },
+    {
+      "id": "data",
+      "title": "Data & Attribution",
+      "description": "Data architecture, open-source data sources, and third-party attribution.",
+      "files": [
+        "data/ARCHITECTURE.md",
+        "data/SOURCES.md",
+        "data/README.md"
+      ]
+    },
+    {
+      "id": "integrations",
+      "title": "Integrations",
+      "description": "How Kaiteyo interoperates with Anki, Yomitan dictionaries, media backends, its local API, and plugins.",
+      "files": [
+        "integrations/ANKI.md",
+        "integrations/YOMITAN_DICTIONARIES.md",
+        "integrations/MEDIA_BACKENDS.md",
+        "integrations/LOCAL_API.md",
+        "integrations/PLUGINS.md",
+        "integrations/README.md"
+      ]
+    },
+    {
+      "id": "user-guide",
+      "title": "User Guide",
+      "description": "End-user documentation: getting started, studying, the desktop suite, and customization.",
+      "files": [
+        "user-guide/GETTING_STARTED.md",
+        "user-guide/STUDYING.md",
+        "user-guide/DESKTOP_SUITE.md",
+        "user-guide/CUSTOMIZATION.md",
+        "user-guide/README.md"
+      ]
+    },
+    {
+      "id": "guides",
+      "title": "Guides",
+      "description": "Step-by-step guides for learning and using Kaiteyo.",
+      "directory": "guides"
+    },
+    {
+      "id": "development",
+      "title": "Development",
+      "description": "Development guide, coding standards, testing, assets, releases, setup, and maintenance.",
+      "files": [
+        "development/DEVELOPER_GUIDE.md",
+        "development/CODING_STANDARDS.md",
+        "assets/ASSETS.md",
+        "releases/RELEASE_PROCESS.md",
+        "releases/RELEASE_CHECKLIST.md",
+        "setup/FirstBuild.md",
+        "setup/FreshSetup.md",
+        "setup/RequiredSoftware.md",
+        "setup/UpdatingDependencies.md",
+        "maintenance/DependencyUpdates.md",
+        "maintenance/VersionHistory.md",
+        "maintenance/KnownLimitations.md"
+      ]
+    },
+    {
+      "id": "platform",
+      "title": "Platforms",
+      "description": "Platform support, build and packaging notes for Windows, Linux, macOS, Android, and iOS.",
+      "files": [
+        "platform/WINDOWS.md",
+        "platform/LINUX.md",
+        "platform/MACOS.md",
+        "platform/ANDROID.md",
+        "platform/IOS.md",
+        "platform/README.md"
+      ]
+    },
+    {
+      "id": "security",
+      "title": "Security & Privacy",
+      "description": "Security model, threat considerations, and the privacy guarantees Kaiteyo actually provides.",
+      "files": [
+        "security/PRIVACY.md",
+        "security/README.md"
+      ]
+    },
+    {
+      "id": "legal",
+      "title": "Legal",
+      "description": "Licensing, third-party notices, and data attribution structure.",
+      "files": [
+        "legal/THIRD_PARTY_NOTICES.md",
+        "legal/README.md"
+      ]
+    },
+    {
+      "id": "testing",
+      "title": "Testing",
+      "description": "Test strategy: where tests live, test levels, and coverage gaps.",
+      "files": [
+        "testing/README.md"
+      ]
+    },
+    {
+      "id": "troubleshooting",
+      "title": "Troubleshooting",
+      "description": "Platform-specific troubleshooting for building and running Kaiteyo.",
+      "directory": "troubleshooting"
+    },
+    {
+      "id": "website",
+      "title": "Website & Command Center",
+      "description": "The website architecture, the public project command center, its data model, and the interactive API contracts.",
+      "files": [
+        "website/README.md",
+        "website/ARCHITECTURE.md",
+        "website/DATA_MODEL.md",
+        "website/API.md"
+      ]
+    },
+    {
+      "id": "contributing",
+      "title": "Contributing",
+      "description": "How to contribute to Kaiteyo.",
+      "files": [
+        "contributing/CONTRIBUTING.md",
+        "development/DEVELOPMENT_SETUP.md"
+      ]
+    },
+    {
+      "id": "ai",
+      "title": "AI Agents",
+      "description": "The contract for AI agents working on the Kaiteyo repository.",
+      "files": [
+        "ai/AI_AGENT_GUIDE.md"
+      ]
+    },
+    {
+      "id": "planning",
+      "title": "Planning",
+      "description": "Roadmap, completed work, future ideas, and the current issue tracker.",
+      "files": [
+        "roadmap/ROADMAP.md",
+        "planning/COMPLETED.md",
+        "planning/FUTURE_IDEAS.md",
+        "planning/CURRENT_ISSUES.md"
+      ]
+    }
+  ],
+  "internalOnly": [
+    "development/AI_CONTEXT.md",
+    "development/COMMANDS.md",
+    "planning/TODO.md",
+    "planning/README.md"
+  ],
+  "rawLinkRoot": "https://github.com/ValiantZippu/Kaiteyo/blob/develop/docs/"
+}
