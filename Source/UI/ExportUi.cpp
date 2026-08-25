@@ -19,6 +19,7 @@ ExportOptionsComponent::ExportOptionsComponent (const ExportSettingsStore& store
     formatLabel.setText (numFiles > 1 ? "Format (all files)" : "Format",
                          juce::dontSendNotification);
     addAndMakeVisible (formatCombo);
+    otoha::theme::label (formatCombo, "Export Format", "Choose the export file format");
 
     for (int i = 0; i <= 4; ++i)
     {
@@ -33,6 +34,7 @@ ExportOptionsComponent::ExportOptionsComponent (const ExportSettingsStore& store
     addAndMakeVisible (qualityLabel);
     qualityLabel.setFont (otoha::theme::font (otoha::theme::TextSize::bodySmall));
     addAndMakeVisible (qualityCombo);
+    otoha::theme::label (qualityCombo, "Export Quality", "Choose the export quality setting");
 
     auto refreshQualityItems = [this, &store]
     {

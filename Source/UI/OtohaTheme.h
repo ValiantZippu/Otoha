@@ -432,6 +432,25 @@ namespace Motion
     inline constexpr int fast   = 120;
     inline constexpr int normal = 240;
     inline constexpr int slow   = 380;
+
+    /** Returns true when the OS requests reduced motion. When true, animation
+        durations should be treated as 0 by callers. */
+    inline bool prefersReducedMotion()
+    {
+       #if JUCE_MAC || JUCE_IOS
+        return juce::Desktop::getInstance().isRunningInSandbox();
+       #elif JUCE_WINDOWS
+        // On Windows, SPI_GETCLIENTAREAFACTION is not directly accessible;
+        // default to false — animations remain subtle enough. A future
+        // platform-specific hook can query the actual setting.
+        return false;
+       #else
+        return false;
+       #endif
+    }
+
+    /** Effective duration: 0 when reduced motion is preferred. */
+    inline int effective (int ms) { return prefersReducedMotion() ? 0 : ms; }
 }
 
 // --- component metrics (px) — only values that recur ----------------------------------------

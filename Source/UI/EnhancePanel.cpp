@@ -4,6 +4,8 @@
 
 #include <cmath>
 
+using namespace otoha::theme;
+
 namespace
 {
 juce::Slider* makeVerticalSlider (juce::Slider& s, double min, double max, double def)
@@ -20,6 +22,7 @@ EnhancePanel::EnhancePanel (otoha::ProcessingState& stateRef, std::function<void
     : state (stateRef), onChange (std::move (onChanged))
 {
     addAndMakeVisible (enableToggle);
+    label (enableToggle, "Enhance", "Toggle audio enhancement on or off");
     enableToggle.onClick = [this]
     {
         state.enabled = enableToggle.getToggleState();
@@ -36,6 +39,8 @@ EnhancePanel::EnhancePanel (otoha::ProcessingState& stateRef, std::function<void
         applyPreset (presets.getReference (idx));
     };
 
+    label (abOriginal, "Original", "Preview original audio without enhancement");
+    label (abEnhanced, "Enhanced", "Preview with enhancement applied");
     for (auto* b : { &abOriginal, &abEnhanced })
     {
         b->setClickingTogglesState (true);
@@ -46,17 +51,22 @@ EnhancePanel::EnhancePanel (otoha::ProcessingState& stateRef, std::function<void
     abEnhanced.setToggleState (true, juce::dontSendNotification);
 
     addAndMakeVisible (resetButton);
+    label (resetButton, "Reset", "Reset all enhancement settings to default");
     resetButton.onClick = [this] { applyPreset (otoha::DspPreset::off); };
 
     // --- basic controls -------------------------------------------------------
     addAndMakeVisible (*makeVerticalSlider (bassSlider, -12.0, 12.0, 0.0));
     addAndMakeVisible (*makeVerticalSlider (midSlider, -12.0, 12.0, 0.0));
     addAndMakeVisible (*makeVerticalSlider (trebleSlider, -12.0, 12.0, 0.0));
+    label (bassSlider, "Bass", "Bass EQ gain in dB");
+    label (midSlider, "Mids", "Mid-range EQ gain in dB");
+    label (trebleSlider, "Treble", "Treble EQ gain in dB");
     bassSlider.onValueChange   = [this] { state.eq.gainsDb[0] = (float) bassSlider.getValue(); changed(); };
     midSlider.onValueChange    = [this] { state.eq.gainsDb[2] = (float) midSlider.getValue(); changed(); };
     trebleSlider.onValueChange = [this] { state.eq.gainsDb[4] = (float) trebleSlider.getValue(); changed(); };
 
     addAndMakeVisible (*makeVerticalSlider (compressionSlider, 0.0, 1.0, 0.0));
+    label (compressionSlider, "Compression", "Compression amount");
     compressionSlider.onValueChange = [this]
     {
         // One "Amount" knob maps onto gentle threshold/ratio pairs.
@@ -71,6 +81,7 @@ EnhancePanel::EnhancePanel (otoha::ProcessingState& stateRef, std::function<void
     noiseCombo.addItem ("Gentle", 2);
     noiseCombo.addItem ("Strong", 3);
     addAndMakeVisible (noiseCombo);
+    label (noiseCombo, "Noise Reduction", "Off, Gentle, or Strong noise reduction");
     noiseCombo.onChange = [this]
     {
         switch (noiseCombo.getSelectedItemIndex())
@@ -91,6 +102,7 @@ EnhancePanel::EnhancePanel (otoha::ProcessingState& stateRef, std::function<void
     };
 
     addAndMakeVisible (limiterToggle);
+    label (limiterToggle, "Limiter", "Protect against clipping");
     limiterToggle.onClick = [this]
     {
         state.limiter.enabled = limiterToggle.getToggleState();
@@ -119,6 +131,16 @@ EnhancePanel::EnhancePanel (otoha::ProcessingState& stateRef, std::function<void
     adv (compMakeup, 0, 12);      compMakeup.onValueChange    = [this] { state.compressor.makeupGainDb = (float) compMakeup.getValue(); };
     adv (limCeiling, -6, 0);      limCeiling.onValueChange    = [this] { state.limiter.ceilingDb = (float) limCeiling.getValue(); };
     adv (nrStrength, 0, 1);       nrStrength.onValueChange    = [this] { state.noiseReduction.strength = (float) nrStrength.getValue(); };
+
+    label (eqLowMid, "EQ Low-Mid", "Low-mid frequency gain in dB");
+    label (eqHighMid, "EQ High-Mid", "High-mid frequency gain in dB");
+    label (compThreshold, "Threshold", "Compressor threshold in dB");
+    label (compRatio, "Ratio", "Compressor ratio");
+    label (compAttack, "Attack", "Compressor attack time in ms");
+    label (compRelease, "Release", "Compressor release time in ms");
+    label (compMakeup, "Makeup", "Compressor makeup gain in dB");
+    label (limCeiling, "Ceiling", "Limiter ceiling in dB");
+    label (nrStrength, "NR Strength", "Noise reduction strength");
 
     startTimerHz (4);
 }
