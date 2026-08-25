@@ -1,6 +1,8 @@
 #include "EditorView.h"
 
 #include "OtohaTheme.h"
+#include "Components/DsButton.h"
+#include "Components/OtohaIcons.h"
 #include "../Core/RecordingSupport.h"
 #include "../Editor/TimelineRenderer.h"
 #include "../Editor/TimelineSource.h"
@@ -280,6 +282,7 @@ EditorView::EditorView (Player& pl, LibraryService& lib, std::function<void()> b
     };
 
     titleLabel.setFont (otoha::theme::font (otoha::theme::TextSize::title));
+    titleLabel.setColour (juce::Label::textColourId, otoha::theme::colors::textPrimary());
     titleLabel.setJustificationType (juce::Justification::centredLeft);
     addAndMakeVisible (titleLabel);
 
@@ -316,11 +319,22 @@ EditorView::EditorView (Player& pl, LibraryService& lib, std::function<void()> b
     timeLabel.setColour (juce::Label::textColourId, otoha::theme::colors::textMuted());
     addAndMakeVisible (timeLabel);
 
+    // M23: apply DS styling to all editor buttons for visual consistency.
     for (auto* b : { &cutButton, &copyButton, &pasteButton, &rippleDeleteButton,
                      &trimButton, &undoButton, &redoButton, &playButton,
                      &zoomInButton, &zoomOutButton, &zoomFitButton,
-                     &enhanceButton, &exportButton, &saveButton })
+                     &exportButton })
+    {
+        otoha::theme::styleCardButton (*b);
         addAndMakeVisible (*b);
+    }
+    otoha::theme::stylePrimaryButton (saveButton);
+    addAndMakeVisible (saveButton);
+    otoha::theme::stylePrimaryButton (enhanceButton);
+    addAndMakeVisible (enhanceButton);
+
+    otoha::theme::styleCardButton (backButton);
+    otoha::theme::styleCardButton (menuButton);
 
     cutButton.onClick          = [this] { cutSelected(); };
     copyButton.onClick         = [this] { copySelected(); };
@@ -423,7 +437,7 @@ bool EditorView::isEditingFile (const juce::File& file) const
 
 void EditorView::paint (juce::Graphics& g)
 {
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+    g.fillAll (otoha::theme::colors::background());
 }
 
 void EditorView::resized()

@@ -250,3 +250,30 @@ The recording library uses a responsive card-grid layout with M18 DS components.
 **Context menu**: Play, Open in Editor, Rename, Duplicate, Favorite, Export, Show in Folder, Delete.  All existing actions preserved.
 
 **Card states**: Default (surface), hover (surfaceHover), selected (accentSoft + accent border), focused (M17 focus ring).  Playing recording shows accent play icon overlay on waveform.
+
+---
+
+## Editor + Sound (M23 — `EditorView.h/.cpp`, `SoundView.h/.cpp`, `EnhancePanel.h/.cpp`)
+
+The existing editor and sound/DSP controls are re-skinned with M18 design-system tokens while preserving all audio functionality unchanged.
+
+**Editor** (`EditorView`):
+- **Header** — Back (card-styled), recording name (title token), menu button.
+- **Waveform** — background via `colors::background()`.  All existing selection/playback/edit logic unchanged.
+- **Toolbar** — edit buttons restyled with `styleCardButton` (cut/copy/paste/delete/undo/redo/zoom), save button with `stylePrimaryButton`, enhance with `stylePrimaryButton`.  All onClick handlers, keyboard shortcuts (Ctrl+Z/X/C/V/Space/Delete), and edit operations unchanged.
+- **Sound** — EnhancePanel overlay unchanged, restyled with theme tokens.
+- **Feedback** — transient toast via `feedbackLabel` with accent color.
+
+**Sound** (`SoundView`):
+- **Status** — title-font readout, theme background.
+- **Power toggle** — accessible name + description added.
+- **Sliders** — Bass/Clarity/Space/Enhance using existing `juce::Slider` styled through theme colours.
+- **Advanced button** — `styleCardButton` with label + tooltip.
+- **Meter** — existing peak meter with `meterSafe`/`meterClip` tokens.
+
+**EnhancePanel** (`EnhancePanel`):
+- **Controls** — EQ (Bass/Mid/Treble), Compression, Noise Reduction, Limiter — all existing DSP parameters unchanged.
+- **Preset** — built-in + custom presets via `ComboBox`.
+- **A/B switch** — Original/Enhanced toggle for comparison.
+- **Advanced section** — expanded EQ, compressor detail, limiter ceiling, NR strength.
+- All visuals consume `OtohaTheme` tokens.  No new DSP added.
