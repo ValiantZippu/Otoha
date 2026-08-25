@@ -9,6 +9,7 @@
 #include "../Export/ExportPresets.h"
 #include "../Library/LibraryService.h"
 #include "OnboardingView.h"
+#include "ComponentsGallery.h"
 #include "EditorView.h"
 #include "HomeView.h"
 #include "LibraryView.h"
@@ -30,6 +31,9 @@ public:
               otoha::AppSettings* appSettings = nullptr);
 
     void resized() override;
+
+    /** Dev-only: Ctrl+Shift+D toggles the M18 design-system gallery. */
+    bool keyPressed (const juce::KeyPress& key) override;
 
     /** Opens a library item in the editor view. */
     bool openInEditor (const otoha::MediaItem& item);
@@ -58,6 +62,7 @@ private:
     std::unique_ptr<LibraryView> libraryView;
     std::unique_ptr<EditorView> editorView;
     std::unique_ptr<SoundView> soundView;
+    std::unique_ptr<otoha::ComponentsGallery> gallery;   // dev-only (Ctrl+Shift+D)
     std::unique_ptr<OnboardingView> onboarding;   // first launch only (#3)
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AppShell)

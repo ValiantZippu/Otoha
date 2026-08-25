@@ -267,6 +267,12 @@ target_sources(otoha_qa_tests PRIVATE
 
 target_link_libraries(otoha_qa_tests PRIVATE juce::juce_audio_formats)
 
+# --- Milestone 18: design-system component kit --------------------------------
+juce_add_console_app(otoha_ds_tests PRODUCT_NAME "otoha_ds_tests")
+target_sources(otoha_ds_tests PRIVATE Tests/DsComponentsTests.cpp)
+target_link_libraries(otoha_ds_tests PRIVATE juce::juce_gui_basics)
+target_compile_definitions(otoha_ds_tests PRIVATE JUCE_MODAL_LOOPS_PERMITTED=1)
+
 # All console test targets: disable web-browser/curl so headless Linux CI
 # builds link without libcurl (JUCE's curl path is unused by Otoha).
 foreach(OTOHA_TEST_TARGET
@@ -281,7 +287,8 @@ foreach(OTOHA_TEST_TARGET
         otoha_export_tests
         otoha_release_tests
         otoha_qa_tests
-        otoha_xplat_tests)
+        otoha_xplat_tests
+        otoha_ds_tests)
     target_compile_definitions(${OTOHA_TEST_TARGET} PRIVATE
         JUCE_WEB_BROWSER=0
         JUCE_USE_CURL=0)
@@ -302,3 +309,4 @@ add_test(NAME export_system COMMAND otoha_export_tests)
 add_test(NAME release_hardening COMMAND otoha_release_tests)
 add_test(NAME cross_platform COMMAND otoha_xplat_tests)
 add_test(NAME qa_stress COMMAND otoha_qa_tests)
+add_test(NAME ds_components COMMAND otoha_ds_tests)

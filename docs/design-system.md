@@ -124,6 +124,29 @@ Do not create new spacing values. Audio/DSP numbers are **not** UI tokens.
 
 ---
 
+## Components (M18 — `Source/UI/Components/`)
+
+Namespace `otoha::ds`. Header-only, token-consuming, no screen-specific styling. Reference renderings live in the dev-only gallery (`Ctrl+Shift+D` → `ComponentsGallery`).
+
+| Component | File | Purpose | Key API |
+|---|---|---|---|
+| `Button` | `DsButton.h` | Label button; variants primary/secondary/tertiary/danger × sizes small/medium/large | `Button (text, variant, size)` |
+| `IconButton` | `DsButton.h` | Compact square button for one vector icon | `IconButton (accessibleName, juce::Path)` |
+| `ComboBox` | `DsControls.h` | Themed dropdown (keyboard: arrows/Enter/Esc) | inherits `juce::ComboBox` |
+| `Slider` | `DsControls.h` | Themed slider, optional value readout | `Slider (name, showValue)` |
+| `Toggle` | `DsControls.h` | On/off switch; state readable without colour | inherits `juce::ToggleButton` |
+| `Input` | `DsControls.h` | Text field with optional error state | `setError (bool)` |
+| `Card` | `DsSurfaces.h` | Surface card; hoverable / selected / interactive states | `setSelected (bool)`, `onClick` |
+| `Tag` | `DsSurfaces.h` | Compact semantic label: neutral/accent/success/warning/danger | `Tag (text, Variant)` |
+| `Divider` | `DsSurfaces.h` | Subtle `borderSubtle` rule — use sparingly | — |
+| `Section` | `DsSurfaces.h` | Title + optional description header | `Section (title, description?)` |
+| `EmptyState` | `DsSurfaces.h` | Icon/title/description/action pattern for empty screens | `EmptyState (Setup{...})` |
+| `ToastHost` | `DsToast.h` | Stacked auto-dismissing notifications: info/success/warning/error | `show (Kind, message)` |
+
+**State model**: every interactive component supports Default/Hover/Pressed/Focused/Disabled (plus Selected/Error where relevant), shares the single M17 focus ring, and recolors instantly on runtime theme change via `ThemeWatcher`. All colours, spacing, radii, typography and metrics come from `OtohaTheme.h` tokens only. Tests: `Tests/DsComponentsTests.cpp` (ctest suite `ds_components`).
+
+---
+
 ## Rules for contributors
 
 1. No `juce::Colour (0x...)` literals outside `OtohaTheme.h`.

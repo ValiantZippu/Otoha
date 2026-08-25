@@ -164,11 +164,11 @@ namespace detail
 /** The active look. Views read tokens through here (see `colors` below). */
 inline const Theme& current()                    { return detail::activeTheme(); }
 
-/** Swap the whole look at runtime and notify every listener (M24). */
+/** Swap the whole look at runtime and notify every listener synchronously (M24). */
 inline void setTheme (const Theme& t)
 {
     detail::activeTheme() = t;
-    detail::changeBroadcaster().sendChangeMessage();
+    detail::changeBroadcaster().sendSynchronousChangeMessage();
 }
 
 /** Components add a ChangeListener to this to re-apply colours when the theme changes. */
