@@ -4,7 +4,7 @@ AppShell::AppShell (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl, Lib
                     otoha::AppSettings* appSettings)
     : library (lib), recorder (rec), player (pl), settings (appSettings),
       exportStore (otohaBaseDirectory()),
-      exportManager (juce::File{})   // locator discovers FFmpeg itself
+      exportManager (juce::File{})
 {
     recordView = std::make_unique<RecordView> (dm, recorder, player, library,
                                                [this] { openCurrentRecordingInEditor(); });
@@ -29,34 +29,23 @@ AppShell::AppShell (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl, Lib
     addChildComponent (*editorView);
     addChildComponent (*soundView);
 
-    for (auto* b : { &studioButton, &libraryButton, &recordButton, &soundButton, &cameraButton, &settingsButton })
-        addAndMakeVisible (*b);
+    // --- M19: floating sidebar navigation ----------------------------------------
+    addAndMakeVisible (sidebar);
+    addAndMakeVisible (contentArea);
 
-    studioButton.setClickingTogglesState (true);
-    libraryButton.setClickingTogglesState (true);
-    recordButton.setClickingTogglesState (true);
-    soundButton.setClickingTogglesState (true);
-    studioButton.setRadioGroupId (10);
-    libraryButton.setRadioGroupId (10);
-    recordButton.setRadioGroupId (10);
-    soundButton.setRadioGroupId (10);
+    sidebar.addItem (idStudio,  "Studio",  otoha::icons::home(),     "Studio",  false);
+    sidebar.addItem (idRecord,  "Record",  otoha::icons::record(),   "Record",  false);
+    sidebar.addItem (idLibrary, "Library", otoha::icons::library(),  "Library", false);
+    sidebar.addItem (idSound,   "Sound",   otoha::icons::sound(),    "Sound",   false);
+    sidebar.addItem (idSettings, "Settings", otoha::icons::settings(), "Settings", true);
 
-    cameraButton.setEnabled (false);     // video milestone
-    settingsButton.setEnabled (false);
-    cameraButton.setTooltip ("Coming in the video milestone");
-    settingsButton.setTooltip ("Coming soon");
+    sidebar.onNavigate = [this] (int id) { navigateTo (id); };
+    sidebar.setActiveItem (idStudio);
 
-    studioButton.onClick  = [this] { showHome(); };
-    libraryButton.onClick = [this] { showLibrary(); };
-    recordButton.onClick  = [this] { showRecording(); };
-    soundButton.onClick   = [this] { showSound(); };
-
-    // Studio Home is the landing screen (M11 #2/#3): Record + Recent + Library.
-    // Sound lives in its own top-level section — never mixed into Studio.
-    studioButton.setToggleState (true, juce::dontSendNotification);
+    // Studio Home is the landing screen (M11 #2/#3)
     showHome();
 
-    // --- first launch (#3): one short screen before anything else -------------
+    // --- first launch (#3): one short screen before anything else ---------------
     if (settings != nullptr && ! settings->firstLaunchComplete)
     {
         onboarding = std::make_unique<OnboardingView>();
@@ -70,15 +59,48 @@ AppShell::AppShell (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl, Lib
             soundView->applyFirstLaunchChoices (enhanceOn, presetName);
 
             juce::Component::SafePointer<AppShell> safeSelf { this };
-            onboarding.reset();          // remove overlay
+            onboarding.reset();
             if (safeSelf != nullptr) repaint();
         };
-        addAndMakeVisible (*onboarding);  // stays on top of all views
+        addAndMakeVisible (*onboarding);
     }
-}void AppShell::showHome()
+
+    // Listen for theme changes (M24 prep)
+    otoha::theme::themeChangedBroadcaster().addChangeListener (this);
+}
+
+AppShell::~AppShell()
+{
+    otoha::theme::themeChangedBroadcaster().removeChangeListener (this);
+}
+
+// --- Navigation ---------------------------------------------------------------
+
+void AppShell::navigateTo (int id)
+{
+    sidebar.setActiveItem (id);
+    currentPageId = id;
+
+    switch (id)
+    {
+        case idStudio:   showHome();      break;
+        case idLibrary:  showLibrary();   break;
+        case idRecord:   showRecording(); break;
+        case idSound:    showSound();     break;
+        case idSettings: /* placeholder */ break;
+    }
+}
+
+void AppShell::showPage (int pageId)
+{
+    currentPageId = pageId;
+    sidebar.setActiveItem (pageId);
+}
+
+void AppShell::showHome()
 {
     if (gallery != nullptr) gallery->setVisible (false);
-    studioButton.setToggleState (true, juce::dontSendNotification);
+    showPage (idStudio);
     recordView->setVisible (false);
     libraryView->setVisible (false);
     editorView->setVisible (false);
@@ -97,9 +119,10 @@ bool AppShell::keyPressed (const juce::KeyPress& key)
         {
             gallery = std::make_unique<otoha::ComponentsGallery>();
             addAndMakeVisible (*gallery);
-            gallery->setBounds (getLocalBounds());
         }
         gallery->setVisible (! gallery->isVisible());
+        if (gallery->isVisible())
+            gallery->setBounds (getLocalBounds());
         return true;
     }
     if (gallery != nullptr && gallery->isVisible() && key.isKeyCode (juce::KeyPress::escapeKey))
@@ -107,43 +130,59 @@ bool AppShell::keyPressed (const juce::KeyPress& key)
         gallery->setVisible (false);
         return true;
     }
+
+    // Navigation shortcuts: 1-5 map to sidebar items
+    const int digit = key.getTextCharacter() - '0';
+    if (digit >= 1 && digit <= 5 && ! key.getModifiers().isAnyModifierKeyDown())
+    {
+        static const int pageMap[] = { 0, idStudio, idLibrary, idRecord, idSound, idSettings };
+        navigateTo (pageMap[digit]);
+        return true;
+    }
+
     return Component::keyPressed (key);
 }
+
+// --- Layout -------------------------------------------------------------------
 
 void AppShell::resized()
 {
     auto bounds = getLocalBounds();
 
-    auto nav = bounds.removeFromTop (44).reduced (12, 6);
-    studioButton.setBounds (nav.removeFromLeft (80).withHeight (30));
-    nav.removeFromLeft (8);
-    libraryButton.setBounds (nav.removeFromLeft (90).withHeight (30));
-    nav.removeFromLeft (8);
-    recordButton.setBounds  (nav.removeFromLeft (90).withHeight (30));
-    nav.removeFromLeft (8);
-    soundButton.setBounds   (nav.removeFromLeft (80).withHeight (30));
-    nav.removeFromLeft (16);
-    cameraButton.setBounds   (nav.removeFromLeft (88).withHeight (30));
-    nav.removeFromLeft (8);
-    settingsButton.setBounds (nav.removeFromLeft (88).withHeight (30));
+    // sidebar decides its own width based on available height
+    const int sidebarW = otoha::ds::NavItem::fullWidth();
+    sidebar.setBounds (bounds.removeFromLeft (sidebarW)
+                          .reduced (otoha::theme::Spacing::md));
 
-    homeView->setBounds    (bounds);
-    recordView->setBounds  (bounds);
-    libraryView->setBounds (bounds);
-    editorView->setBounds (bounds);
-    soundView->setBounds   (bounds);
+    // content fills the remainder
+    auto content = bounds.reduced (otoha::theme::Spacing::sm);
+
+    homeView->setBounds    (content);
+    recordView->setBounds  (content);
+    libraryView->setBounds (content);
+    editorView->setBounds  (content);
+    soundView->setBounds   (content);
 
     if (gallery != nullptr)
-        gallery->setBounds (bounds);
+        gallery->setBounds (getLocalBounds());
 
     if (onboarding != nullptr)
-        onboarding->setBounds (getLocalBounds());   // full-screen overlay while visible
+        onboarding->setBounds (getLocalBounds());
 }
+
+void AppShell::paint (juce::Graphics& g)
+{
+    // Content area background
+    g.setColour (otoha::theme::colors::background());
+    g.fillRect (getLocalBounds());
+}
+
+// --- View management (preserved from original) ---------------------------------
 
 void AppShell::showLibrary()
 {
     if (gallery != nullptr) gallery->setVisible (false);
-    libraryButton.setToggleState (true, juce::dontSendNotification);
+    showPage (idLibrary);
     homeView->setVisible (false);
     recordView->setVisible (false);
     editorView->setVisible (false);
@@ -156,7 +195,7 @@ void AppShell::showLibrary()
 void AppShell::showRecording()
 {
     if (gallery != nullptr) gallery->setVisible (false);
-    recordButton.setToggleState (true, juce::dontSendNotification);
+    showPage (idRecord);
     homeView->setVisible (false);
     libraryView->setVisible (false);
     editorView->setVisible (false);
@@ -179,7 +218,7 @@ void AppShell::showEditor()
 void AppShell::showSound()
 {
     if (gallery != nullptr) gallery->setVisible (false);
-    soundButton.setToggleState (true, juce::dontSendNotification);
+    showPage (idSound);
     homeView->setVisible (false);
     libraryView->setVisible (false);
     recordView->setVisible (false);
@@ -212,4 +251,9 @@ void AppShell::openCurrentRecordingInEditor()
     item.file = file;
     item.displayName = file.getFileNameWithoutExtension();
     openInEditor (item);
+}
+
+void AppShell::changeListenerCallback (juce::ChangeBroadcaster*)
+{
+    repaint();
 }

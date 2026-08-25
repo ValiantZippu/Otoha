@@ -101,7 +101,7 @@ Do not create new spacing values. Audio/DSP numbers are **not** UI tokens.
 
 `otoha::theme::Metrics` — only recurring dimensions:
 
-`rowHeight` 40 · `buttonHeight` 36 · `inputHeight` 30 · `titleStripHeight` 54 · `iconSize` 18 · `cardPadding` 16 · `controlGap` 12 · `touchTargetMin` 44 · `sidebarWidth` 240 (reserved for M19)
+`rowHeight` 40 · `buttonHeight` 36 · `inputHeight` 30 · `titleStripHeight` 54 · `iconSize` 18 · `cardPadding` 16 · `controlGap` 12 · `touchTargetMin` 44 · `sidebarWidth` 200 · `sidebarCollapsed` 56 · `sidebarPadding` 8
 
 ## Motion
 
@@ -142,6 +142,10 @@ Namespace `otoha::ds`. Header-only, token-consuming, no screen-specific styling.
 | `Section` | `DsSurfaces.h` | Title + optional description header | `Section (title, description?)` |
 | `EmptyState` | `DsSurfaces.h` | Icon/title/description/action pattern for empty screens | `EmptyState (Setup{...})` |
 | `ToastHost` | `DsToast.h` | Stacked auto-dismissing notifications: info/success/warning/error | `show (Kind, message)` |
+| `NavItem` | `DsNavigation.h` | Sidebar nav entry: icon+label, active/hover states | `NavItem (label, icon, name)` |
+| `Sidebar` | `DsNavigation.h` | Floating sidebar panel with brand + nav items | `addItem (id, label, icon)`, `setActiveItem (id)` |
+
+**Vector icons** (`OtohaIcons.h`): 25 unit-square `juce::Path` icons (home, record, library, sound, settings, play, pause, stop, undo, redo, back, forward, search, more, plus, close, trash, check, waveform, microphone, musicNote, folder, info, warning, chevronDown). Scale via `getTransformToScaleToFit()`. No raster assets, no font glyphs.
 
 **State model**: every interactive component supports Default/Hover/Pressed/Focused/Disabled (plus Selected/Error where relevant), shares the single M17 focus ring, and recolors instantly on runtime theme change via `ThemeWatcher`. All colours, spacing, radii, typography and metrics come from `OtohaTheme.h` tokens only. Tests: `Tests/DsComponentsTests.cpp` (ctest suite `ds_components`).
 
@@ -157,3 +161,17 @@ Namespace `otoha::ds`. Header-only, token-consuming, no screen-specific styling.
 6. Intentional exceptions must carry an inline comment saying why.
 
 Legacy M14 free functions (`sakura()`, `card()`, `textSoft()`, `clipRed()`, …) still exist as back-compat shims mapped onto the token system — new code must use `colors::` accessors instead.
+
+---
+
+## Navigation shell (M19 — `DsNavigation.h`, `OtohaIcons.h`)
+
+The application shell uses a **floating sidebar** (`otoha::ds::Sidebar`) for all navigation.  The sidebar sits above the content background using `surface`/`border`/`borderSubtle` tokens, includes a brand mark, and navigates between the five primary destinations (Studio, Record, Library, Sound, Settings).
+
+**Sidebar layout**: brand area top, primary nav items (icon + label), secondary items (Settings) bottom.  Below a width threshold, labels collapse to icon-only mode.
+
+**Vector icon registry** (`otoha::icons`): 25 hand-drawn `juce::Path` icons.  All icons are unit-square paths that scale cleanly via `getTransformToScaleToFit()`.  No raster assets, no text-glyph fonts, no mojibake.
+
+**Keyboard navigation**: arrow keys cycle between sidebar items, Enter/Space activate.  Number keys 1-5 provide direct page access.  Focus ring uses the shared M17 focus treatment.
+
+**Theme integration**: sidebar recolors instantly via `ThemeWatcher`.  Accent colour drives the active indicator bar and active label colour.  All sidebar dimensions consume `Metrics::sidebarWidth`, `sidebarCollapsed`, `sidebarPadding`.
