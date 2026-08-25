@@ -1,60 +1,98 @@
 #include "HomeView.h"
 
 #include "OtohaTheme.h"
+#include "Components/DsNavigation.h"
 
 #include "../Core/RecordingSupport.h"
 
-#include <algorithm>
-
 /*
-    Home implementation. Same AMOLED + restrained sakura language as Sound and
-    the onboarding screen, so Studio and Sound read as one product (#2).
-    M14: all styling flows from otoha::theme — this file is the reference.
+    Studio home implementation (M20). Everything consumes OtohaTheme tokens and
+    the M18 component kit — no local styling, no fake data. Hierarchy:
+    Record (primary) → Recent (secondary) → Quick actions (tertiary).
 */
 HomeView::HomeView (LibraryService& lib) : library (lib)
 {
-    brand.setFont (otoha::theme::font (otoha::theme::TextSize::display));
-    brand.setColour (juce::Label::textColourId, otoha::theme::colors::textPrimary());
-    brand.setJustificationType (juce::Justification::centred);
-    addAndMakeVisible (brand);
+    // --- header ---------------------------------------------------------------
+    greeting.setFont (otoha::theme::font (otoha::theme::TextSize::display));
+    greeting.setColour (juce::Label::textColourId, otoha::theme::colors::textPrimary());
+    greeting.setJustificationType (juce::Justification::centredLeft);
+    addAndMakeVisible (greeting);
 
-    subtitle.setFont (otoha::theme::font (otoha::theme::TextSize::body));
-    subtitle.setColour (juce::Label::textColourId, otoha::theme::colors::textMuted());
-    subtitle.setJustificationType (juce::Justification::centred);
-    addAndMakeVisible (subtitle);
+    tagline.setFont (otoha::theme::font (otoha::theme::TextSize::body));
+    tagline.setColour (juce::Label::textColourId, otoha::theme::colors::textMuted());
+    tagline.setJustificationType (juce::Justification::centredLeft);
+    addAndMakeVisible (tagline);
 
-    // The one dominant action on this screen (#5): clear states, accessible name,
-    // and a tooltip. JUCE supplies hover/pressed/down visuals from the colours.
-    otoha::theme::stylePrimaryButton (recordButton);
-    recordButton.setButtonText ("●  Record");
-    otoha::theme::label (recordButton, "Record",
-                         "Start recording with the selected microphone");
-    recordButton.onClick = [this] { if (onRecord) onRecord(); };
-    addAndMakeVisible (recordButton);
-
-    recentHeader.setFont (otoha::theme::font (otoha::theme::TextSize::heading));
-    recentHeader.setColour (juce::Label::textColourId, otoha::theme::colors::textPrimary());
-    recentHeader.setText ("Recent", juce::dontSendNotification);
-    addAndMakeVisible (recentHeader);
-
-    emptyHint.setJustificationType (juce::Justification::centred);
-    emptyHint.setColour (juce::Label::textColourId, otoha::theme::colors::textMuted());
-    emptyHint.setText ("No recordings yet.\nPress Record to make your first one.",
-                       juce::dontSendNotification);
-    addAndMakeVisible (emptyHint);
-
-    otoha::theme::styleCardButton (viewLibraryButton);
-    viewLibraryButton.setButtonText ("View library →");
-    otoha::theme::label (viewLibraryButton, "View library", "Open your recordings");
-    viewLibraryButton.onClick = [this] { if (onViewLibrary) onViewLibrary(); };
-    addAndMakeVisible (viewLibraryButton);
-
-    // #4: a quiet time-of-day greeting — friendly without being chatty.
+    // Quiet time-of-day greeting; neutral fallback is fine without any account system.
     const auto hour = juce::Time::getCurrentTime().getHours();
-    subtitle.setText (hour < 12 ? "Good morning"
+    greeting.setText (hour < 12 ? "Good morning"
                     : hour < 18 ? "Good afternoon"
                                 : "Good evening",
                       juce::dontSendNotification);
+    tagline.setText ("Ready when you are.", juce::dontSendNotification);
+
+    // --- primary Record action --------------------------------------------------
+    recordCard.setProminent (true);
+    otoha::theme::label (recordCard, "Record", "Start a new recording");
+    recordCard.onClick = [this] { if (onRecord) onRecord(); };
+    addAndMakeVisible (recordCard);
+
+    recordTitle.setFont (otoha::theme::font (otoha::theme::TextSize::title));
+    recordTitle.setColour (juce::Label::textColourId, otoha::theme::colors::accent());
+    recordTitle.setJustificationType (juce::Justification::centredLeft);
+    recordTitle.setInterceptsMouseClicks (false, false);
+    recordCard.addAndMakeVisible (recordTitle);
+
+    recordHint.setFont (otoha::theme::font (otoha::theme::TextSize::caption));
+    recordHint.setColour (juce::Label::textColourId, otoha::theme::colors::textMuted());
+    recordHint.setJustificationType (juce::Justification::centredLeft);
+    recordHint.setInterceptsMouseClicks (false, false);
+    recordCard.addAndMakeVisible (recordHint);
+
+    // --- Recent section ----------------------------------------------------------
+    recentHeader.setFont (otoha::theme::font (otoha::theme::TextSize::heading));
+    recentHeader.setColour (juce::Label::textColourId, otoha::theme::colors::textPrimary());
+    addAndMakeVisible (recentHeader);
+
+    // --- empty state --------------------------------------------------------------
+    otoha::theme::label (emptyRecordButton, "Record", "Start a new recording");
+    emptyRecordButton.onClick = [this] { if (onRecord) onRecord(); };
+    otoha::ds::EmptyState::Setup emptySetup;
+    emptySetup.icon        = otoha::icons::microphone();
+    emptySetup.title       = "No recordings yet.";
+    emptySetup.description = "Record something and it will appear here.";
+    emptySetup.action      = &emptyRecordButton;
+    emptyState = std::make_unique<otoha::ds::EmptyState> (emptySetup);
+    addAndMakeVisible (*emptyState);
+
+    // --- quick actions ---------------------------------------------------------------
+    quickHeader.setFont (otoha::theme::font (otoha::theme::TextSize::heading));
+    quickHeader.setColour (juce::Label::textColourId, otoha::theme::colors::textPrimary());
+    addAndMakeVisible (quickHeader);
+
+    otoha::theme::label (libraryCard, "Library", "Browse all recordings");
+    libraryCard.onClick = [this] { if (onViewLibrary) onViewLibrary(); };
+    addAndMakeVisible (libraryCard);
+    libraryTitle.setFont (otoha::theme::font (otoha::theme::TextSize::bodySmall));
+    libraryTitle.setColour (juce::Label::textColourId, otoha::theme::colors::textPrimary());
+    libraryTitle.setInterceptsMouseClicks (false, false);
+    libraryCard.addAndMakeVisible (libraryTitle);
+    libraryHint.setFont (otoha::theme::font (otoha::theme::TextSize::caption));
+    libraryHint.setColour (juce::Label::textColourId, otoha::theme::colors::textMuted());
+    libraryHint.setInterceptsMouseClicks (false, false);
+    libraryCard.addAndMakeVisible (libraryHint);
+
+    otoha::theme::label (soundCard, "Sound", "Microphone and audio settings");
+    soundCard.onClick = [this] { if (onViewSound) onViewSound(); };
+    addAndMakeVisible (soundCard);
+    soundTitle.setFont (otoha::theme::font (otoha::theme::TextSize::bodySmall));
+    soundTitle.setColour (juce::Label::textColourId, otoha::theme::colors::textPrimary());
+    soundTitle.setInterceptsMouseClicks (false, false);
+    soundCard.addAndMakeVisible (soundTitle);
+    soundHint.setFont (otoha::theme::font (otoha::theme::TextSize::caption));
+    soundHint.setColour (juce::Label::textColourId, otoha::theme::colors::textMuted());
+    soundHint.setInterceptsMouseClicks (false, false);
+    soundCard.addAndMakeVisible (soundHint);
 
     refreshRecents();
 }
@@ -69,30 +107,43 @@ void HomeView::refreshRecents()
     recents.clear();
     for (const auto& item : newest)
     {
-        auto row = std::make_unique<RecentRow>();
-        row->item = item;
+        auto rc = std::make_unique<RecentCard>();
+        rc->item = item;
 
-        row->openButton = std::make_unique<juce::TextButton> (item.displayName);
-        otoha::theme::styleCardButton (*row->openButton);
-        row->openButton->setTooltip ("Open in editor");
-        row->openButton->onClick = [this, id = item.id]
+        const auto name = item.displayName;
+        rc->card = std::make_unique<otoha::ds::Card> (name, true);
+        otoha::theme::label (*rc->card,
+                             name + ", " + otoha::formatDuration (item.durationSeconds)
+                                 + ", " + otoha::friendlyRelativeDate (item.createdAt),
+                             "Open in editor");
+        rc->card->onClick = [this, id = item.id]
         {
             if (onOpenItem)
                 onOpenItem (library.get (id));   // fresh lookup: survives renames
         };
-        addAndMakeVisible (*row->openButton);
+        addAndMakeVisible (*rc->card);
 
-        row->duration.setFont (otoha::theme::font (otoha::theme::TextSize::caption));
-        row->duration.setText (otoha::formatDuration (item.durationSeconds),
-                               juce::dontSendNotification);
-        row->duration.setColour (juce::Label::textColourId, otoha::theme::colors::textMuted());
-        row->duration.setJustificationType (juce::Justification::centredRight);
-        addAndMakeVisible (row->duration);
+        rc->name.setFont (otoha::theme::font (otoha::theme::TextSize::bodySmall));
+        rc->name.setColour (juce::Label::textColourId, otoha::theme::colors::textPrimary());
+        rc->name.setText (name, juce::dontSendNotification);
+        rc->name.setJustificationType (juce::Justification::centredLeft);
+        rc->name.setMinimumHorizontalScale (0.8f);
+        rc->name.setInterceptsMouseClicks (false, false);
+        rc->card->addAndMakeVisible (rc->name);
 
-        recents.push_back (std::move (row));
+        rc->meta.setFont (otoha::theme::font (otoha::theme::TextSize::caption));
+        rc->meta.setColour (juce::Label::textColourId, otoha::theme::colors::textMuted());
+        rc->meta.setText (otoha::formatDuration (item.durationSeconds) + juce::String ("  ·  ")
+                              + otoha::friendlyRelativeDate (item.createdAt),
+                          juce::dontSendNotification);
+        rc->meta.setJustificationType (juce::Justification::centredRight);
+        rc->meta.setInterceptsMouseClicks (false, false);
+        rc->card->addAndMakeVisible (rc->meta);
+
+        recents.push_back (std::move (rc));
     }
 
-    emptyHint.setVisible (recents.empty());
+    emptyState->setVisible (recents.empty());
     resized();
 }
 
@@ -100,47 +151,95 @@ void HomeView::paint (juce::Graphics& g)
 {
     g.fillAll (otoha::theme::colors::background());
 
-    // Quiet accent glow behind the hero — derived from the active theme's accent.
-    juce::ColourGradient gradient (otoha::theme::colors::accent().withAlpha (0.19f),
+    // Quiet accent glow behind the hero — derived from the active accent token.
+    juce::ColourGradient gradient (otoha::theme::colors::accent().withAlpha (0.16f),
                                    (float) getWidth() * 0.25f, 0.0f,
-                                   otoha::theme::colors::accent().withAlpha (0.03f),
-                                   (float) getWidth() * 0.75f, 160.0f, false);
+                                   otoha::theme::colors::accent().withAlpha (0.02f),
+                                   (float) getWidth() * 0.75f, 200.0f, false);
     g.setGradientFill (gradient);
-    g.fillRect (0, 0, getWidth(), 160);
+    g.fillRect (0, 0, getWidth(), 200);
 }
 
 void HomeView::resized()
 {
     auto bounds = getLocalBounds().reduced (otoha::theme::Spacing::xl);
-    const int centreW = juce::jmin (460, bounds.getWidth());
+    const int maxContentW = 720;                       // comfortable reading width
+    auto content = bounds.withSizeKeepingCentre (
+        juce::jmin (maxContentW, bounds.getWidth()), bounds.getHeight());
 
-    brand.setBounds    (bounds.removeFromTop (52));
-    subtitle.setBounds (bounds.removeFromTop (22));
-    bounds.removeFromTop (18);
+    const int cardH = otoha::theme::Metrics::touchTargetMin + 24;
 
-    auto centre = bounds.withSizeKeepingCentre (centreW, bounds.getHeight());
-    recordButton.setBounds (centre.removeFromTop (52).withSizeKeepingCentre (220, 48));
-    centre.removeFromTop (28);
+    // header
+    greeting.setBounds (content.removeFromTop (44));
+    tagline.setBounds  (content.removeFromTop (22));
+    content.removeFromTop (otoha::theme::Spacing::lg);
 
-    recentHeader.setBounds (centre.removeFromTop (26));
-    centre.removeFromTop (6);
-
-    if (recents.empty())
+    // primary Record card
     {
-        emptyHint.setBounds (centre.removeFromTop (56));
+        auto r = content.removeFromTop (cardH + 20);
+        recordCard.setBounds (r);
+        auto inner = r.reduced (otoha::theme::Metrics::cardPadding);
+        recordTitle.setBounds (inner.removeFromTop (26));
+        recordHint.setBounds  (inner.removeFromTop (18).withTrimmedLeft (2));
+    }
+    content.removeFromTop (otoha::theme::Spacing::xl);
+
+    // Recent section
+    if (! recents.empty())
+    {
+        recentHeader.setBounds (content.removeFromTop (24));
+        content.removeFromTop (otoha::theme::Spacing::sm);
+
+        const int cols = juce::jmax (1, juce::jmin (3, content.getWidth() / 220));
+        const int gap  = otoha::theme::Spacing::sm;
+        const int colW = (content.getWidth() - (cols - 1) * gap) / cols;
+        int col = 0, rowY = 0;
+        for (auto& rc : recents)
+        {
+            if (col == 0)
+                rowY = content.removeFromTop (cardH).getY();
+            rc->card->setBounds ({ content.getX() + col * (colW + gap), rowY, colW, cardH });
+            auto inner = rc->card->getLocalBounds().reduced (otoha::theme::Metrics::cardPadding - 4);
+            rc->meta.setBounds (inner.removeFromBottom (16));
+            rc->name.setBounds (inner.withHeight (20));
+            col = (col + 1) % cols;
+            if (col == 0)
+                content.removeFromTop (gap);   // row gap after a full row
+        }
+        content.removeFromTop (otoha::theme::Spacing::lg);
     }
     else
     {
-        for (auto& row : recents)
-        {
-            auto r = centre.removeFromTop (40);
-            r.removeFromLeft (8);
-            row->duration.setBounds (r.removeFromRight (64));
-            row->openButton->setBounds (r.withTrimmedRight (8));
-            centre.removeFromTop (4);
-        }
+        recentHeader.setVisible (false);
+        emptyState->setBounds (content.removeFromTop (180));
+        content.removeFromTop (otoha::theme::Spacing::lg);
     }
+    if (recents.empty())
+        recentHeader.setVisible (false);
+    else
+        recentHeader.setVisible (true);
 
-    centre.removeFromTop (14);
-    viewLibraryButton.setBounds (centre.removeFromTop (38).withSizeKeepingCentre (180, 34));
+    // Quick actions
+    quickHeader.setBounds (content.removeFromTop (24));
+    content.removeFromTop (otoha::theme::Spacing::sm);
+    {
+        const int halfGap = otoha::theme::Spacing::sm / 2;
+        auto left  = content.removeFromLeft ((content.getWidth() - otoha::theme::Spacing::sm) / 2);
+        content.removeFromLeft (otoha::theme::Spacing::sm);
+        auto right = content;
+        libraryCard.setBounds (left.removeFromTop (64));
+        soundCard.setBounds  (right.removeFromTop (64));
+
+        auto styleInner = [] (juce::Label& title, juce::Label& hint, juce::Rectangle<int> area)
+        {
+            title.setBounds (area.removeFromTop (20));
+            hint.setBounds (area.removeFromTop (16));
+        };
+        styleInner (libraryTitle, libraryHint,
+                    libraryCard.getLocalBounds().reduced (otoha::theme::Spacing::md)
+                               .withTrimmedTop (6));
+        styleInner (soundTitle, soundHint,
+                    soundCard.getLocalBounds().reduced (otoha::theme::Spacing::md)
+                             .withTrimmedTop (6));
+    }
 }

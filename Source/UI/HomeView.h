@@ -1,32 +1,34 @@
 #pragma once
 
 #include "../Library/LibraryService.h"
+#include "Components/DsButton.h"
+#include "Components/DsCore.h"
+#include "Components/DsSurfaces.h"
 
 #include <juce_gui_basics/juce_gui_basics.h>
 
 #include <vector>
 
 /*
-    HomeView — Otoha's Studio landing screen (Milestone 11 #2/#3).
+    HomeView — Otoha Studio home (M20).
 
-        OTOHA
-        [ ●  Record ]
-        Recent
-          Interview      02:31
-          Idea           00:48
-          Voice memo     01:12
-        [ View Library ]
+    Answers three questions immediately:
+      What can I do?        -> one dominant Record action
+      What did I work on?   -> Recent (real library data, newest first)
+      Where do I go next?   -> Quick actions (Library, Sound)
 
-    Information hierarchy over decoration: the two things a user does most —
-    record something, or get back into the last thing they recorded — are one
-    click away from launch. Pure navigation; no DSP, no playback lives here.
+    Built from the M18 component kit (ds::Card / ds::EmptyState / ds::Button);
+    all visuals come from OtohaTheme tokens. Pure navigation — no DSP, playback,
+    or fake statistics live here. The Record action routes to the existing
+    Record screen (M21 owns its redesign).
 */
 class HomeView : public juce::Component
 {
 public:
-    std::function<void()> onRecord;                       // -> Recording screen
-    std::function<void()> onViewLibrary;                  // -> Library screen
-    std::function<void (const otoha::MediaItem&)> onOpenItem;   // -> Editor
+    std::function<void()> onRecord;                            // -> Record screen
+    std::function<void()> onViewLibrary;                       // -> Library screen
+    std::function<void()> onViewSound;                         // -> Sound screen
+    std::function<void (const otoha::MediaItem&)> onOpenItem;  // -> Editor
 
     explicit HomeView (LibraryService& library);
 
@@ -37,26 +39,43 @@ public:
     void refreshRecents();
 
 private:
-    void rebuildRecentRows();
+    void rebuildRecents();
 
     LibraryService& library;
 
-    juce::Label brand { {}, "OTOHA" };
-    juce::Label subtitle { {}, "Studio" };
-    juce::TextButton recordButton { "●  Record" };
-    juce::Label recentHeader { {}, "Recent" };
-    juce::Label emptyHint { {}, "No recordings yet.\nYour first recording will appear here." };
+    // Header
+    juce::Label greeting;
+    juce::Label tagline;
 
-    struct RecentRow
+    // Primary action — a large interactive card, unmistakably first.
+    otoha::ds::Card recordCard { "Record", true };
+    juce::Label recordTitle  { {}, "Record" };
+    juce::Label recordHint   { {}, "Start a new recording" };
+
+    // Recent section
+    juce::Label recentHeader { {}, "Recent" };
+
+    struct RecentCard
     {
         otoha::MediaItem item;
-        std::unique_ptr<juce::TextButton> openButton;
-        juce::Label duration;
+        std::unique_ptr<otoha::ds::Card> card;
+        juce::Label name;
+        juce::Label meta;      // duration · friendly date
     };
-    // Rows hold a juce::Label (non-movable), so own them through unique_ptr.
-    std::vector<std::unique_ptr<RecentRow>> recents;
+    std::vector<std::unique_ptr<RecentCard>> recents;
 
-    juce::TextButton viewLibraryButton { "View Library" };
+    // Empty state (M18 pattern): icon + title + description + action.
+    otoha::ds::Button emptyRecordButton { "Record", otoha::ds::ButtonVariant::primary };
+    std::unique_ptr<otoha::ds::EmptyState> emptyState;
+
+    // Quick actions
+    juce::Label quickHeader { {}, "Quick actions" };
+    otoha::ds::Card libraryCard { "Library", true };
+    juce::Label libraryTitle { {}, "Library" };
+    juce::Label libraryHint  { {}, "Browse all recordings" };
+    otoha::ds::Card soundCard { "Sound", true };
+    juce::Label soundTitle { {}, "Sound" };
+    juce::Label soundHint  { {}, "Microphone & audio settings" };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HomeView)
 };
