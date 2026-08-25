@@ -195,3 +195,28 @@ The Studio landing screen answers three questions immediately: What can I do? Wh
 **Keyboard navigation**: digit shortcuts (1-5) via the existing AppShell infrastructure map to sidebar destinations; Record is digit 3.
 
 **Component reuse**: `ds::Card` (with `setProminent` for hero), `ds::EmptyState`, `ds::Button`.  `Card::setProminent(true)` tints toward `accentSoft` background and `accent` border — a generic DS variant, not screen-specific styling.
+
+---
+
+## Record screen (M21 — `RecordView.h/.cpp`)
+
+The polished recording experience: choose mic → countdown → record → stop → save.  All visuals consume M17/M18 tokens.
+
+**Layout** (vertical, max content width 720px):
+1. **Config row** — `ds::ComboBox` mic selector, `ds::ComboBox` countdown (Off/3/5/10 sec), `ds::Toggle` monitor.
+2. **Timer** — large centred readout during countdown/recording/playback.
+3. **Waveform** — live `AudioThumbnail` visualizer with playhead.
+4. **Level meter** — RMS + peak bar using `meterSafe`/`meterClip` tokens; clip indicator.
+5. **Record button** — 44px circle using `recording`/`recordingPulse` tokens; toggles to Stop.
+6. **Actions** — `ds::Button` (secondary) Play, Edit, Export, Stop, Delete (danger).
+7. **Status/Error** — format label, status message, error message.
+
+**State machine** (driven by `Recorder::TransportState`): Idle → Countdown → Recording → Paused → Idle.  Countdown uses a monotonic clock; no file is created until it finishes.
+
+**Recording tokens**: `recording`, `recordingPulse`, `recordingBackground` from M17 — never hardcoded red.
+
+**Permission handling**: Android mic permission requested on first record attempt only.  Denied state shows explanation + recovery suggestion.
+
+**Device disconnect**: Recorder reports `FailureReason::deviceLost`; RecordView auto-stops, preserves the file if possible, refreshes the device list.
+
+**Audio safety**: countdown and meter run on UI thread only.  Audio callback meters/monitors through the existing lock-free FIFO; no UI objects touched on the audio thread.
