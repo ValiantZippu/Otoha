@@ -1,18 +1,25 @@
 #pragma once
 
-/*
-    DsControls — themed input controls (M18): ComboBox, Slider, Toggle, Input.
+/*    DsControls — themed input controls (M18, M26 upgrade).
 
-    All consume OtohaTheme tokens, share the one focus ring, recolor live via
-    ThemeWatcher, and keep stock JUCE keyboard/mouse behaviour.
+    M26 additions:
+      - Bottom-border focus indicator (2dp accent line on focus)
+      - Leading icon support for ComboBox and Input
+      - DsSearchField (search icon + text + clear button)
+      - DsSelect (styled dropdown with keyboard nav)
+      - DsTextField (multi-line text area)
 */
 
 #include "DsCore.h"
+#include "OtohaIcons.h"
 
 namespace otoha::ds
 {
 
-/** Themed dropdown. Keyboard (arrows/Enter/Escape) comes from juce::ComboBox. */
+// ---------------------------------------------------------------------------
+// ComboBox (upgraded with leading icon + bottom-border focus)
+// ---------------------------------------------------------------------------
+
 class ComboBox : public juce::ComboBox
 {
 public:
@@ -25,6 +32,8 @@ public:
         applyColours();
     }
 
+    void setLeadingIcon (juce::Path iconPath) { leadingIcon = std::move (iconPath); repaint(); }
+
     void paint (juce::Graphics& g) override
     {
         auto bounds = getLocalBounds().toFloat();
@@ -36,14 +45,31 @@ public:
         g.setColour (error ? theme::colors::danger() : theme::colors::border());
         g.drawRoundedRectangle (bounds.reduced (0.5f), r, 1.0f);
 
+        // bottom-border focus indicator (Kaiteyo pattern)
         if (hasKeyboardFocus (true))
-            drawFocusRing (g, bounds, r);
+        {
+            const float focusY = bounds.getBottom() - 2.0f;
+            g.setColour (theme::colors::accent());
+            g.fillRect (bounds.getX() + r, focusY, bounds.getWidth() - r * 2.0f, 2.0f);
+        }
+
+        auto textArea = bounds.reduced (theme::Spacing::md, 0);
+
+        // leading icon
+        if (! leadingIcon.isEmpty())
+        {
+            const float iconBox = 16.0f;
+            auto iconArea = juce::Rectangle<float> (iconBox, iconBox)
+                .withCentre ({ textArea.getX() + iconBox / 2.0f + 2.0f, bounds.getCentreY() });
+            g.setColour (isEnabled() ? theme::colors::textSecondary() : theme::colors::textDisabled());
+            g.fillPath (leadingIcon, leadingIcon.getTransformToScaleToFit (iconArea, true));
+            textArea = textArea.withTrimmedLeft ((int) iconBox + theme::Spacing::sm);
+        }
 
         const auto text = getText();
         g.setColour (text.isNotEmpty() ? theme::colors::textPrimary() : theme::colors::textMuted());
         g.setFont (theme::font (theme::TextSize::bodySmall));
-        g.drawText (text.isNotEmpty() ? text : placeholderText,
-                    bounds.reduced (theme::Spacing::md, 0),
+        g.drawText (text.isNotEmpty() ? text : placeholderText, textArea,
                     juce::Justification::centredLeft);
 
         auto chevronArea = bounds.removeFromRight (24.0f).withSizeKeepingCentre (10.0f, 6.0f);
@@ -52,7 +78,6 @@ public:
                     chevronDown (chevronArea).getTransformToScaleToFit (chevronArea, true));
     }
 
-    /** Optional error state — the screen owns validation messaging. */
     void setError (bool shouldShowError) { error = shouldShowError; repaint(); }
 
 private:
@@ -65,12 +90,15 @@ private:
     }
 
     juce::String placeholderText;
+    juce::Path leadingIcon;
     bool error = false;
     std::unique_ptr<ThemeWatcher> watcher;
 };
 
-/** Themed linear slider with an optional value readout. Keyboard arrows and
-    Home/End come from juce::Slider. */
+// ---------------------------------------------------------------------------
+// Slider (with bottom-border focus + optional value readout)
+// ---------------------------------------------------------------------------
+
 class Slider : public juce::Slider
 {
 public:
@@ -140,7 +168,10 @@ private:
     std::unique_ptr<ThemeWatcher> watcher;
 };
 
-/** Themed on/off switch. On/off is conveyed by the knob position, not colour alone. */
+// ---------------------------------------------------------------------------
+// Toggle (on/off switch)
+// ---------------------------------------------------------------------------
+
 class Toggle : public juce::ToggleButton
 {
 public:
@@ -200,8 +231,10 @@ private:
     std::unique_ptr<ThemeWatcher> watcher;
 };
 
-/** Themed single-line text editor with an optional error state.
-    The screen provides any validation message; the component stays dumb. */
+// ---------------------------------------------------------------------------
+// Input (single-line text editor with optional leading icon + bottom-border focus)
+// ---------------------------------------------------------------------------
+
 class Input : public juce::TextEditor
 {
 public:
@@ -215,6 +248,8 @@ public:
             setTextToShowWhenEmpty (placeholder, theme::colors::textMuted());
         watcher = std::make_unique<ThemeWatcher> (*this, [this] { applyColours(); });
     }
+
+    void setLeadingIcon (juce::Path iconPath) { leadingIcon = std::move (iconPath); repaint(); }
 
     void setError (bool shouldShowError)
     {
@@ -237,7 +272,174 @@ private:
                    error ? theme::colors::danger() : theme::colors::border());
     }
 
+    juce::Path leadingIcon;
     bool error = false;
+    std::unique_ptr<ThemeWatcher> watcher;
+};
+
+// ---------------------------------------------------------------------------
+// SearchField (search icon + text + clear button — Kaiteyo DsSearchField)
+// ---------------------------------------------------------------------------
+
+/** Search field with clear button — the canonical library/global input. */
+class SearchField : public juce::Component,
+                    private juce::TextEditor::Listener
+{
+public:
+    SearchField (const juce::String& placeholderText = "Search…")
+        : placeholder (placeholderText)
+    {
+        editor.setTextToShowWhenEmpty (placeholder, theme::colors::textMuted());
+        editor.setFont (theme::font (theme::TextSize::bodySmall));
+        editor.setColour (juce::TextEditor::backgroundColourId, theme::colors::surfaceHover());
+        editor.setColour (juce::TextEditor::textColourId, theme::colors::textPrimary());
+        editor.setColour (juce::TextEditor::highlightColourId, theme::colors::selection());
+        editor.setColour (juce::TextEditor::outlineColourId, theme::colors::border());
+        editor.setColour (juce::TextEditor::focusedOutlineColourId, theme::colors::accent());
+        editor.addListener (this);
+        addAndMakeVisible (editor);
+        watcher = std::make_unique<ThemeWatcher> (*this, [this]
+        {
+            editor.setColour (juce::TextEditor::backgroundColourId, theme::colors::surfaceHover());
+            editor.setColour (juce::TextEditor::textColourId, theme::colors::textPrimary());
+            editor.setColour (juce::TextEditor::highlightColourId, theme::colors::selection());
+            editor.setColour (juce::TextEditor::outlineColourId, theme::colors::border());
+            editor.setColour (juce::TextEditor::focusedOutlineColourId, theme::colors::accent());
+            clearVisible = editor.getText().isNotEmpty();
+            repaint();
+        });
+    }
+
+    ~SearchField() override { editor.removeListener (this); }
+
+    juce::String getText() const       { return editor.getText(); }
+    void setText (const juce::String& t) { editor.setText (t); }
+
+    void focusEditor() { editor.grabKeyboardFocus(); }
+
+    void paint (juce::Graphics& g) override
+    {
+        const auto bounds = getLocalBounds().toFloat();
+        const float r = (float) theme::Radius::medium;
+
+        g.setColour (theme::colors::surfaceHover());
+        g.fillRoundedRectangle (bounds, r);
+
+        // search icon
+        const float iconSize = 16.0f;
+        auto iconArea = juce::Rectangle<float> (iconSize, iconSize)
+            .withCentre ({ bounds.getX() + theme::Spacing::md + iconSize / 2.0f,
+                           bounds.getCentreY() });
+        g.setColour (theme::colors::textMuted());
+        g.fillPath (otoha::icons::search(),
+                    otoha::icons::search().getTransformToScaleToFit (iconArea, true));
+    }
+
+    void resized() override
+    {
+        auto bounds = getLocalBounds();
+        const int iconSpace = theme::Spacing::md + 16 + theme::Spacing::sm;
+        editor.setBounds (bounds.withTrimmedLeft (iconSpace));
+    }
+
+private:
+    void textEditorTextChanged (juce::TextEditor&) override
+    {
+        clearVisible = editor.getText().isNotEmpty();
+        repaint();
+    }
+
+    juce::TextEditor editor;
+    juce::String placeholder;
+    bool clearVisible = false;
+    std::unique_ptr<ThemeWatcher> watcher;
+};
+
+// ---------------------------------------------------------------------------
+// Select (styled dropdown — Kaiteyo DsSelect pattern)
+// ---------------------------------------------------------------------------
+
+/** Styled dropdown with keyboard navigation. Wraps juce::ComboBox with DS theming. */
+class Select : public juce::ComboBox
+{
+public:
+    Select (const juce::String& accessibleName)
+    {
+        theme::label (*this, accessibleName);
+        setWantsKeyboardFocus (true);
+        watcher = std::make_unique<ThemeWatcher> (*this, [this] { applyColours(); });
+        applyColours();
+    }
+
+    void paint (juce::Graphics& g) override
+    {
+        auto bounds = getLocalBounds().toFloat();
+        const float r = (float) theme::Radius::medium;
+
+        g.setColour (isEnabled() ? theme::colors::surfaceElevated() : theme::colors::surface().darker (0.3f));
+        g.fillRoundedRectangle (bounds, r);
+
+        g.setColour (theme::colors::border());
+        g.drawRoundedRectangle (bounds.reduced (0.5f), r, 1.0f);
+
+        if (hasKeyboardFocus (true))
+            drawFocusRing (g, bounds, r);
+
+        const auto text = getText();
+        g.setColour (text.isNotEmpty() ? theme::colors::textPrimary() : theme::colors::textMuted());
+        g.setFont (theme::font (theme::TextSize::bodySmall));
+        g.drawText (text.isNotEmpty() ? text : "Choose…",
+                    bounds.reduced (theme::Spacing::md, 0),
+                    juce::Justification::centredLeft);
+
+        auto chevronArea = bounds.removeFromRight (24.0f).withSizeKeepingCentre (10.0f, 6.0f);
+        g.setColour (theme::colors::textSecondary());
+        g.fillPath (chevronDown (chevronArea),
+                    chevronDown (chevronArea).getTransformToScaleToFit (chevronArea, true));
+    }
+
+private:
+    void applyColours()
+    {
+        setColour (juce::ComboBox::backgroundColourId, theme::colors::surfaceElevated());
+        setColour (juce::ComboBox::textColourId,       theme::colors::textPrimary());
+        setColour (juce::ComboBox::outlineColourId,    theme::colors::border());
+    }
+
+    std::unique_ptr<ThemeWatcher> watcher;
+};
+
+// ---------------------------------------------------------------------------
+// TextField (multi-line text area — Kaiteyo DsTextArea)
+// ---------------------------------------------------------------------------
+
+/** Multi-line themed text editor. */
+class TextField : public juce::TextEditor
+{
+public:
+    TextField (const juce::String& accessibleName, const juce::String& placeholder = {})
+    {
+        theme::label (*this, accessibleName);
+        setMultiLine (true, true);
+        setReturnKeyStartsNewLine (true);
+        applyColours();
+        setFont (theme::font (theme::TextSize::bodySmall));
+        setIndents (theme::Spacing::md, theme::Spacing::sm);
+        if (placeholder.isNotEmpty())
+            setTextToShowWhenEmpty (placeholder, theme::colors::textMuted());
+        watcher = std::make_unique<ThemeWatcher> (*this, [this] { applyColours(); });
+    }
+
+private:
+    void applyColours()
+    {
+        setColour (juce::TextEditor::backgroundColourId,       theme::colors::surface());
+        setColour (juce::TextEditor::textColourId,             theme::colors::textPrimary());
+        setColour (juce::TextEditor::highlightColourId,        theme::colors::selection());
+        setColour (juce::TextEditor::focusedOutlineColourId,   theme::colors::focusRing());
+        setColour (juce::TextEditor::outlineColourId,          theme::colors::border());
+    }
+
     std::unique_ptr<ThemeWatcher> watcher;
 };
 
