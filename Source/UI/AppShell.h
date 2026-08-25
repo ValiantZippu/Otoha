@@ -75,7 +75,6 @@ private:
 
     // M19: floating sidebar replaces the old button row
     otoha::ds::Sidebar sidebar;
-    juce::Component contentArea;  // backdrop behind the sidebar
     int currentPageId = idStudio;
 
     std::unique_ptr<HomeView> homeView;

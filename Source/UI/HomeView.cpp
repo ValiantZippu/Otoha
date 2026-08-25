@@ -41,12 +41,14 @@ HomeView::HomeView (LibraryService& lib) : library (lib)
     recordTitle.setColour (juce::Label::textColourId, otoha::theme::colors::accent());
     recordTitle.setJustificationType (juce::Justification::centredLeft);
     recordTitle.setInterceptsMouseClicks (false, false);
+    recordTitle.setText ("Record", juce::dontSendNotification);
     recordCard.addAndMakeVisible (recordTitle);
 
     recordHint.setFont (otoha::theme::font (otoha::theme::TextSize::caption));
     recordHint.setColour (juce::Label::textColourId, otoha::theme::colors::textMuted());
     recordHint.setJustificationType (juce::Justification::centredLeft);
     recordHint.setInterceptsMouseClicks (false, false);
+    recordHint.setText ("Tap to start a new recording", juce::dontSendNotification);
     recordCard.addAndMakeVisible (recordHint);
 
     // --- Recent section ----------------------------------------------------------

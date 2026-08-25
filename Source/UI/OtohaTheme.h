@@ -152,96 +152,96 @@ struct Theme
     ThemeColors colors;
 };
 
-/** The built-in dark look: AMOLED black + sakura. Matches the M14 product. */
+/** The built-in dark look: Kaiteyo OLED Black + Signature Pineapple. */
 inline Theme makeDefaultDarkTheme()
 {
     ThemeColors c;
-    c.background         = juce::Colour (0xff000000);
-    c.surface            = juce::Colour (0xff141414);
-    c.surfaceElevated    = juce::Colour (0xff1c1c1e);
-    c.surfaceHover       = juce::Colour (0xff242424);
-    c.surfacePressed     = juce::Colour (0xff0d0d0d);
+    c.background         = juce::Colour (0xff050505);   // Kaiteyo OLED Black
+    c.surface            = juce::Colour (0xff0d0d0d);   // Kaiteyo surface
+    c.surfaceElevated    = juce::Colour (0xff101010);   // Kaiteyo surfaceElevated
+    c.surfaceHover       = juce::Colour (0xff1a1a1a);   // Kaiteyo surfaceInteractive
+    c.surfacePressed     = juce::Colour (0xff222222);   // Kaiteyo surfaceActive
 
-    c.border             = juce::Colour (0xff2a2a2a);
-    c.borderSubtle       = juce::Colour (0x18ffffff);
-    c.focusRing          = juce::Colour (0xffff9ecf);
+    c.border             = juce::Colour (0xff2a2a2a);   // Kaiteyo border
+    c.borderSubtle       = juce::Colour (0x33ffffff);   // Kaiteyo surfaceBorderSubtle
+    c.focusRing          = juce::Colour (0xffc2fc8b);   // Kaiteyo primary accent
 
-    c.textPrimary        = juce::Colours::white;
-    c.textSecondary      = juce::Colour (0xffd8c7ce);
-    c.textMuted          = juce::Colour (0xff8a7a82);
-    c.textDisabled       = juce::Colour (0xff5a5058);
+    c.textPrimary        = juce::Colour (0xfff0f0f0);   // Kaiteyo textPrimary
+    c.textSecondary      = juce::Colour (0xffa0a0a0);   // Kaiteyo textSecondary
+    c.textMuted          = juce::Colour (0xff606060);   // Kaiteyo textMuted
+    c.textDisabled       = juce::Colour (0xff404040);   // Kaiteyo disabled
 
-    c.accent             = juce::Colour (0xffff9ecf);
-    c.accentHover        = juce::Colour (0xffffb1d9);
-    c.accentPressed      = juce::Colour (0xffe585bc);
-    c.accentSoft         = juce::Colour (0xff2a1620);
-    c.accentContrast     = juce::Colour (0xff2a1018);
+    c.accent             = juce::Colour (0xffc2fc8b);   // Kaiteyo primary (Signature Pineapple)
+    c.accentHover        = juce::Colour (0xff9ce85e);   // Kaiteyo primaryDark
+    c.accentPressed      = juce::Colour (0xff8ad44e);   // pressed variant
+    c.accentSoft         = juce::Colour (0x1ac2fc8b);   // primary at 10% alpha
+    c.accentContrast     = juce::Colour (0xff050505);   // Kaiteyo onPrimary
 
-    c.success            = juce::Colour (0xff4fc3a1);
-    c.warning            = juce::Colour (0xffe8c35a);
-    c.danger             = juce::Colour (0xffe05252);
-    c.info               = juce::Colour (0xff7bc8ff);
+    c.success            = juce::Colour (0xffc2fc8b);   // Kaiteyo semanticSuccess
+    c.warning            = juce::Colour (0xfffeab57);   // Kaiteyo semanticWarning
+    c.danger             = juce::Colour (0xffff6b6b);   // Kaiteyo semanticError
+    c.info               = juce::Colour (0xff7bc8ff);   // Kaiteyo semanticInfo
 
-    c.waveform           = juce::Colour (0xff4fc3a1);
-    c.waveformMuted      = juce::Colour (0xff2f584c);
-    c.selection          = juce::Colour (0xff2b3a36);
-    c.playhead           = juce::Colours::white;
-    c.meterSafe          = juce::Colour (0xff4fc3a1);
-    c.meterWarning       = juce::Colour (0xffe8c35a);
-    c.meterClip          = juce::Colour (0xffff5a7e);
+    c.waveform           = juce::Colour (0xffc2fc8b);   // Kaiteyo primary for waveform
+    c.waveformMuted      = juce::Colour (0xff2a3a2a);   // muted green
+    c.selection          = juce::Colour (0x22c2fc8b);   // primary at 13% alpha
+    c.playhead           = juce::Colour (0xfff0f0f0);   // Kaiteyo textPrimary
+    c.meterSafe          = juce::Colour (0xffc2fc8b);   // Kaiteyo semanticSuccess
+    c.meterWarning       = juce::Colour (0xfffeab57);   // Kaiteyo semanticWarning
+    c.meterClip          = juce::Colour (0xffff6b6b);   // Kaiteyo semanticError
 
-    c.recording            = juce::Colour (0xffe05252);
-    c.recordingPulse       = juce::Colour (0xffff7a6e);
-    c.recordingBackground  = juce::Colour (0xff3a1512);
+    c.recording            = juce::Colour (0xffff6b6b);   // Kaiteyo error for recording
+    c.recordingPulse       = juce::Colour (0xffff8a65);   // warm orange pulse
+    c.recordingBackground  = juce::Colour (0xff1a0a0a);   // dark red background
 
-    c.favorite           = juce::Colour (0xffe8c35a);
+    c.favorite           = juce::Colour (0xffffd93d);   // Kaiteyo favoriteYellow
 
-    return { "Dark (AMOLED + Sakura)", c };
+    return { "OLED Black", c };
 }
 
-/** A clean light look: white surfaces, muted borders, dark text. */
+/** Kaiteyo Light mode: clean white surfaces, dark text. */
 inline Theme makeLightTheme()
 {
     ThemeColors c;
-    c.background         = juce::Colour (0xfff5f5f5);
-    c.surface            = juce::Colour (0xffffffff);
-    c.surfaceElevated    = juce::Colour (0xfff0f0f0);
-    c.surfaceHover       = juce::Colour (0xffe8e8e8);
+    c.background         = juce::Colour (0xfff5f5f5);   // Kaiteyo backgroundLight
+    c.surface            = juce::Colour (0xffeeeeee);   // Kaiteyo surfaceLightDark
+    c.surfaceElevated    = juce::Colour (0xffe8e8e8);   // Kaiteyo surfaceLightMedium
+    c.surfaceHover       = juce::Colour (0xfffcfcfc);   // Kaiteyo surfaceLightLight
     c.surfacePressed     = juce::Colour (0xffdcdcdc);
 
-    c.border             = juce::Colour (0xffd0d0d0);
+    c.border             = juce::Colour (0xffd0d0d0);   // Kaiteyo surfaceBorderLight
     c.borderSubtle       = juce::Colour (0x18000000);
-    c.focusRing          = juce::Colour (0xffff9ecf);
+    c.focusRing          = juce::Colour (0xff9ce85e);   // Kaiteyo primaryDark for light
 
-    c.textPrimary        = juce::Colour (0xff1a1a1a);
-    c.textSecondary      = juce::Colour (0xff555555);
-    c.textMuted          = juce::Colour (0xff888888);
-    c.textDisabled       = juce::Colour (0xffbbbbbb);
+    c.textPrimary        = juce::Colour (0xff1a1a1a);   // Kaiteyo textPrimaryLight
+    c.textSecondary      = juce::Colour (0xff606060);   // Kaiteyo textSecondaryLight
+    c.textMuted          = juce::Colour (0xffa0a0a0);   // Kaiteyo textMutedLight
+    c.textDisabled       = juce::Colour (0xffcccccc);
 
-    c.accent             = juce::Colour (0xffff9ecf);
-    c.accentHover        = juce::Colour (0xffffb1d9);
-    c.accentPressed      = juce::Colour (0xffe585bc);
-    c.accentSoft         = juce::Colour (0xfffff0f6);
-    c.accentContrast     = juce::Colour (0xff2a1018);
+    c.accent             = juce::Colour (0xff9ce85e);   // Kaiteyo primaryDark for light
+    c.accentHover        = juce::Colour (0xffc2fc8b);   // Kaiteyo primary for light hover
+    c.accentPressed      = juce::Colour (0xff8ad44e);
+    c.accentSoft         = juce::Colour (0xffe8f5e0);   // light green tint
+    c.accentContrast     = juce::Colour (0xff050505);   // Kaiteyo onPrimary
 
-    c.success            = juce::Colour (0xff388e3c);
-    c.warning            = juce::Colour (0xffef6c00);
-    c.danger             = juce::Colour (0xffd32f2f);
-    c.info               = juce::Colour (0xff1976d2);
+    c.success            = juce::Colour (0xff2e7d32);   // Kaiteyo light success
+    c.warning            = juce::Colour (0xffef6c00);   // Kaiteyo light warning
+    c.danger             = juce::Colour (0xffe53935);   // Kaiteyo light error
+    c.info               = juce::Colour (0xff1565c0);   // Kaiteyo light info
 
-    c.waveform           = juce::Colour (0xff388e3c);
+    c.waveform           = juce::Colour (0xff2e7d32);   // Kaiteyo light success
     c.waveformMuted      = juce::Colour (0xffa5d6a7);
-    c.selection          = juce::Colour (0xffe3f2fd);
+    c.selection          = juce::Colour (0x229ce85e);   // primary at 13% alpha
     c.playhead           = juce::Colour (0xff1a1a1a);
-    c.meterSafe          = juce::Colour (0xff388e3c);
+    c.meterSafe          = juce::Colour (0xff2e7d32);
     c.meterWarning       = juce::Colour (0xffef6c00);
-    c.meterClip          = juce::Colour (0xffd32f2f);
+    c.meterClip          = juce::Colour (0xffe53935);
 
-    c.recording            = juce::Colour (0xffd32f2f);
+    c.recording            = juce::Colour (0xffe53935);
     c.recordingPulse       = juce::Colour (0xffff5252);
     c.recordingBackground  = juce::Colour (0xffffebee);
 
-    c.favorite           = juce::Colour (0xffef6c00);
+    c.favorite           = juce::Colour (0xfff9a825);   // Kaiteyo light favorite
 
     return { "Light", c };
 }
