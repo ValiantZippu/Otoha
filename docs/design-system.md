@@ -105,7 +105,10 @@ Do not create new spacing values. Audio/DSP numbers are **not** UI tokens.
 
 ## Motion
 
-`otoha::theme::Motion` (ms, consumed by M25): `fast` 120 · `normal` 240 · `slow` 380
+`otoha::theme::Motion` (ms, consumed by M25):
+- `fast` 120 · `normal` 240 · `slow` 380
+- `prefersReducedMotion()` — returns true when the OS requests reduced motion (M25)
+- `effective(ms)` — returns 0 when reduced motion is preferred, otherwise the given duration
 
 ---
 
@@ -303,3 +306,30 @@ User-facing theme system built on top of M17's token infrastructure.
 **Live recolor**: `setTheme()` + `sendSynchronousChangeMessage()` → all `ThemeWatcher` components repaint instantly.  No app restart, no window rebuild.
 
 **Semantic safety**: Accent changes do not replace danger/warning/success/recording tokens.  Errors remain red, recording remains red, warnings remain amber regardless of accent choice.
+
+---
+
+## Final polish / M25
+
+M25 is the release-readiness audit over the M17–M24 UI.
+
+**Accessibility pass**:
+- All EnhancePanel controls (Bass, Mids, Treble, Compression, Noise Reduction, Limiter, Enhance toggle, A/B switch, Reset) carry accessible names via `theme::label()`.
+- All ExportUi combo boxes carry accessible names.
+- Existing `theme::label()` usage across Studio, Record, Library, Editor, Sound, Settings verified.
+
+**Reduced-motion support**:
+- `Motion::prefersReducedMotion()` queries the platform for accessibility preferences.
+- `Motion::effective(ms)` returns 0 when reduced motion is preferred.
+- All animation durations should use `Motion::effective()` in future work.
+
+**Hardcoded-color audit**:
+- Zero hardcoded `juce::Colour(0x...)` literals in any UI file outside `OtohaTheme.h`.
+- All UI views consume `colors::` accessors.
+- Theme definitions (makeDefaultDarkTheme, makeLightTheme) are the canonical source.
+
+**Design-system consistency**:
+- Every screen uses OtohaTheme tokens for backgrounds, text, accents, borders, focus rings.
+- No screen-specific visual logic; sidebar navigation state is the only page-dependent behavior.
+
+**Test results**: 13/13 headless suites pass (zero regressions).

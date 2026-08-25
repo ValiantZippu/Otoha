@@ -50,9 +50,79 @@ device, always: [docs/privacy.md](docs/privacy.md).
 
 ## Development milestone log
 
-> Next up: **UI redesign (M17–M25)** — re-skinning the app in the Kaiteyo design
-> language. Plan and per-milestone agent prompts:
-> [docs/ui-redesign-milestones.md](docs/ui-redesign-milestones.md).
+> **UI redesign (M17–M25) complete.** Otoha now has a cohesive design system,
+> floating sidebar, vector icons, polished screens, and light/dark themes with
+> accent picker. Next work should be driven by actual validation and product
+> needs — not an endless milestone queue.
+
+## Status — Milestone 25: final polish / motion / accessibility pass (complete)
+
+- **Accessibility audit** — added accessible names to all EnhancePanel controls (EQ, compression, noise reduction, limiter, A/B toggle, reset) and ExportUi format/quality combos.
+- **Reduced-motion support** — added `Motion::prefersReducedMotion()` and `Motion::effective()` helpers; all animation durations collapse to 0 when the OS requests reduced motion.
+- **Hardcoded-color audit** — confirmed zero hardcoded colors in UI code; all views consume `colors::` accessors from `OtohaTheme.h`.
+- **Design-system consistency** — every major screen (Studio, Record, Library, Editor, Sound, Settings, Appearance) uses `OtohaTheme` tokens for backgrounds, text, accents, borders, focus rings, and recording state.
+- **Test suite** — 13/13 headless suites pass; no regressions.
+
+## Status — Milestone 24: settings → appearance picker (complete)
+
+- **System / Light / Dark** mode selector in Settings → Appearance.
+- **10-color accent palette** (Sakura, Ocean, Mint, Amber, Lavender, Coral, Sky, Rose, Sage, Peach) with live preview.
+- **Live recolor** via `setTheme()` + `themeChangedBroadcaster()` — no restart required.
+- **Persistence** — appearance mode and accent saved to `settings.json`.
+- **Runtime theme switching** — tested rapid Light↔Dark↔accent changes without crashes.
+
+## Status — Milestone 23: editor + sound re-skin (complete)
+
+- **Editor** — all buttons restyled with DS components and theme tokens.
+- **SoundView** — power toggle, advanced button, and status label restyled.
+- **EnhancePanel** — preserved with theme-token paint; all controls accessible.
+- **Export pipeline** — unchanged; `Source → Timeline → DSP → Renderer → Export` intact.
+
+## Status — Milestone 22: library card grid (complete)
+
+- **Virtualised ListBox** — handles 1000+ recordings efficiently.
+- **Search** via `ds::Input`; **Sort** via `ds::ComboBox`; **Filter** chips (All/Audio/Favorites).
+- **Waveform thumbnails** from existing `WaveformCache`.
+- **Playback**, **Rename**, **Delete** (with confirmation), **Multi-select**, **Bulk delete**.
+- **Empty state** via `ds::EmptyState` with Record CTA.
+
+## Status — Milestone 21: record screen (complete)
+
+- **Microphone selector** — real device list via `ds::ComboBox`.
+- **Countdown** — Off/3/5/10 sec with visual overlay.
+- **Live meter** — RMS fill + peak marker + CLIP indicator.
+- **Waveform visualizer** — `AudioThumbnail` with playhead.
+- **Record/Stop** circle with recording tokens.
+- **Post-recording actions** — Play, Edit, Export, Delete.
+
+## Status — Milestone 20: studio home (complete)
+
+- **Header** — greeting + tagline.
+- **Primary Record card** — prominent accent-tinted card routing to Record.
+- **Recent recordings** — up to 5 from real `LibraryService`.
+- **Quick actions** — Library + Sound cards.
+- **Empty state** via `ds::EmptyState`.
+
+## Status — Milestone 19: floating sidebar shell + vector icons (complete)
+
+- **Floating sidebar** — `ds::Sidebar` with nav items, keyboard nav, compact mode.
+- **Vector icon registry** — `OtohaIcons.h` with Home, Record, Library, Sound, Settings, Play, Pause, etc.
+- **Mojibake fix** — replaced Unicode glyphs with JUCE `Path` vectors.
+- **Responsive** — collapses to icon-only at narrow widths.
+
+## Status — Milestone 18: design system (complete)
+
+- **DS component kit** — `OtohaButton`, `OtohaCard`, `OtohaInput`, `OtohaComboBox`, `OtohaSlider`, `OtohaToggle`, `OtohaTag`, `OtohaEmptyState`, `OtohaSection`.
+- **Theme integration** — all components consume `OtohaTheme` tokens.
+- **Tests** — `DsComponentsTests` validates paint, layout, theme swap.
+
+## Status — Milestone 17: theme tokens + design system foundation (complete)
+
+- **OtohaTheme.h** — `ThemeColors` struct, `setTheme()`, `themeChangedBroadcaster()`, `applyToDesktopLookAndFeel()`.
+- **Typography scale** — display/title/heading/body/bodySmall/caption/button.
+- **Spacing scale** — xs/sm/md/lg/xl/xxl.
+- **Recording tokens** — recording, recordingPulse, recordingBackground.
+- **Meter tokens** — meterSafe, meterWarning, meterClip.
 
 ## Status — Milestone 16: packaging & release engineering (code complete)
 
