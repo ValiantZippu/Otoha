@@ -1,0 +1,2714 @@
+[
+{
+"type": "doc",
+"title": "Kaiteyo (書いてよ) — Documentation",
+"url": "/Kaiteyo/docs/start-here/readme/",
+"section": "Start Here",
+"excerpt": "Kaiteyo is a premium, cross-platform Japanese language learning application. Originally a",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo (書いてよ) — Project Vision",
+"url": "/Kaiteyo/docs/start-here/project_vision/",
+"section": "Start Here",
+"excerpt": "Kaiteyo is a premium, cross-platform Japanese language learning application — a connected",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo (書いてよ) — Brand Guidelines",
+"url": "/Kaiteyo/docs/design/brand_guidelines/",
+"section": "Design & Branding",
+"excerpt": "Kaiteyo is a premium, minimalist Japanese language learning application. The brand evokes:",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo (書いてよ) — Design Language",
+"url": "/Kaiteyo/docs/design/design_language/",
+"section": "Design & Branding",
+"excerpt": "1. Content-first — UI chrome recedes; content dominates (see DsTopBar in",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo (書いてよ) — Branding",
+"url": "/Kaiteyo/docs/design/branding/",
+"section": "Design & Branding",
+"excerpt": "Kaiteyo is a premium, minimalist Japanese language learning application. The brand evokes modern Japanese design aesthetics — clean, precise, purposeful.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo (書いてよ) — UI System",
+"url": "/Kaiteyo/docs/design/ui_system/",
+"section": "Design & Branding",
+"excerpt": "1. Purposeful — no decorative-only components (DsEmptyState, skeletons and",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo (書いてよ) — Theme System",
+"url": "/Kaiteyo/docs/design/theme_system/",
+"section": "Design & Branding",
+"excerpt": "Kaiteyo has two cooperating theme systems:",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo (書いてよ) — Animation System",
+"url": "/Kaiteyo/docs/design/animation_system/",
+"section": "Design & Branding",
+"excerpt": "the user's speed multiplier.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "🎯 branding — Kaiteyo Brand Assets",
+"url": "/Kaiteyo/docs/design/readme/",
+"section": "Design & Branding",
+"excerpt": "This directory contains the brand guidelines and asset inventory. The actual asset files",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "🎨 design — Kaiteyo Design System",
+"url": "/Kaiteyo/docs/design/readme/",
+"section": "Design & Branding",
+"excerpt": "This directory documents Kaiteyo's design system as implemented — every doc is",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo (書いてよ) — Feature Status",
+"url": "/Kaiteyo/docs/features/features/",
+"section": "Features",
+"excerpt": "This matrix reflects what is actually in the codebase today (v2.2.1). Features that",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo — Desktop Experience Specification",
+"url": "/Kaiteyo/docs/features/desktop/",
+"section": "Features",
+"excerpt": "The desktop experience is the primary focus of Kaiteyo. It should feel like a premium",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "📚 Library — Unified Content Hub",
+"url": "/Kaiteyo/docs/features/library/",
+"section": "Features",
+"excerpt": "The Library replaces the old split between \"Kanji\" (Letters) and \"Vocabulary\"",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Media — Immersion Workspace",
+"url": "/Kaiteyo/docs/features/media/",
+"section": "Features",
+"excerpt": "The Media workspace turns Kaiteyo into a full immersion environment:",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Statistics & Examination System",
+"url": "/Kaiteyo/docs/features/statistics/",
+"section": "Features",
+"excerpt": "Kaiteyo's learning analytics lives in one place: the Statistics screen",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo — Theme System & Theme Studio",
+"url": "/Kaiteyo/docs/features/themes/",
+"section": "Features",
+"excerpt": "Users can customize every visual aspect of Kaiteyo: base appearance, accent colors,",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "⚡ features — Kaiteyo Feature Specifications",
+"url": "/Kaiteyo/docs/features/readme/",
+"section": "Features",
+"excerpt": "This directory contains detailed specifications for every major feature.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo (書いてよ) — Architecture Overview",
+"url": "/Kaiteyo/docs/architecture/overview/",
+"section": "Architecture",
+"excerpt": "Kaiteyo is a Kotlin Multiplatform (KMP) project with one shared core module and thin",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Japanese Language Data Platform",
+"url": "/Kaiteyo/docs/architecture/data_platform/",
+"section": "Architecture",
+"excerpt": "A reusable, source-agnostic Japanese language data layer inside the desktop",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo Node Architecture — Master Specification",
+"url": "/Kaiteyo/docs/architecture/node_architecture/",
+"section": "Architecture",
+"excerpt": "Status: TARGET ARCHITECTURE — blueprint, not implementation",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo Architecture — Database Specification & Migration Plan",
+"url": "/Kaiteyo/docs/architecture/database/",
+"section": "Architecture",
+"excerpt": "Status: Implemented (shipped in the product) · schema frozen by ADR-0005",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo Architecture — Dictionary Engine Specification",
+"url": "/Kaiteyo/docs/architecture/dictionary/",
+"section": "Architecture",
+"excerpt": "Status: Implemented in the desktop suite (engines are real and tested; suite-only views",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo Architecture — Language Data Model & Knowledge Graph",
+"url": "/Kaiteyo/docs/architecture/language-model/",
+"section": "Architecture",
+"excerpt": "Status: Reference data implemented (two data platforms — see §7 debt) · knowledge",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo Architecture — Study Engine & Card Model",
+"url": "/Kaiteyo/docs/architecture/study-engine/",
+"section": "Architecture",
+"excerpt": "Status: Implemented — core SRS (FSRS-5) shipped; unified learning model in the suite",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo Architecture — Statistics & Event Model",
+"url": "/Kaiteyo/docs/architecture/statistics/",
+"section": "Architecture",
+"excerpt": "Status: Implemented — event-driven statistics (suite) + SQLDelight statistics (core)",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo Architecture — Exam System Specification",
+"url": "/Kaiteyo/docs/architecture/exams/",
+"section": "Architecture",
+"excerpt": "Status: Implemented (suite ExamEngine + workspace; core exam runner for letter",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo Architecture — Media, Playback & Subtitle Engine",
+"url": "/Kaiteyo/docs/architecture/media/",
+"section": "Architecture",
+"excerpt": "Status: Implemented (suite engine, integrated into the shipped app as the Media Centre)",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo Architecture — Mining Workflow Specification",
+"url": "/Kaiteyo/docs/architecture/mining/",
+"section": "Architecture",
+"excerpt": "Status: Implemented (suite engine; reached in the shipped app via the Media Centre)",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo Architecture — Localization Plan",
+"url": "/Kaiteyo/docs/architecture/localization/",
+"section": "Architecture",
+"excerpt": "Status: Implemented (EN + JA, interface-based); extensible to more languages",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo Architecture — Embedded Browser (Planned)",
+"url": "/Kaiteyo/docs/architecture/browser/",
+"section": "Architecture",
+"excerpt": "Status: Planned — RESEARCH. No backend selected; a documented evaluation precedes",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo Synchronization Architecture v1.2",
+"url": "/Kaiteyo/docs/architecture/sync/",
+"section": "Architecture",
+"excerpt": "Kaiteyo's synchronization system is built on a modular, offline-first architecture. Every module is independently replaceable, allowing future cloud providers to be added without redesigning the core system.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo Account & Synchronization Structure v1.2",
+"url": "/Kaiteyo/docs/architecture/account/",
+"section": "Architecture",
+"excerpt": "This document defines the complete account structure for Kaiteyo. It is designed to be platform-agnostic — usable from the desktop app, mobile app, website, CLI, or any API consumer.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo (書いてよ) — Navigation System",
+"url": "/Kaiteyo/docs/architecture/navigation/",
+"section": "Architecture",
+"excerpt": "The navigation system is a unified, highly customizable desktop-OS-style shell",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Repository File Structure Reference",
+"url": "/Kaiteyo/docs/architecture/file_structure/",
+"section": "Architecture",
+"excerpt": "A map of the repository. Build output (build/), Gradle caches, .git/, and",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo Architecture — Performance Strategy",
+"url": "/Kaiteyo/docs/architecture/performance/",
+"section": "Architecture",
+"excerpt": "Status: Strategy defined; P0 desktop-performance work open",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo Architecture — Toolchain & Development Environment",
+"url": "/Kaiteyo/docs/architecture/toolchain/",
+"section": "Architecture",
+"excerpt": "Status: Implemented and pinned (§167 — no \"latest\" for critical deps)",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo Architecture — Content System & Authoring",
+"url": "/Kaiteyo/docs/architecture/content/",
+"section": "Architecture",
+"excerpt": "Status: Foundation exists (kjd content + premade decks + kana catalog are data);",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo Architecture — Backup, Import & Export",
+"url": "/Kaiteyo/docs/architecture/backup/",
+"section": "Architecture",
+"excerpt": "Status: Implemented (core) — real backup verification, real import/export pipeline",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo Architecture — Accessibility Plan",
+"url": "/Kaiteyo/docs/architecture/accessibility/",
+"section": "Architecture",
+"excerpt": "Status: Partial — foundational support shipped; completeness is open work (P3)",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo Architecture — CI/CD & Release Pipeline",
+"url": "/Kaiteyo/docs/architecture/ci-cd/",
+"section": "Architecture",
+"excerpt": "Status: Implemented and exercised (GitHub Actions)",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo Architecture — Asset System Specification",
+"url": "/Kaiteyo/docs/architecture/assets/",
+"section": "Architecture",
+"excerpt": "Status: Implemented (managed runtime assets + branding); game/media asset pipelines",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo Architecture — Integrations Specification",
+"url": "/Kaiteyo/docs/architecture/integrations/",
+"section": "Architecture",
+"excerpt": "Status: Mixed — Anki/Yomitan/local API/account implemented; browser + plugins planned",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo Architecture — Journey, World & Game Runtime Plan",
+"url": "/Kaiteyo/docs/architecture/journey/",
+"section": "Architecture",
+"excerpt": "Status: Not started — design phase. Nothing ships until the mandated engine",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Pitch Accent & Frequency Architecture",
+"url": "/Kaiteyo/docs/architecture/pitch-frequency/",
+"section": "Architecture",
+"excerpt": "Status: PARTIAL — frequency metadata is REAL (KJD pipeline); pitch-accent data",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "🔌 api — Kaiteyo API Documentation",
+"url": "/Kaiteyo/docs/architecture/readme/",
+"section": "Architecture",
+"excerpt": "This directory documents the internal APIs and data formats used by Kaiteyo.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "ADR-0001: Kaiteyo Brand Identity",
+"url": "/Kaiteyo/docs/decisions/0001-brand/",
+"section": "Architecture Decisions",
+"excerpt": "Status: Accepted",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "ADR-0002: Theme System Architecture",
+"url": "/Kaiteyo/docs/decisions/0002-theme/",
+"section": "Architecture Decisions",
+"excerpt": "Status: Accepted",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "ADR-0003: Kotlin Multiplatform + Compose Multiplatform",
+"url": "/Kaiteyo/docs/decisions/0003-kotlin-multiplatform/",
+"section": "Architecture Decisions",
+"excerpt": "Status: Accepted",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "ADR-0004: Shared UI with the 4-File Screen Pattern + Koin DI",
+"url": "/Kaiteyo/docs/decisions/0004-shared-ui-and-screen-pattern/",
+"section": "Architecture Decisions",
+"excerpt": "Status: Accepted",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "ADR-0005: Two SQLDelight Databases (immutable app data / mutable user data)",
+"url": "/Kaiteyo/docs/decisions/0005-sqldelight-two-databases/",
+"section": "Architecture Decisions",
+"excerpt": "Status: Accepted",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "ADR-0006: FSRS-5 for Spaced Repetition",
+"url": "/Kaiteyo/docs/decisions/0006-fsrs-srs/",
+"section": "Architecture Decisions",
+"excerpt": "Status: Accepted",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "ADR-0007: KJD — Standalone Data Platform for the Bundled Language Database",
+"url": "/Kaiteyo/docs/decisions/0007-kjd-data-platform/",
+"section": "Architecture Decisions",
+"excerpt": "Status: Accepted",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "ADR-0008: Desktop Immersion Suite as a Self-Contained Module",
+"url": "/Kaiteyo/docs/decisions/0008-desktop-suite/",
+"section": "Architecture Decisions",
+"excerpt": "Status: Accepted",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "ADR-0009: GitHub Device-Flow OAuth + Private-Gist Sync (No Central Service)",
+"url": "/Kaiteyo/docs/decisions/0009-github-sync-and-account/",
+"section": "Architecture Decisions",
+"excerpt": "Status: Accepted",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "ADR-0010: Installer Subsystem Decoupled from the Gradle Build",
+"url": "/Kaiteyo/docs/decisions/0010-installer-decoupling/",
+"section": "Architecture Decisions",
+"excerpt": "Status: Accepted",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "ADR-0011: Plugin Runtime Loading Deferred (Security First)",
+"url": "/Kaiteyo/docs/decisions/0011-plugin-security-first/",
+"section": "Architecture Decisions",
+"excerpt": "Status: Accepted",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "ADR-0012: Professional Engineering Standards",
+"url": "/Kaiteyo/docs/decisions/0012-engineering-standards/",
+"section": "Architecture Decisions",
+"excerpt": "Status: Accepted",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "ADR-0013: Node-Based Architecture (Target)",
+"url": "/Kaiteyo/docs/decisions/0013-node-architecture/",
+"section": "Architecture Decisions",
+"excerpt": "Status: Proposed — agreed as target architecture, not yet implemented",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "ADR-0014: Journey as Target Architecture",
+"url": "/Kaiteyo/docs/decisions/0014-journey-target-architecture/",
+"section": "Architecture Decisions",
+"excerpt": "Status: Proposed — Journey is target architecture, not implementation (NODE §158)",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "ADR-0015: Data-Driven Content Authoring",
+"url": "/Kaiteyo/docs/decisions/0015-content-authoring/",
+"section": "Architecture Decisions",
+"excerpt": "Status: Proposed — pipeline specified; editor tool is FUTURE",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "ADR-0016: Event-Driven User Knowledge (Dimensioned, FSRS-Owned Scheduling)",
+"url": "/Kaiteyo/docs/decisions/0016-event-driven-user-knowledge/",
+"section": "Architecture Decisions",
+"excerpt": "Status: Proposed — contract specified, not implemented",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "ADR-0017: One Product — Resolve the Two Parallel Applications",
+"url": "/Kaiteyo/docs/decisions/0017-one-product-architecture/",
+"section": "Architecture Decisions",
+"excerpt": "Status: Proposed — decision required; gates all suite-engine integration work",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "ADR-0018: Game Engine Evaluation (Decision Pending)",
+"url": "/Kaiteyo/docs/decisions/0018-game-engine-evaluation/",
+"section": "Architecture Decisions",
+"excerpt": "Status: Proposed — evaluation in progress; no Journey runtime code may start until",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "ADR-0019: Website as Project Command Center",
+"url": "/Kaiteyo/docs/decisions/0019-website-command-center/",
+"section": "Architecture Decisions",
+"excerpt": "Status: Proposed — the static render is live; the interactive backend is a",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Data Architecture",
+"url": "/Kaiteyo/docs/data/architecture/",
+"section": "Data & Attribution",
+"excerpt": "This document describes where Kaiteyo's data lives, what technology stores it, how it is",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Open-Source Data Sources & Attribution",
+"url": "/Kaiteyo/docs/data/sources/",
+"section": "Data & Attribution",
+"excerpt": "Kaiteyo bundles Japanese-language data that comes from openly licensed third-party",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Data & Attribution",
+"url": "/Kaiteyo/docs/data/readme/",
+"section": "Data & Attribution",
+"excerpt": "This section documents everything about Kaiteyo's data: where it lives, how it is",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Anki Integration",
+"url": "/Kaiteyo/docs/integrations/anki/",
+"section": "Integrations",
+"excerpt": "Kaiteyo interoperates with Anki(https://apps.ankiweb.net/) in two ways:",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Yomitan-Style Dictionaries & Popup Lookup",
+"url": "/Kaiteyo/docs/integrations/yomitan_dictionaries/",
+"section": "Integrations",
+"excerpt": "Kaiteyo's desktop suite implements a Yomitan-style reading workflow: import",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Media Playback Backends",
+"url": "/Kaiteyo/docs/integrations/media_backends/",
+"section": "Integrations",
+"excerpt": "The desktop suite's Media center plays local video/audio files through pluggable backends",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Local HTTP API (desktop)",
+"url": "/Kaiteyo/docs/integrations/local_api/",
+"section": "Integrations",
+"excerpt": "The desktop app runs a small localhost HTTP server (Ktor) so external tools and",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Plugin Architecture",
+"url": "/Kaiteyo/docs/integrations/plugins/",
+"section": "Integrations",
+"excerpt": "The desktop suite ships a manifest-driven plugin registry and marketplace scaffold",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Integrations",
+"url": "/Kaiteyo/docs/integrations/readme/",
+"section": "Integrations",
+"excerpt": "This section documents how Kaiteyo interoperates with external systems: Anki, Yomitan",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Getting Started",
+"url": "/Kaiteyo/docs/user-guide/getting_started/",
+"section": "User Guide",
+"excerpt": "Grab the package for your OS from the GitHub Releases(https://github.com/ValiantZippu/Kaiteyo/releases):",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Studying with Kaiteyo",
+"url": "/Kaiteyo/docs/user-guide/studying/",
+"section": "User Guide",
+"excerpt": "This guide covers the core study engine, available on all platforms (desktop,",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "The Desktop Suite (Windows / macOS / Linux)",
+"url": "/Kaiteyo/docs/user-guide/desktop_suite/",
+"section": "User Guide",
+"excerpt": "The desktop app is a complete immersion workspace: dictionary lookup, media",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Customization",
+"url": "/Kaiteyo/docs/user-guide/customization/",
+"section": "User Guide",
+"excerpt": "Kaiteyo is designed to be customized — themes, layouts, and settings are all",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "User Guide",
+"url": "/Kaiteyo/docs/user-guide/readme/",
+"section": "User Guide",
+"excerpt": "End-user documentation for Kaiteyo. This guide describes what the app actually does",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo — Beginner's Guide",
+"url": "/Kaiteyo/docs/guides/beginner_guide/",
+"section": "Guides",
+"excerpt": "This guide is for people who have never programmed before. It explains everything from absolute zero.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo — Git Guide",
+"url": "/Kaiteyo/docs/guides/git_guide/",
+"section": "Guides",
+"excerpt": "Git is a version control system that tracks changes to files. It allows multiple developers to work on the same project simultaneously without conflicts.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo — Setup Guide",
+"url": "/Kaiteyo/docs/guides/setup_guide/",
+"section": "Guides",
+"excerpt": "Windows: Download from https://git-scm.com/download/win — use default options.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo (書いてよ) — Development Guide",
+"url": "/Kaiteyo/docs/development/developer_guide/",
+"section": "Development",
+"excerpt": "a different major version will fail)",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo (書いてよ) — Coding Standards",
+"url": "/Kaiteyo/docs/development/coding_standards/",
+"section": "Development",
+"excerpt": "1. Readability over cleverness — code is read more than written",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo (書いてよ) — Assets",
+"url": "/Kaiteyo/docs/development/assets/",
+"section": "Development",
+"excerpt": "Kaiteyo uses system fonts exclusively:",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo (書いてよ) — Release Process",
+"url": "/Kaiteyo/docs/development/release_process/",
+"section": "Development",
+"excerpt": "Semantic Versioning (MAJOR.MINOR.PATCH). The single source of truth is:",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Release Checklist",
+"url": "/Kaiteyo/docs/development/release_checklist/",
+"section": "Development",
+"excerpt": "Companion to RELEASEPROCESS.md(RELEASEPROCESS.md). Work through this before every",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "First Build",
+"url": "/Kaiteyo/docs/development/firstbuild/",
+"section": "Development",
+"excerpt": "The first build downloads the Gradle distribution, Kotlin/Compose plugins, Android dependencies, and shared libraries. Allow 5-15 minutes on a normal connection.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Fresh Setup",
+"url": "/Kaiteyo/docs/development/freshsetup/",
+"section": "Development",
+"excerpt": "Use this guide when cloning Kaiteyo onto a new computer. Complete Required Software(RequiredSoftware.md) first.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Required Software",
+"url": "/Kaiteyo/docs/development/requiredsoftware/",
+"section": "Development",
+"excerpt": "Windows supports JVM/Android development; macOS is required for iOS; Linux supports desktop development. Keep at least 20 GB free for dependencies and build outputs. Before running aggregate build, configure ANDROIDHOME or local.properties. See Fresh Setup(Fre",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Updating Dependencies",
+"url": "/Kaiteyo/docs/development/updatingdependencies/",
+"section": "Development",
+"excerpt": "Dependencies are centralized in gradle/libs.versions.toml; plugin versions are in settings.gradle.kts.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Dependency Updates",
+"url": "/Kaiteyo/docs/development/dependencyupdates/",
+"section": "Development",
+"excerpt": "Record dependency changes here with date, reason, verification, and any migration or platform notes. The current source of truth is gradle/libs.versions.toml plus plugin versions in settings.gradle.kts.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Version History and Build History",
+"url": "/Kaiteyo/docs/development/versionhistory/",
+"section": "Development",
+"excerpt": "This is the dated record of releases and solved development issues. Append entries; do not rewrite historical results.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Known Limitations",
+"url": "/Kaiteyo/docs/development/knownlimitations/",
+"section": "Development",
+"excerpt": "Use one status per item: Open, Investigating, Solved, Won't Fix, or Deferred. Update this list whenever a limitation changes.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Windows",
+"url": "/Kaiteyo/docs/platform/windows/",
+"section": "Platforms",
+"excerpt": "✅ Supported — primary development platform. The desktop app is the flagship.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Linux",
+"url": "/Kaiteyo/docs/platform/linux/",
+"section": "Platforms",
+"excerpt": "✅ Supported — desktop app packaged for common distributions.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "macOS",
+"url": "/Kaiteyo/docs/platform/macos/",
+"section": "Platforms",
+"excerpt": "✅ Supported — desktop app built and packaged for both architectures.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Android",
+"url": "/Kaiteyo/docs/platform/android/",
+"section": "Platforms",
+"excerpt": "✅ Supported — two flavors distributed via Google Play and F-Droid.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "iOS",
+"url": "/Kaiteyo/docs/platform/ios/",
+"section": "Platforms",
+"excerpt": "🚧 Partial — the shared engine and app shell exist and are published to the App",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Platform Documentation",
+"url": "/Kaiteyo/docs/platform/readme/",
+"section": "Platforms",
+"excerpt": "Kaiteyo targets five platforms from one Kotlin Multiplatform codebase. This section",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Privacy",
+"url": "/Kaiteyo/docs/security/privacy/",
+"section": "Security & Privacy",
+"excerpt": "This document states what Kaiteyo actually stores and transmits, based on the code.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Security",
+"url": "/Kaiteyo/docs/security/readme/",
+"section": "Security & Privacy",
+"excerpt": "The canonical security policy is the repository-root",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Third-Party Notices",
+"url": "/Kaiteyo/docs/legal/third_party_notices/",
+"section": "Legal",
+"excerpt": "This page summarizes the third-party data and libraries bundled with (or integrated into)",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Legal & Licensing",
+"url": "/Kaiteyo/docs/legal/readme/",
+"section": "Legal",
+"excerpt": "Kaiteyo is free software under the GNU General Public License v3.0 (or, at your",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Testing Strategy",
+"url": "/Kaiteyo/docs/testing/readme/",
+"section": "Testing",
+"excerpt": "Tests use kotlin.test with JUnit Platform (useJUnitPlatform() in the module build",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Android",
+"url": "/Kaiteyo/docs/troubleshooting/android/",
+"section": "Troubleshooting",
+"excerpt": "Android development uses the app module and requires Android Studio, an Android SDK, and a configured emulator or device.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Build Errors",
+"url": "/Kaiteyo/docs/troubleshooting/builderrors/",
+"section": "Troubleshooting",
+"excerpt": "Use this page for failures that stop compilation, packaging, or tests. Start with the Command Library(../development/COMMANDS.md), then record the issue here.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Common Problems",
+"url": "/Kaiteyo/docs/troubleshooting/commonproblems/",
+"section": "Troubleshooting",
+"excerpt": "This page handles recurring environment problems that cross multiple toolchains. Use the exact issue structure in the Troubleshooting README(README.md) for new entries.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Desktop",
+"url": "/Kaiteyo/docs/troubleshooting/desktop/",
+"section": "Troubleshooting",
+"excerpt": "The desktop target is the desktopApp JVM module and packages installers for Windows, macOS, and Linux.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Git",
+"url": "/Kaiteyo/docs/troubleshooting/git/",
+"section": "Troubleshooting",
+"excerpt": "Use Git to obtain the complete repository, preserve the Gradle wrapper, and keep documentation changes reviewable.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Gradle",
+"url": "/Kaiteyo/docs/troubleshooting/gradle/",
+"section": "Troubleshooting",
+"excerpt": "Kaiteyo uses the committed Gradle wrapper and a multi-project Kotlin Multiplatform build. Use wrapper commands from the repository root.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "iOS",
+"url": "/Kaiteyo/docs/troubleshooting/ios/",
+"section": "Troubleshooting",
+"excerpt": "The shared Kotlin code includes iOS targets, while iosApp is built with Xcode on macOS.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Java",
+"url": "/Kaiteyo/docs/troubleshooting/java/",
+"section": "Troubleshooting",
+"excerpt": "Kaiteyo development targets Java 17. Gradle uses JAVAHOME or the Java executable on PATH to start its daemon.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Linux",
+"url": "/Kaiteyo/docs/troubleshooting/linux/",
+"section": "Troubleshooting",
+"excerpt": "Linux supports the desktop JVM target and Linux packaging when the required system libraries and JDK are installed.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "macOS",
+"url": "/Kaiteyo/docs/troubleshooting/macos/",
+"section": "Troubleshooting",
+"excerpt": "macOS is required for iOS builds and supports desktop packaging through the Compose desktop tasks.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "VS Code",
+"url": "/Kaiteyo/docs/troubleshooting/vscode/",
+"section": "Troubleshooting",
+"excerpt": "VS Code is an editor and terminal host; Gradle remains the source of truth for build configuration.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Windows",
+"url": "/Kaiteyo/docs/troubleshooting/windows/",
+"section": "Troubleshooting",
+"excerpt": "Windows is supported for desktop development and can run the JVM and Android portions of the project.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo Website",
+"url": "/Kaiteyo/docs/website/readme/",
+"section": "Website & Command Center",
+"excerpt": "Status: LIVE (static site; Python build, consumes docs/) + PLANNED (the",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Website Architecture",
+"url": "/Kaiteyo/docs/website/architecture/",
+"section": "Website & Command Center",
+"excerpt": "Status: LIVE (static build) + PLANNED (interactive backend layer).",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Website — Unified Project Data Model",
+"url": "/Kaiteyo/docs/website/data_model/",
+"section": "Website & Command Center",
+"excerpt": "Status: TARGET (backend) — the model below is the contract the interactive",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Website — API Contracts (interactive layer)",
+"url": "/Kaiteyo/docs/website/api/",
+"section": "Website & Command Center",
+"excerpt": "Status: DOCUMENTED ONLY / PLANNED. The static site is live; every endpoint",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Contributing to Kaiteyo",
+"url": "/Kaiteyo/docs/contributing/contributing/",
+"section": "Contributing",
+"excerpt": "The canonical contributing guide lives at the repository root:",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo — Development Setup",
+"url": "/Kaiteyo/docs/contributing/development_setup/",
+"section": "Contributing",
+"excerpt": "This guide walks you through setting up a development environment for Kaiteyo from",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "AI Agent Guide",
+"url": "/Kaiteyo/docs/ai/ai_agent_guide/",
+"section": "AI Agents",
+"excerpt": "AI agents are development assistants, not autonomous architects (STANDARDS §172).",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo (書いてよ) — Roadmap",
+"url": "/Kaiteyo/docs/planning/roadmap/",
+"section": "Planning",
+"excerpt": "This roadmap is a living document. It reflects where the project actually is — shipped",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo — Completed Features",
+"url": "/Kaiteyo/docs/planning/completed/",
+"section": "Planning",
+"excerpt": "This document tracks completed features and milestones. When a task from TODO.md or CURRENTISSUES.md is completed, add it here.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo — Future Ideas",
+"url": "/Kaiteyo/docs/planning/future_ideas/",
+"section": "Planning",
+"excerpt": "This document captures ideas for future consideration. Not all ideas will be implemented — they are collected here for discussion and prioritization.",
+"icon": "file"
+},
+{
+"type": "doc",
+"title": "Kaiteyo — Current Issues",
+"url": "/Kaiteyo/docs/planning/current_issues/",
+"section": "Planning",
+"excerpt": "Living issue tracker. Categories (see README.md(README.md)): BUG (reproducible",
+"icon": "file"
+},
+{
+"type": "faq",
+"title": "Do I need an account to use Kaiteyo?",
+"url": "/Kaiteyo/faq/#faq-account",
+"section": "Getting started",
+"excerpt": "No. Kaiteyo has no accounts and no sign-in. All study data is stored locally on your device, so you can start studying immediately after install — even without an internet connection.",
+"icon": "help"
+},
+{
+"type": "faq",
+"title": "Can I use Kaiteyo with Anki?",
+"url": "/Kaiteyo/faq/#faq-anki",
+"section": "Study & review",
+"excerpt": "Yes, in two real ways. .apkg import/export works on every platform — bring an Anki collection into Kaiteyo (deck hierarchy, notes, cards, tags and scheduling carry over; media is extracted and references repaired) or export Kaiteyo decks to Anki. AnkiConnect (",
+"icon": "help"
+},
+{
+"type": "faq",
+"title": "Can I back up my study data?",
+"url": "/Kaiteyo/faq/#faq-backup",
+"section": "Data & privacy",
+"excerpt": "Yes. Decks can be exported to files, which you can store anywhere — a USB drive, a cloud folder, or a second machine. Importing a deck restores your study data on any device running Kaiteyo.",
+"icon": "help"
+},
+{
+"type": "faq",
+"title": "Can I build Kaiteyo myself from source?",
+"url": "/Kaiteyo/faq/#faq-build-source",
+"section": "Platforms",
+"excerpt": "Yes. The project is a standard Gradle Kotlin Multiplatform build. Requirements and step-by-step instructions are in the Development Guide(/docs/development/developerguide/) section of the documentation. Building from source is the best way to test unreleased f",
+"icon": "help"
+},
+{
+"type": "faq",
+"title": "How do exams work, and how are they different from reviews?",
+"url": "/Kaiteyo/faq/#faq-exams",
+"section": "Study & review",
+"excerpt": "Exams are generated from your actually studied content — kanji you've studied (with radicals/stroke counts) and vocabulary from your decks — with JLPT distribution, production (free-text) and recognition (multiple-choice) question types, valid distractors, and",
+"icon": "help"
+},
+{
+"type": "faq",
+"title": "Is Kaiteyo free?",
+"url": "/Kaiteyo/faq/#faq-free",
+"section": "Getting started",
+"excerpt": "Yes — entirely. Kaiteyo is free and open-source software released under the GPL-3.0 license. There is no premium tier, no subscriptions, and no paid features planned. The source code is public on GitHub(https://github.com/ValiantZippu/Kaiteyo), and releases ar",
+"icon": "help"
+},
+{
+"type": "faq",
+"title": "What formats can Kaiteyo import and export?",
+"url": "/Kaiteyo/faq/#faq-import-export",
+"section": "Data & privacy",
+"excerpt": "Kaiteyo imports and exports JSON, CSV, TSV and TXT decks, plus Anki .apkg packages on every platform — with preview, validation, and conflict policies (Skip / Update / Duplicate). Profile backups archive your data, settings, and window state into a single rest",
+"icon": "help"
+},
+{
+"type": "faq",
+"title": "Where does Kaiteyo's kanji and vocabulary data come from?",
+"url": "/Kaiteyo/faq/#faq-kanji-data",
+"section": "Learning",
+"excerpt": "From openly licensed datasets, processed by Kaiteyo's own data pipeline (KJD): KanjiVG for stroke paths and radicals (CC BY-SA 3.0), KANJIDIC for kanji meanings/readings/classifications, JMdict for vocabulary entries, JmdictFurigana for reading segmentation, T",
+"icon": "help"
+},
+{
+"type": "faq",
+"title": "How does media mining work, and on which platforms?",
+"url": "/Kaiteyo/faq/#faq-media-mining",
+"section": "Media & mining",
+"excerpt": "The Media Centre (desktop) plays local video and audio through VLC, mpv, or the built-in audio engine. With Japanese subtitles (SRT/ASS/SSA/VTT), you select subtitle text, look it up in the built-in dictionary, and mine it into a deck — the card keeps the sent",
+"icon": "help"
+},
+{
+"type": "faq",
+"title": "Which platforms does Kaiteyo run on?",
+"url": "/Kaiteyo/faq/#faq-platforms",
+"section": "Platforms",
+"excerpt": "Windows, macOS, Linux, Android, and iOS — all from one Kotlin Multiplatform codebase with Compose Multiplatform. The UI and features are identical across platforms, scaled appropriately for the device. Desktop and mobile each get a sidebar tuned for their inpu",
+"icon": "help"
+},
+{
+"type": "faq",
+"title": "Does Kaiteyo collect my data or show ads?",
+"url": "/Kaiteyo/faq/#faq-privacy",
+"section": "Data & privacy",
+"excerpt": "No to both. The app has no analytics, no crash-reporting services, no ads, and no telemetry. Nothing leaves your device unless you choose to export a deck or participate on GitHub.",
+"icon": "help"
+},
+{
+"type": "faq",
+"title": "How does the spaced repetition scheduler work?",
+"url": "/Kaiteyo/faq/#faq-scheduler",
+"section": "Study & review",
+"excerpt": "Each card is scheduled individually with configurable intervals. When you grade a card — Again / Hard / Good / Easy — the scheduler adapts that card's next review time. Intervals and limits are configurable per deck, so you can tune how many new cards you intr",
+"icon": "help"
+},
+{
+"type": "faq",
+"title": "How does writing practice grade my strokes?",
+"url": "/Kaiteyo/faq/#faq-stroke-grading",
+"section": "Study & review",
+"excerpt": "When you draw a kanji, the app compares your strokes against the reference stroke data (from KanjiVG) in real time. Strokes are graded as you write, and the recognized drawing is matched against the expected character. You can practice with the stroke-order di",
+"icon": "help"
+},
+{
+"type": "faq",
+"title": "Is there an account or cloud sync?",
+"url": "/Kaiteyo/faq/#faq-sync-account",
+"section": "Data & privacy",
+"excerpt": "No account is required — Kaiteyo is offline-first and everything works without one. Sync is currently desktop-first and gist-based: an opt-in GitHub gist transport (OAuth device flow) exists in the desktop suite, but there is no central Kaiteyo service. Backup",
+"icon": "help"
+},
+{
+"type": "faq",
+"title": "Can I customize how Kaiteyo looks?",
+"url": "/Kaiteyo/faq/#faq-themes",
+"section": "Customization",
+"excerpt": "Yes. Kaiteyo ships base modes (OLED black, dark, light, and sepia reading mode) with seven signature accent schemes, plus configurable animation speed and display density. On desktop there's a full Theme Studio — color editor, gradients, motion presets, layout",
+"icon": "help"
+},
+{
+"type": "faq",
+"title": "Where can I get help when something doesn't work?",
+"url": "/Kaiteyo/faq/#faq-troubleshooting",
+"section": "Getting started",
+"excerpt": "Start with the FAQ(/faq/), the Documentation(/docs/), and the troubleshooting documentation(/docs/troubleshooting/). For unresolved issues, open a bug report on GitHub issues(https://github.com/ValiantZippu/Kaiteyo/issues) with your platform, app version, and ",
+"icon": "help"
+},
+{
+"type": "shortcut",
+"title": "Again",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Review",
+"excerpt": "Mark card as failed",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Hard",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Review",
+"excerpt": "Mark card as hard",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Good",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Review",
+"excerpt": "Mark card as good",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Easy",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Review",
+"excerpt": "Mark card as easy",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Mark Again",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Review",
+"excerpt": "Quick answer: Again",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Mark Hard",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Review",
+"excerpt": "Quick answer: Hard",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Mark Good",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Review",
+"excerpt": "Quick answer: Good",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Mark Easy",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Review",
+"excerpt": "Quick answer: Easy",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Undo",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Review",
+"excerpt": "Undo last action",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Show Answer",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Review",
+"excerpt": "Flip card to show answer",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Suspend Card",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Review",
+"excerpt": "Suspend current card",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Bury Card",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Review",
+"excerpt": "Bury current card",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Toggle Flag",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Review",
+"excerpt": "Set/unset flag",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Add Tag",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Review",
+"excerpt": "Add tag to card",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Play Audio",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Review",
+"excerpt": "Play card audio",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Retry",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Review",
+"excerpt": "Retry pronunciation",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Skip",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Review",
+"excerpt": "Skip card (with Alt)",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Next Card",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Navigation",
+"excerpt": "Go to next card",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Previous Card",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Navigation",
+"excerpt": "Go to previous card",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Statistics",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Navigation",
+"excerpt": "Open statistics",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Heatmap",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Navigation",
+"excerpt": "Open heatmap",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "History",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Navigation",
+"excerpt": "Open review history",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Search",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Browser",
+"excerpt": "Focus search bar",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Select All",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Browser",
+"excerpt": "Select all cards",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Deselect All",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Browser",
+"excerpt": "Clear selection",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Delete Card",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Browser",
+"excerpt": "Delete selected cards",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Preview",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Browser",
+"excerpt": "Preview card",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Edit Note",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Browser",
+"excerpt": "Edit card note",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Card Info",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Browser",
+"excerpt": "Show card details",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Bulk Tag",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Browser",
+"excerpt": "Tag selected cards",
+"icon": "keyboard"
+},
+{
+"type": "shortcut",
+"title": "Bulk Flag",
+"url": "/Kaiteyo/shortcuts/",
+"section": "Browser",
+"excerpt": "Flag selected cards",
+"icon": "keyboard"
+},
+{
+"type": "changelog",
+"title": "Version 2.2.1",
+"url": "/Kaiteyo/changelog/#v2-2-1",
+"section": "Changelog",
+"excerpt": "P r e W i n m a c L i n S h a D o c F i r A u t C I   N a t 4 4 d N a t 8 - z C u s W i n S c r U n i i O S D o c D e s P l a L e g R e b",
+"icon": "history"
+},
+{
+"type": "changelog",
+"title": "Version 2.0.0",
+"url": "/Kaiteyo/changelog/#v2-0-0",
+"section": "Changelog",
+"excerpt": "U n i P e r T h e F l o B r u B r a O n b A n k T h e C o r ` S l A l l A l l C o l N o   M i s N o  ",
+"icon": "history"
+},
+{
+"type": "changelog",
+"title": "Version 1.1.0",
+"url": "/Kaiteyo/changelog/#v1-1-0",
+"section": "Changelog",
+"excerpt": "U n d S p r T h e A p p S i g R e b C o m ` a n ` a n ` w i M i s D e s",
+"icon": "history"
+},
+{
+"type": "changelog",
+"title": "Version 1.0.0",
+"url": "/Kaiteyo/changelog/#v1-0-0",
+"section": "Changelog",
+"excerpt": "F o r B a s J L P C r o K o i",
+"icon": "history"
+},
+{
+"type": "wiki",
+"title": "How decks work",
+"url": "/Kaiteyo/wiki/deck-architecture/",
+"section": "",
+"excerpt": "The data model behind collections, decks, cards, and the scheduler state that drives every screen.",
+"icon": "file"
+},
+{
+"type": "wiki",
+"title": "How decks work",
+"url": "/Kaiteyo/wiki/deck-architecture/",
+"section": "Wiki",
+"excerpt": "Decks are the organizing unit of everything you study. This article is how the deck/card data model works.",
+"icon": "compass"
+},
+{
+"type": "wiki",
+"title": "Importing dictionaries",
+"url": "/Kaiteyo/wiki/dictionary-import/",
+"section": "",
+"excerpt": "Bring your own Japanese dictionaries into Kaiteyo with Yomitan-format imports and the dictionary manager.",
+"icon": "file"
+},
+{
+"type": "wiki",
+"title": "Importing dictionaries",
+"url": "/Kaiteyo/wiki/dictionary-import/",
+"section": "Wiki",
+"excerpt": "Beyond the bundled vocabulary, Kaiteyo lets you import your own dictionaries and use several of them side by side.",
+"icon": "compass"
+},
+{
+"type": "wiki",
+"title": "What the dictionary includes",
+"url": "/Kaiteyo/wiki/dictionary/",
+"section": "",
+"excerpt": "The vocabulary data bundled with Kaiteyo, and where it comes from.",
+"icon": "file"
+},
+{
+"type": "wiki",
+"title": "What the dictionary includes",
+"url": "/Kaiteyo/wiki/dictionary/",
+"section": "Wiki",
+"excerpt": "Kaiteyo ships an offline dictionary of 17,000+ vocabulary entries, so lookups work without an internet connection.",
+"icon": "compass"
+},
+{
+"type": "wiki",
+"title": "Creating your first deck",
+"url": "/Kaiteyo/wiki/first-deck/",
+"section": "",
+"excerpt": "A five-minute walkthrough from a blank app to your first review session.",
+"icon": "file"
+},
+{
+"type": "wiki",
+"title": "Creating your first deck",
+"url": "/Kaiteyo/wiki/first-deck/",
+"section": "Wiki",
+"excerpt": "When you launch Kaiteyo you land on the dashboard. Open the deck browser from the sidebar to see your (empty) deck list.",
+"icon": "compass"
+},
+{
+"type": "wiki",
+"title": "Learning browser",
+"url": "/Kaiteyo/wiki/learning-browser/",
+"section": "",
+"excerpt": "Read the web and Japanese text inside Kaiteyo, mining vocabulary as you go.",
+"icon": "file"
+},
+{
+"type": "wiki",
+"title": "Learning browser",
+"url": "/Kaiteyo/wiki/learning-browser/",
+"section": "Wiki",
+"excerpt": "The learning browser lets you read web pages and text files without leaving the app, so every sentence can become study material.",
+"icon": "compass"
+},
+{
+"type": "wiki",
+"title": "Local API and integrations",
+"url": "/Kaiteyo/wiki/local-api/",
+"section": "",
+"excerpt": "Connect external tools like GameSentenceMiner to Kaiteyo with a local HTTP server.",
+"icon": "file"
+},
+{
+"type": "wiki",
+"title": "Local API and integrations",
+"url": "/Kaiteyo/wiki/local-api/",
+"section": "Wiki",
+"excerpt": "Kaiteyo exposes a local HTTP API so external tools can integrate with your deck. It is off by default and only listens on 127.0.0.1.",
+"icon": "compass"
+},
+{
+"type": "wiki",
+"title": "How the Media Centre works",
+"url": "/Kaiteyo/wiki/media-engine/",
+"section": "",
+"excerpt": "The media engine — playback backends, subtitle parsing, dictionary integration, and the watch→lookup→mine loop.",
+"icon": "file"
+},
+{
+"type": "wiki",
+"title": "How the Media Centre works",
+"url": "/Kaiteyo/wiki/media-engine/",
+"section": "Wiki",
+"excerpt": "The Media Centre turns your local video and audio into an immersion workspace. This article is how it works.",
+"icon": "compass"
+},
+{
+"type": "wiki",
+"title": "Media workspace",
+"url": "/Kaiteyo/wiki/media-workspace/",
+"section": "",
+"excerpt": "Study with video, subtitles, audio clips, images, PDFs, and text files.",
+"icon": "file"
+},
+{
+"type": "wiki",
+"title": "Media workspace",
+"url": "/Kaiteyo/wiki/media-workspace/",
+"section": "Wiki",
+"excerpt": "The Media workspace turns your study materials into a mining source. Open a file and extract sentences, save audio clips, and look up vocabulary as you go.",
+"icon": "compass"
+},
+{
+"type": "wiki",
+"title": "How mining works",
+"url": "/Kaiteyo/wiki/mining-system/",
+"section": "",
+"excerpt": "The mining pipeline — how a word encountered in media becomes a card in your deck.",
+"icon": "file"
+},
+{
+"type": "wiki",
+"title": "How mining works",
+"url": "/Kaiteyo/wiki/mining-system/",
+"section": "Wiki",
+"excerpt": "Mining is the pipeline that turns Japanese you encounter (in media, the browser, OCR, or the clipboard) into study cards. This article is how it works.",
+"icon": "compass"
+},
+{
+"type": "wiki",
+"title": "Mining sentences",
+"url": "/Kaiteyo/wiki/mining/",
+"section": "",
+"excerpt": "Capture vocabulary from real context and turn it into review cards.",
+"icon": "file"
+},
+{
+"type": "wiki",
+"title": "Mining sentences",
+"url": "/Kaiteyo/wiki/mining/",
+"section": "Wiki",
+"excerpt": "Mining is the fastest way to build your deck from content you actually read or hear.",
+"icon": "compass"
+},
+{
+"type": "wiki",
+"title": "OCR and screen capture",
+"url": "/Kaiteyo/wiki/ocr/",
+"section": "",
+"excerpt": "Recognize Japanese text from images and your screen, then mine or look it up.",
+"icon": "file"
+},
+{
+"type": "wiki",
+"title": "OCR and screen capture",
+"url": "/Kaiteyo/wiki/ocr/",
+"section": "Wiki",
+"excerpt": "Kaiteyo's built-in OCR turns text you can see into text you can study — no browser extension required.",
+"icon": "compass"
+},
+{
+"type": "wiki",
+"title": "Reading vs writing kanji",
+"url": "/Kaiteyo/wiki/reading-vs-writing/",
+"section": "",
+"excerpt": "Recognition and production are different skills — Kaiteyo trains both deliberately.",
+"icon": "file"
+},
+{
+"type": "wiki",
+"title": "Reading vs writing kanji",
+"url": "/Kaiteyo/wiki/reading-vs-writing/",
+"section": "Wiki",
+"excerpt": "Learning a kanji is commonly split into two skills:",
+"icon": "compass"
+},
+{
+"type": "wiki",
+"title": "How spaced repetition works",
+"url": "/Kaiteyo/wiki/spaced-repetition/",
+"section": "",
+"excerpt": "The science behind why Kaiteyo schedules reviews the way it does.",
+"icon": "file"
+},
+{
+"type": "wiki",
+"title": "How spaced repetition works",
+"url": "/Kaiteyo/wiki/spaced-repetition/",
+"section": "Wiki",
+"excerpt": "Spaced repetition is a study technique built on a simple observation: if you review something just before you are about to forget it, you remember it much longer with far less effort than reviewing it on a fixed schedule.",
+"icon": "compass"
+},
+{
+"type": "wiki",
+"title": "How statistics work",
+"url": "/Kaiteyo/wiki/statistics-engine/",
+"section": "",
+"excerpt": "The architecture behind Kaiteyo's numbers — what's recorded, how it's aggregated, and what each metric means.",
+"icon": "file"
+},
+{
+"type": "wiki",
+"title": "How statistics work",
+"url": "/Kaiteyo/wiki/statistics-engine/",
+"section": "Wiki",
+"excerpt": "Every statistic in Kaiteyo is computed from real database records — nothing is hardcoded or fabricated. This article is the architecture behind the numbers.",
+"icon": "compass"
+},
+{
+"type": "wiki",
+"title": "How theming works",
+"url": "/Kaiteyo/wiki/theme-system/",
+"section": "",
+"excerpt": "The theme architecture — base modes, accent schemes, the Theme Studio, and how a theme is stored.",
+"icon": "file"
+},
+{
+"type": "wiki",
+"title": "How theming works",
+"url": "/Kaiteyo/wiki/theme-system/",
+"section": "Wiki",
+"excerpt": "Kaiteyo's theming isn't a light/dark toggle with a tint — it's a small design system with base modes, accent schemes, and an optional full editor.",
+"icon": "compass"
+},
+{
+"type": "wiki",
+"title": "The writing evaluator",
+"url": "/Kaiteyo/wiki/writing-evaluator/",
+"section": "",
+"excerpt": "How Kaiteyo grades handwriting — stroke matching, direction, order, and strictness.",
+"icon": "file"
+},
+{
+"type": "wiki",
+"title": "The writing evaluator",
+"url": "/Kaiteyo/wiki/writing-evaluator/",
+"section": "Wiki",
+"excerpt": "When you draw a kanji in Kaiteyo, the evaluator compares your strokes against the reference stroke data in real time. This article is how that works under the hood.",
+"icon": "compass"
+},
+{
+"type": "guide",
+"title": "Getting started with Japanese",
+"url": "/Kaiteyo/guides/getting-started/",
+"section": "",
+"excerpt": "A calm, realistic on-ramp — how to begin learning Japanese with Kaiteyo, and what order to do things in.",
+"icon": "file"
+},
+{
+"type": "guide",
+"title": "Getting started with Japanese",
+"url": "/Kaiteyo/guides/getting-started/",
+"section": "Guides",
+"excerpt": "Learning Japanese is a long road, and the first month matters more than the first hour. This guide is the on-ramp we'd recommend to a friend: what to learn first, what to install, and how to make the habit stick without burning out.",
+"icon": "compass"
+},
+{
+"type": "guide",
+"title": "How to learn kanji",
+"url": "/Kaiteyo/guides/how-to-learn-kanji/",
+"section": "",
+"excerpt": "Kanji isn't memorisation by brute force — it's a loop of seeing, writing, and meeting characters again. How to run that loop in Kaiteyo.",
+"icon": "file"
+},
+{
+"type": "guide",
+"title": "How to learn kanji",
+"url": "/Kaiteyo/guides/how-to-learn-kanji/",
+"section": "Guides",
+"excerpt": "There are thousands of kanji, which sounds like a wall. But you don't need thousands — you need the first two hundred done properly, and then the system carries you. This guide is how to learn kanji with Kaiteyo's loop: see it, write it, meet it again.",
+"icon": "compass"
+},
+{
+"type": "guide",
+"title": "How to use spaced repetition",
+"url": "/Kaiteyo/guides/how-to-use-srs/",
+"section": "",
+"excerpt": "SRS is the engine under everything — how to grade honestly, trust the intervals, and keep the queue healthy.",
+"icon": "file"
+},
+{
+"type": "guide",
+"title": "How to use spaced repetition",
+"url": "/Kaiteyo/guides/how-to-use-srs/",
+"section": "Guides",
+"excerpt": "Spaced repetition (SRS) is why you can learn hundreds of characters without drowning in reviews. It's simple in principle: show a card right before you'd forget it. This guide is how to use the scheduler in Kaiteyo — grading honestly, trusting the intervals, a",
+"icon": "compass"
+},
+{
+"type": "guide",
+"title": "Kaiteyo and Anki",
+"url": "/Kaiteyo/guides/kaiteyo-and-anki/",
+"section": "",
+"excerpt": "How to run Kaiteyo alongside an existing Anki workflow — apkg import/export, AnkiConnect, and which tool does what.",
+"icon": "file"
+},
+{
+"type": "guide",
+"title": "Kaiteyo and Anki",
+"url": "/Kaiteyo/guides/kaiteyo-and-anki/",
+"section": "Guides",
+"excerpt": "If you already have years of Anki history, the last thing you want is a tool that makes you start over — or one that pretends Anki doesn't exist. Kaiteyo's approach is honest: it's a complete learning environment with its own scheduler and data, and it interop",
+"icon": "compass"
+},
+{
+"type": "guide",
+"title": "How to mine anime",
+"url": "/Kaiteyo/guides/mining-anime/",
+"section": "",
+"excerpt": "The immersion loop — watch Japanese media, look up words, and turn them into cards without breaking the episode.",
+"icon": "file"
+},
+{
+"type": "guide",
+"title": "How to mine anime",
+"url": "/Kaiteyo/guides/mining-anime/",
+"section": "Guides",
+"excerpt": "Mining is the skill of turning the Japanese you encounter in the wild into cards you'll actually review. Anime with subtitles is the classic source, and Kaiteyo's Media Centre makes the loop: watch → understand → look up → mine → review.",
+"icon": "compass"
+},
+{
+"type": "guide",
+"title": "How to practice writing",
+"url": "/Kaiteyo/guides/practice-writing/",
+"section": "",
+"excerpt": "Stroke-order practice is Kaiteyo's secret weapon — how the evaluator grades you, how strictness works, and how to build the writing habit.",
+"icon": "file"
+},
+{
+"type": "guide",
+"title": "How to practice writing",
+"url": "/Kaiteyo/guides/practice-writing/",
+"section": "Guides",
+"excerpt": "Reading kanji is recognition; writing kanji is ownership. Kaiteyo's writing practice turns handwriting into a graded, trackable skill — every stroke evaluated in real time, every attempt feeding your statistics. Here's how to use it properly.",
+"icon": "compass"
+},
+{
+"type": "guide",
+"title": "Understanding your statistics",
+"url": "/Kaiteyo/guides/understand-statistics/",
+"section": "",
+"excerpt": "Every statistic in Kaiteyo answers a question. Here's what the numbers mean and how to use them without obsessing.",
+"icon": "file"
+},
+{
+"type": "guide",
+"title": "Understanding your statistics",
+"url": "/Kaiteyo/guides/understand-statistics/",
+"section": "Guides",
+"excerpt": "Kaiteyo's statistics are computed from your actual review history — no fabricated charts, no numbers that contradict the rest of the app. This guide is what each group of numbers is actually telling you.",
+"icon": "compass"
+},
+{
+"type": "page",
+"title": "About",
+"url": "/Kaiteyo/about/",
+"section": "",
+"excerpt": "What Kaiteyo is, why it exists, and the philosophy behind it — an independent, connected, offline-first Japanese-learning environment.",
+"icon": "file"
+},
+{
+"type": "page",
+"title": "Community",
+"url": "/Kaiteyo/community/",
+"section": "",
+"excerpt": "Where Kaiteyo lives — GitHub, discussions, contributing, and how to get involved.",
+"icon": "file"
+},
+{
+"type": "page",
+"title": "Contributing",
+"url": "/Kaiteyo/contributing/",
+"section": "",
+"excerpt": "How to help with Kaiteyo — code, design, translation, documentation, or ideas.",
+"icon": "file"
+},
+{
+"type": "page",
+"title": "Credits",
+"url": "/Kaiteyo/credits/",
+"section": "",
+"excerpt": "The people and projects behind Kaiteyo.",
+"icon": "file"
+},
+{
+"type": "page",
+"title": "Data & Attribution",
+"url": "/Kaiteyo/data/",
+"section": "",
+"excerpt": "The open datasets Kaiteyo uses, their licenses, sources, and how each one is used.",
+"icon": "file"
+},
+{
+"type": "page",
+"title": "Download",
+"url": "/Kaiteyo/download/",
+"section": "",
+"excerpt": "Get Kaiteyo for Windows, macOS, Linux, Android, or iOS — free and open source. Stable and beta channels, all architectures.",
+"icon": "file"
+},
+{
+"type": "page",
+"title": "Features",
+"url": "/Kaiteyo/features/",
+"section": "",
+"excerpt": "What Kaiteyo does — decks, reviews, writing practice, and everything in between.",
+"icon": "file"
+},
+{
+"type": "page",
+"title": "Index",
+"url": "/Kaiteyo/index.html",
+"section": "",
+"excerpt": "",
+"icon": "file"
+},
+{
+"type": "page",
+"title": "Install",
+"url": "/Kaiteyo/install/",
+"section": "",
+"excerpt": "Install Kaiteyo on Windows, macOS, Linux, Android or iOS — plus how to try it in the browser first.",
+"icon": "file"
+},
+{
+"type": "page",
+"title": "Integrations",
+"url": "/Kaiteyo/integrations/",
+"section": "",
+"excerpt": "How Kaiteyo works with Anki, Yomitan dictionaries, media players, browser tools, and its own local API — what exists today, and what is planned.",
+"icon": "file"
+},
+{
+"type": "page",
+"title": "Learn",
+"url": "/Kaiteyo/learn/",
+"section": "",
+"excerpt": "The Kaiteyo learning hub — guides, getting-started material, and links to the Wiki, FAQ and documentation.",
+"icon": "file"
+},
+{
+"type": "page",
+"title": "License",
+"url": "/Kaiteyo/license/",
+"section": "",
+"excerpt": "Kaiteyo is free software — GNU General Public License v3.",
+"icon": "file"
+},
+{
+"type": "page",
+"title": "Plugins",
+"url": "/Kaiteyo/plugins/",
+"section": "",
+"excerpt": "Kaiteyo's plugin plans and current extension points — an honest status of what exists today and what is planned.",
+"icon": "file"
+},
+{
+"type": "page",
+"title": "Privacy Policy",
+"url": "/Kaiteyo/privacy/",
+"section": "",
+"excerpt": "Kaiteyo is offline-first — your study data never leaves your device.",
+"icon": "file"
+},
+{
+"type": "page",
+"title": "Product",
+"url": "/Kaiteyo/product/",
+"section": "",
+"excerpt": "The full Kaiteyo story — learning, writing, decks, media, mining, statistics, exams and customization, explained as one connected system.",
+"icon": "file"
+},
+{
+"type": "page",
+"title": "Roadmap",
+"url": "/Kaiteyo/roadmap/",
+"section": "",
+"excerpt": "Where Kaiteyo is heading — as documented in the repository's ROADMAP.",
+"icon": "file"
+},
+{
+"type": "page",
+"title": "Screenshots",
+"url": "/Kaiteyo/screenshots/",
+"section": "",
+"excerpt": "Kaiteyo in action — the same design language across phones and desktops.",
+"icon": "file"
+},
+{
+"type": "page",
+"title": "Security",
+"url": "/Kaiteyo/security/",
+"section": "",
+"excerpt": "How Kaiteyo handles security — reporting vulnerabilities, our security posture, and what the app does and doesn't do with your data.",
+"icon": "file"
+},
+{
+"type": "page",
+"title": "Theme Gallery",
+"url": "/Kaiteyo/theme-gallery/",
+"section": "",
+"excerpt": "Every theme, base mode, and accent — applied live, the way you will find them in the app.",
+"icon": "file"
+},
+{
+"type": "page",
+"title": "Project",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "Kaiteyo's public command center — what is being built, what is planned, and what is done.",
+"icon": "file"
+},
+{
+"type": "page",
+"title": "Kanban",
+"url": "/Kaiteyo/project/kanban/",
+"section": "Project",
+"excerpt": "What is happening now — the live task board derived from docs/planning/MASTER_TODO.md.",
+"icon": "file"
+},
+{
+"type": "page",
+"title": "Roadmap",
+"url": "/Kaiteyo/project/roadmap/",
+"section": "Project",
+"excerpt": "Where Kaiteyo is going — the forward-looking plan, linked to kanban and documentation.",
+"icon": "file"
+},
+{
+"type": "page",
+"title": "Whiteboard",
+"url": "/Kaiteyo/project/whiteboard/",
+"section": "Project",
+"excerpt": "The Kaiteyo system, visually — an interactive architecture canvas. Pan, zoom, explore.",
+"icon": "file"
+},
+{
+"type": "page",
+"title": "Suggestions",
+"url": "/Kaiteyo/project/suggestions/",
+"section": "Project",
+"excerpt": "Propose plans for Kaiteyo. The official plan is protected — accepted proposals become tracked work with provenance.",
+"icon": "file"
+},
+{
+"type": "page",
+"title": "Architecture Decisions",
+"url": "/Kaiteyo/project/decisions/",
+"section": "Project",
+"excerpt": "Why Kaiteyo is built the way it is — every recorded ADR.",
+"icon": "file"
+},
+{
+"type": "page",
+"title": "Contributing",
+"url": "/Kaiteyo/project/contributing/",
+"section": "Project",
+"excerpt": "What can you actually help with? Start here.",
+"icon": "file"
+},
+{
+"type": "task",
+"title": "KT-INFRA-001 — Decide one product (core app vs suite) and record ADR-0017",
+"url": "/Kaiteyo/project/kanban/#card-kt-infra-001",
+"section": "Kanban",
+"excerpt": "ADR-0017 `ACCEPTED`; losing copy marked DEPRECATED; duplication map (PRODUCT_AUDIT §6) down to zero live rows",
+"icon": "grid"
+},
+{
+"type": "task",
+"title": "KT-INFRA-002 — Remove dead shadows: `LearningPowerHub`, `SyncSettingsUI`, dead backup-manager path",
+"url": "/Kaiteyo/project/kanban/#card-kt-infra-002",
+"section": "Kanban",
+"excerpt": "Zero `onClick = { }` in reachable UI; PRODUCT_AUDIT §5.2 items gone; regression tests pass",
+"icon": "grid"
+},
+{
+"type": "task",
+"title": "KT-DB-002 — Node-layer storage decision per ADR-0013 (tables vs read-model)",
+"url": "/Kaiteyo/project/kanban/#card-kt-db-002",
+"section": "Kanban",
+"excerpt": "ADR-0013 `ACCEPTED` with storage design; `NODE_DATA_MODEL.md` verified against chosen approach",
+"icon": "grid"
+},
+{
+"type": "task",
+"title": "KT-DICT-002 — Suite dictionary engines reachable from the product",
+"url": "/Kaiteyo/project/kanban/#card-kt-dict-002",
+"section": "Kanban",
+"excerpt": "Dictionary popup + import work inside the shipped app",
+"icon": "grid"
+},
+{
+"type": "task",
+"title": "KT-MEDIA-004 — Media engines reachable from the product",
+"url": "/Kaiteyo/project/kanban/#card-kt-media-004",
+"section": "Kanban",
+"excerpt": "Media center + subtitle mining inside shipped app",
+"icon": "grid"
+},
+{
+"type": "task",
+"title": "KT-MINE-002 — Mining reachable from the product + `mined_from` graph edges",
+"url": "/Kaiteyo/project/kanban/#card-kt-mine-002",
+"section": "Kanban",
+"excerpt": "Mined cards carry provenance edges (media/timestamp/source)",
+"icon": "grid"
+},
+{
+"type": "task",
+"title": "KT-YOMI-002 — Popup glossary in the shipped product",
+"url": "/Kaiteyo/project/kanban/#card-kt-yomi-002",
+"section": "Kanban",
+"excerpt": "Hover/click lookup on any Japanese text in the app",
+"icon": "grid"
+},
+{
+"type": "task",
+"title": "KT-WEB-004 — Command center backend: auth + roles (API.md §14 order)",
+"url": "/Kaiteyo/project/kanban/#card-kt-web-004",
+"section": "Kanban",
+"excerpt": "`/api/v1/auth` implemented per `docs/website/API.md`; roles enforced server-side; static site remains fallback",
+"icon": "grid"
+},
+{
+"type": "task",
+"title": "KT-WEB-001 — Web trial evaluation (WASM/Compose Web) + decision",
+"url": "/Kaiteyo/project/kanban/#card-kt-web-001",
+"section": "Kanban",
+"excerpt": "ADR per STANDARDS §242 methodology",
+"icon": "grid"
+},
+{
+"type": "task",
+"title": "KT-WEB-002 — Website section coverage (game/courses/downloads/wiki)",
+"url": "/Kaiteyo/project/kanban/#card-kt-web-002",
+"section": "Kanban",
+"excerpt": "MASTER §52 sections present",
+"icon": "grid"
+},
+{
+"type": "task",
+"title": "KT-WEB-003 — Automate `website/dist` regeneration in CI",
+"url": "/Kaiteyo/project/kanban/#card-kt-web-003",
+"section": "Kanban",
+"excerpt": "No stale committed dist (TODO debt item)",
+"icon": "grid"
+},
+{
+"type": "task",
+"title": "KT-WEB-004 — Command center backend: auth + roles (API.md §14 order)",
+"url": "/Kaiteyo/project/kanban/#card-kt-web-004",
+"section": "Kanban",
+"excerpt": "`/api/v1/auth` implemented per `docs/website/API.md`; roles enforced server-side; static site remains fallback",
+"icon": "grid"
+},
+{
+"type": "task",
+"title": "KT-WEB-005 — Suggestions backend: create/state machine/audit",
+"url": "/Kaiteyo/project/kanban/#card-kt-web-005",
+"section": "Kanban",
+"excerpt": "Suggestion CRUD + workflow states (spec §18) + audit log; accept→plan conversion with provenance (§19)",
+"icon": "grid"
+},
+{
+"type": "task",
+"title": "KT-WEB-006 — Kanban PATCH with corpus write-back",
+"url": "/Kaiteyo/project/kanban/#card-kt-web-006",
+"section": "Kanban",
+"excerpt": "Task status/priority edits update `MASTER_TODO.md`; 409 conflict handling; board re-renders",
+"icon": "grid"
+},
+{
+"type": "system",
+"title": "Home & Dashboards",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "Home screen with real SQLDelight-driven dashboards (general, library, statistics, search, settings).",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "Navigation & Launchpad",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "NavShell: sidebar/floating modes, edge docking, floating bubble with snap, command palette.",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "Design system & Theming",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "Token-based design system, Light/Dark/OLED, 17 presets, Theme Studio.",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "Settings",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "Settings Center categories + catalog (docs/ui/SETTINGS.md).",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "Localization (EN/JA)",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "Interface-based Strings (English/Japanese).",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "Dictionary",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "Bundled AppDataDatabase in core (search, radical/reading, text analysis); Yomitan import + popup in the suite (unshipped until ADR-0017).",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "Kanji & Kana",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "JLPT/grade decks, writing practice, stroke evaluation, kanji browser.",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "Vocabulary",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "Vocab decks, reading/writing modes, text analysis.",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "Grammar",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "Grammar practice view + starter deck (suite). No bundled grammar dataset yet.",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "Knowledge graph",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "Language entity graph exists via kjd; user-knowledge node layer is target (ADR-0013/0016).",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "Study engine (FSRS)",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "FSRS-5 SRS, review flow, daily limits. Scheduler logic is on the never-change list.",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "Library & decks",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "Deck hub, tags/flags, bulk actions, card/note browser, import/export, backup.",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "Exams",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "Generated + weekly exams, JLPT-style scoring, analytics.",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "Statistics & events",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "Event-driven stats, heatmap, AFK model, drill-down.",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "Media center",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "VLC/mpv/Java Sound backends, subtitles (SRT/ASS/SSA/VTT), screenshots, bookmarks — suite (unshipped until ADR-0017).",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "Mining",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "Subtitle/browser/OCR/clipboard mining with duplicate protection — suite.",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "OCR",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "Capture pipeline works; detection needs local Tesseract.",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "Learning browser",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "Tabs, bookmarks, reader mode (JavaFX WebView when available).",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "Anki (.apkg)",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "APKG import/export on all platforms with scheduling mapping + sanitization.",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "AnkiConnect",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "Push mined cards / import decks; e2e verification blocked on live Anki.",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "Yomitan dictionaries",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "Yomitan-compatible import + popup glossing (suite); product integration target.",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "Local HTTP API",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "Bearer-token localhost API + text hook / player WebSocket.",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "Plugin system",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "Registry + marketplace scaffold; no runtime loading (security first, ADR-0011).",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "Sync & account",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "GitHub device-flow + private gist (desktop-first).",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "AppDataDatabase",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "Bundled read-only dictionary database (kjd-generated, versioned).",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "UserDataDatabase",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "Mutable user DB with 15 versioned migrations.",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "kjd data platform",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "Standalone ingestion pipeline: KanjiVG, KANJIDIC, JMdict, Tanos, Leeds, yomichan-jlpt-vocab.",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "Journey (game world)",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "Full spec (NODE §76–§162, docs/game/); no code. Engine decision pending (ADR-0018).",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "Curriculum & courses",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "Graph-based curriculum architecture specified; deck-generation groundwork exists.",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "Children's world",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "Child mode: same runtime, different content/UX (after the vertical slice).",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "Desktop (Windows/macOS/Linux)",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "Native window shell, branded installers, auto-update architecture.",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "Android",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "googlePlay + fdroid flavors, SAF picker, APKG, reminders.",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "iOS",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "Shared engine + shell; macOS-only builds; runtime verification pending.",
+"icon": "layers"
+},
+{
+"type": "system",
+"title": "Website",
+"url": "/Kaiteyo/project/",
+"section": "Project",
+"excerpt": "Static site (Python build) consuming docs; this command center lives here.",
+"icon": "layers"
+},
+{
+"type": "decision",
+"title": "Kaiteyo Brand Identity",
+"url": "/Kaiteyo/docs/decisions/0001-brand/",
+"section": "Decisions",
+"excerpt": "Accepted",
+"icon": "scale"
+},
+{
+"type": "decision",
+"title": "Theme System Architecture",
+"url": "/Kaiteyo/docs/decisions/0002-theme/",
+"section": "Decisions",
+"excerpt": "Accepted",
+"icon": "scale"
+},
+{
+"type": "decision",
+"title": "Kotlin Multiplatform + Compose Multiplatform",
+"url": "/Kaiteyo/docs/decisions/0003-kotlin-multiplatform/",
+"section": "Decisions",
+"excerpt": "Accepted",
+"icon": "scale"
+},
+{
+"type": "decision",
+"title": "Shared UI with the 4-File Screen Pattern + Koin DI",
+"url": "/Kaiteyo/docs/decisions/0004-shared-ui-and-screen-pattern/",
+"section": "Decisions",
+"excerpt": "Accepted",
+"icon": "scale"
+},
+{
+"type": "decision",
+"title": "Two SQLDelight Databases (immutable app data / mutable user data)",
+"url": "/Kaiteyo/docs/decisions/0005-sqldelight-two-databases/",
+"section": "Decisions",
+"excerpt": "Accepted",
+"icon": "scale"
+},
+{
+"type": "decision",
+"title": "FSRS-5 for Spaced Repetition",
+"url": "/Kaiteyo/docs/decisions/0006-fsrs-srs/",
+"section": "Decisions",
+"excerpt": "Accepted",
+"icon": "scale"
+},
+{
+"type": "decision",
+"title": "KJD — Standalone Data Platform for the Bundled Language Database",
+"url": "/Kaiteyo/docs/decisions/0007-kjd-data-platform/",
+"section": "Decisions",
+"excerpt": "Accepted",
+"icon": "scale"
+},
+{
+"type": "decision",
+"title": "Desktop Immersion Suite as a Self-Contained Module",
+"url": "/Kaiteyo/docs/decisions/0008-desktop-suite/",
+"section": "Decisions",
+"excerpt": "Accepted",
+"icon": "scale"
+},
+{
+"type": "decision",
+"title": "GitHub Device-Flow OAuth + Private-Gist Sync (No Central Service)",
+"url": "/Kaiteyo/docs/decisions/0009-github-sync-and-account/",
+"section": "Decisions",
+"excerpt": "Accepted",
+"icon": "scale"
+},
+{
+"type": "decision",
+"title": "Installer Subsystem Decoupled from the Gradle Build",
+"url": "/Kaiteyo/docs/decisions/0010-installer-decoupling/",
+"section": "Decisions",
+"excerpt": "Accepted",
+"icon": "scale"
+},
+{
+"type": "decision",
+"title": "Plugin Runtime Loading Deferred (Security First)",
+"url": "/Kaiteyo/docs/decisions/0011-plugin-security-first/",
+"section": "Decisions",
+"excerpt": "Accepted",
+"icon": "scale"
+},
+{
+"type": "decision",
+"title": "Professional Engineering Standards",
+"url": "/Kaiteyo/docs/decisions/0012-engineering-standards/",
+"section": "Decisions",
+"excerpt": "Accepted",
+"icon": "scale"
+},
+{
+"type": "decision",
+"title": "Node-Based Architecture (Target)",
+"url": "/Kaiteyo/docs/decisions/0013-node-architecture/",
+"section": "Decisions",
+"excerpt": "Proposed — agreed as target architecture, not yet implemented",
+"icon": "scale"
+},
+{
+"type": "decision",
+"title": "Journey as Target Architecture",
+"url": "/Kaiteyo/docs/decisions/0014-journey-target-architecture/",
+"section": "Decisions",
+"excerpt": "Proposed — Journey is target architecture, not implementation (NODE §158)",
+"icon": "scale"
+},
+{
+"type": "decision",
+"title": "Data-Driven Content Authoring",
+"url": "/Kaiteyo/docs/decisions/0015-content-authoring/",
+"section": "Decisions",
+"excerpt": "Proposed — pipeline specified; editor tool is FUTURE",
+"icon": "scale"
+},
+{
+"type": "decision",
+"title": "Event-Driven User Knowledge (Dimensioned, FSRS-Owned Scheduling)",
+"url": "/Kaiteyo/docs/decisions/0016-event-driven-user-knowledge/",
+"section": "Decisions",
+"excerpt": "Proposed — contract specified, not implemented",
+"icon": "scale"
+},
+{
+"type": "decision",
+"title": "One Product — Resolve the Two Parallel Applications",
+"url": "/Kaiteyo/docs/decisions/0017-one-product-architecture/",
+"section": "Decisions",
+"excerpt": "Proposed — decision required; gates all suite-engine integration work",
+"icon": "scale"
+},
+{
+"type": "decision",
+"title": "Game Engine Evaluation (Decision Pending)",
+"url": "/Kaiteyo/docs/decisions/0018-game-engine-evaluation/",
+"section": "Decisions",
+"excerpt": "Proposed — evaluation in progress; **no Journey runtime code may start until",
+"icon": "scale"
+},
+{
+"type": "decision",
+"title": "Website as Project Command Center",
+"url": "/Kaiteyo/docs/decisions/0019-website-command-center/",
+"section": "Decisions",
+"excerpt": "Proposed — the static render is live; the interactive backend is a",
+"icon": "scale"
+},
+{
+"type": "roadmap",
+"title": "Database",
+"url": "/Kaiteyo/project/roadmap/#item-roadmap-01",
+"section": "Roadmap",
+"excerpt": "Two SQLDelight DBs, 15 migrations, kjd ingestion.",
+"icon": "milestone"
+},
+{
+"type": "roadmap",
+"title": "Dictionary",
+"url": "/Kaiteyo/project/roadmap/#item-roadmap-02",
+"section": "Roadmap",
+"excerpt": "Bundled data + suite import/popup; product integration gated on ADR-0017.",
+"icon": "milestone"
+},
+{
+"type": "roadmap",
+"title": "Learning engine",
+"url": "/Kaiteyo/project/roadmap/#item-roadmap-03",
+"section": "Roadmap",
+"excerpt": "FSRS-5 SRS, review flow, writing practice.",
+"icon": "milestone"
+},
+{
+"type": "roadmap",
+"title": "Node layer & knowledge graph",
+"url": "/Kaiteyo/project/roadmap/#item-roadmap-04",
+"section": "Roadmap",
+"excerpt": "Typed nodes + edges + event-derived user knowledge (ADR-0013/0016).",
+"icon": "milestone"
+},
+{
+"type": "roadmap",
+"title": "Library & decks",
+"url": "/Kaiteyo/project/roadmap/#item-roadmap-05",
+"section": "Roadmap",
+"excerpt": "",
+"icon": "milestone"
+},
+{
+"type": "roadmap",
+"title": "Mining",
+"url": "/Kaiteyo/project/roadmap/#item-roadmap-06",
+"section": "Roadmap",
+"excerpt": "Suite pipeline works; graph edges + product integration target.",
+"icon": "milestone"
+},
+{
+"type": "roadmap",
+"title": "Media centre",
+"url": "/Kaiteyo/project/roadmap/#item-roadmap-07",
+"section": "Roadmap",
+"excerpt": "Suite backends + subtitles; product integration gated on ADR-0017.",
+"icon": "milestone"
+},
+{
+"type": "roadmap",
+"title": "Statistics",
+"url": "/Kaiteyo/project/roadmap/#item-roadmap-08",
+"section": "Roadmap",
+"excerpt": "Event-driven; node-level drill-down target.",
+"icon": "milestone"
+},
+{
+"type": "roadmap",
+"title": "One product",
+"url": "/Kaiteyo/project/roadmap/#item-roadmap-09",
+"section": "Roadmap",
+"excerpt": "Resolve the two-app split; suite engines into the shipped app (ADR-0017).",
+"icon": "milestone"
+},
+{
+"type": "roadmap",
+"title": "Curriculum",
+"url": "/Kaiteyo/project/roadmap/#item-roadmap-10",
+"section": "Roadmap",
+"excerpt": "Graph-based courses, evidence-based prerequisites.",
+"icon": "milestone"
+},
+{
+"type": "roadmap",
+"title": "Exams",
+"url": "/Kaiteyo/project/roadmap/#item-roadmap-11",
+"section": "Roadmap",
+"excerpt": "Generated + weekly; adaptive + listening/writing sections target.",
+"icon": "milestone"
+},
+{
+"type": "roadmap",
+"title": "Adaptive learning",
+"url": "/Kaiteyo/project/roadmap/#item-roadmap-12",
+"section": "Roadmap",
+"excerpt": "",
+"icon": "milestone"
+},
+{
+"type": "roadmap",
+"title": "Grammar & pitch data",
+"url": "/Kaiteyo/project/roadmap/#item-roadmap-13",
+"section": "Roadmap",
+"excerpt": "Grammar starter deck shipped; open datasets under research.",
+"icon": "milestone"
+},
+{
+"type": "roadmap",
+"title": "Game engine",
+"url": "/Kaiteyo/project/roadmap/#item-roadmap-14",
+"section": "Roadmap",
+"excerpt": "Evaluation + ADR-0018 gates all Journey code.",
+"icon": "milestone"
+},
+{
+"type": "roadmap",
+"title": "World",
+"url": "/Kaiteyo/project/roadmap/#item-roadmap-15",
+"section": "Roadmap",
+"excerpt": "Kamakura + Enoshima vertical slice first.",
+"icon": "milestone"
+},
+{
+"type": "roadmap",
+"title": "Quests & stories",
+"url": "/Kaiteyo/project/roadmap/#item-roadmap-16",
+"section": "Roadmap",
+"excerpt": "",
+"icon": "milestone"
+},
+{
+"type": "roadmap",
+"title": "NPCs & dialogue",
+"url": "/Kaiteyo/project/roadmap/#item-roadmap-17",
+"section": "Roadmap",
+"excerpt": "",
+"icon": "milestone"
+},
+{
+"type": "roadmap",
+"title": "Children's world",
+"url": "/Kaiteyo/project/roadmap/#item-roadmap-18",
+"section": "Roadmap",
+"excerpt": "Same runtime, different content/UX (after the slice).",
+"icon": "milestone"
+},
+{
+"type": "roadmap",
+"title": "Mobile parity",
+"url": "/Kaiteyo/project/roadmap/#item-roadmap-19",
+"section": "Roadmap",
+"excerpt": "On-device verification of iOS/Android actuals blocked on hardware.",
+"icon": "milestone"
+},
+{
+"type": "roadmap",
+"title": "Community",
+"url": "/Kaiteyo/project/roadmap/#item-roadmap-20",
+"section": "Roadmap",
+"excerpt": "Shared decks, marketplace, study groups — opt-in, secondary.",
+"icon": "milestone"
+},
+{
+"type": "roadmap",
+"title": "World expansion",
+"url": "/Kaiteyo/project/roadmap/#item-roadmap-21",
+"section": "Roadmap",
+"excerpt": "New regions as content packages — after the slice proof gate.",
+"icon": "milestone"
+},
+{
+"type": "roadmap",
+"title": "Command center backend",
+"url": "/Kaiteyo/project/roadmap/#item-roadmap-22",
+"section": "Roadmap",
+"excerpt": "The interactive layer for this website (kanban edits, whiteboard, suggestions, approval) per the documented API contracts — KT-WEB-004…009.",
+"icon": "milestone"
+}
+]

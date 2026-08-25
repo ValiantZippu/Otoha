@@ -1,0 +1,265 @@
+package ua.syt0r.kanji.presentation.screen.main.screen.home.screen.general_dashboard.ui
+
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
+import ua.syt0r.kanji.presentation.common.MultiplatformDialog
+import ua.syt0r.kanji.presentation.common.resources.string.resolveString
+import ua.syt0r.kanji.presentation.common.theme.extraColorScheme
+import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.general_dashboard.StudyTarget
+import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.general_dashboard.StudyTargetItem
+import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.general_dashboard.StudyTargetPracticeOptions
+import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.general_dashboard.StudyTargetProgress
+import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.general_dashboard.StudyTargetState
+import ua.syt0r.kanji.presentation.screen.main.screen.practice_common.SrsAnswerButton
+import ua.syt0r.kanji.presentation.screen.main.screen.practice_letter.data.LetterPracticeScreenConfiguration
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.time.Duration.Companion.days
+
+
+@Composable
+fun TutorialDialog(
+    onDismissRequest: () -> Unit
+) {
+
+    val strings = resolveString { tutorialDialog }
+
+    val pages = listOf(
+        TutorialPage {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = strings.page1,
+                    textAlign = TextAlign.Justify
+                )
+            }
+        },
+        TutorialPage {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = strings.page2Top,
+                    textAlign = TextAlign.Justify
+                )
+                Row(
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                        .clip(MaterialTheme.shapes.medium)
+                ) {
+                    SrsAnswerButton(
+                        label = resolveString { commonPractice.hardButton },
+                        interval = 1.days,
+                        // Tutorial illustration — the real buttons appear during review.
+                        onClick = { /* illustrative only */ },
+                        color = MaterialTheme.extraColorScheme.due
+                    )
+                    SrsAnswerButton(
+                        label = resolveString { commonPractice.goodButton },
+                        interval = 3.days,
+                        onClick = { /* illustrative only */ },
+                        color = MaterialTheme.extraColorScheme.success
+                    )
+                    SrsAnswerButton(
+                        label = resolveString { commonPractice.easyButton },
+                        interval = 12.days,
+                        onClick = { /* illustrative only */ },
+                        color = MaterialTheme.extraColorScheme.new
+                    )
+                }
+
+                Text(
+                    text = strings.page2Bottom,
+                    textAlign = TextAlign.Justify
+                )
+            }
+        },
+        TutorialPage {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = strings.page3Top,
+                    textAlign = TextAlign.Justify
+                )
+
+                StudyTargetItem(
+                    studyTargetState = StudyTargetState(
+                        studyTarget = StudyTarget.LetterWriting,
+                        enabled = true,
+                        progress = StudyTargetProgress.WithDecks(
+                            options = StudyTargetPracticeOptions(
+                                newCards = (0L..2L).map {
+                                    LetterPracticeScreenConfiguration.Card(it.toString(), it)
+                                },
+                                dueCards = (0L..18L).map {
+                                    LetterPracticeScreenConfiguration.Card(it.toString(), it)
+                                },
+                                combinedCards = (0L..20L).map {
+                                    LetterPracticeScreenConfiguration.Card(it.toString(), it)
+                                }
+                            ),
+                            totalProgress = 0.8f
+                        )
+                    ),
+                    createDeck = {},
+                    startPractice = {}
+                )
+
+                Text(
+                    text = strings.page3Bottom,
+                    textAlign = TextAlign.Justify
+                )
+            }
+
+        },
+        TutorialPage {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = strings.page4Top,
+                    textAlign = TextAlign.Justify
+                )
+
+                StudyTargetItem(
+                    studyTargetState = StudyTargetState(
+                        studyTarget = StudyTarget.LetterWriting,
+                        enabled = true,
+                        progress = StudyTargetProgress.NoDecks
+                    ),
+                    createDeck = {},
+                    startPractice = {}
+                )
+
+                Text(
+                    text = strings.page4Bottom,
+                    textAlign = TextAlign.Justify
+                )
+            }
+        },
+        TutorialPage {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = strings.page5,
+                    textAlign = TextAlign.Justify
+                )
+            }
+        }
+    )
+
+    MultiplatformDialog(
+        onDismissRequest = onDismissRequest,
+        content = {
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(top = 20.dp, bottom = 10.dp)
+                    .heightIn(max = 500.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+
+                Text(
+                    text = strings.title,
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(horizontal = 20.dp)
+                )
+
+                val pagerState = rememberPagerState { pages.size }
+                HorizontalPager(
+                    state = pagerState,
+                    verticalAlignment = Alignment.Top,
+                    modifier = Modifier
+                        .animateContentSize()
+                        .heightIn(200.dp)
+                ) { pageIndex ->
+                    val page = pages[pageIndex]
+                    Box(
+                        modifier = Modifier.padding(horizontal = 20.dp)
+                    ) {
+                        page.content()
+                    }
+                }
+
+                PagerIndicator(pagerState)
+
+            }
+        }
+    )
+
+}
+
+@Composable
+fun PagerIndicator(pagerState: PagerState) {
+
+    val coroutineScope = rememberCoroutineScope()
+    val animatePagerToPage: (Int) -> Unit = {
+        coroutineScope.launch { pagerState.animateScrollToPage(it) }
+    }
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        IconButton(
+            onClick = { animatePagerToPage(max(0, pagerState.currentPage - 1)) }
+        ) {
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, null)
+        }
+
+        repeat(pagerState.pageCount) {
+            Box(
+                Modifier.size(8.dp)
+                    .background(
+                        color = if (pagerState.currentPage == it)
+                            MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.surfaceVariant,
+                        shape = CircleShape
+                    )
+            )
+        }
+
+        IconButton(
+            onClick = { animatePagerToPage(min(pagerState.pageCount, pagerState.currentPage + 1)) }
+        ) {
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
+        }
+    }
+}
+
+data class TutorialPage(
+    val content: @Composable () -> Unit
+)

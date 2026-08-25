@@ -1,0 +1,3058 @@
+
+<!DOCTYPE html>
+<html lang="en" data-base-path="/Kaiteyo/">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kaiteyo — Current Issues — Kaiteyo</title>
+  <meta name="description" content="Living issue tracker. Categories (see README.md(README.md)): BUG (reproducible" />
+  <meta name="generator" content="Kaiteyo website builder" />
+
+  
+  <meta name="keywords" content="kaiteyo, kanji, japanese, learning, spaced repetition, srs, flashcards, writing practice, kotlin, compose multiplatform, open source" />
+  
+
+  <link rel="canonical" href="https://valiantzippu.github.io/Kaiteyo/Kaiteyo/docs/planning/current_issues/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Kaiteyo" />
+  <meta property="og:title" content="Kaiteyo — Current Issues — Kaiteyo" />
+  <meta property="og:description" content="Living issue tracker. Categories (see README.md(README.md)): BUG (reproducible" />
+  <meta property="og:url" content="https://valiantzippu.github.io/Kaiteyo/Kaiteyo/docs/planning/current_issues/" />
+  <meta property="og:image" content="https://valiantzippu.github.io/Kaiteyo/Kaiteyo/assets/images/og-cover.svg" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  
+  <meta name="twitter:site" content="@KaiteyoApp" />
+  
+  <meta name="twitter:title" content="Kaiteyo — Current Issues — Kaiteyo" />
+  <meta name="twitter:description" content="Living issue tracker. Categories (see README.md(README.md)): BUG (reproducible" />
+  <meta name="twitter:image" content="https://valiantzippu.github.io/Kaiteyo/Kaiteyo/assets/images/og-cover.svg" />
+
+  <!-- Icons -->
+  <link rel="icon" href="/Kaiteyo/assets/images/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/Kaiteyo/assets/images/kaiteyo-mark.svg" />
+  <link rel="mask-icon" href="/Kaiteyo/assets/images/kaiteyo-mark.svg" color="#C2FC8B" />
+
+  <!-- Structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Kaiteyo (書いてよ)",
+    "alternateName": "書いてよ",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "Windows, macOS, Linux, Android, iOS",
+    "description": "Kaiteyo is a premium, cross-platform Japanese language learning application. Study kanji and kana with spaced repetition, writing practice, and a built-in dictionary \u2014 offline-first, and free.",
+    "url": "https://valiantzippu.github.io/Kaiteyo",
+    "softwareVersion": "2.2.1",
+    "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/Kaiteyo/assets/styles/tokens.css?v=1786940608" />
+  <link rel="stylesheet" href="/Kaiteyo/assets/styles/themes.css?v=1786940608" />
+  <link rel="stylesheet" href="/Kaiteyo/assets/styles/base.css?v=1786940608" />
+  <link rel="stylesheet" href="/Kaiteyo/assets/styles/layout.css?v=1786940608" />
+  <link rel="stylesheet" href="/Kaiteyo/assets/styles/components.css?v=1786940608" />
+  <link rel="stylesheet" href="/Kaiteyo/assets/styles/prose.css?v=1786940608" />
+  <link rel="stylesheet" href="/Kaiteyo/assets/styles/animations.css?v=1786940608" />
+  <link rel="stylesheet" href="/Kaiteyo/assets/styles/utilities.css?v=1786940608" />
+
+  <!-- Apply persisted theme before first paint (no flash of the wrong theme) -->
+  <script>
+    (function () {
+      try {
+        var theme = JSON.parse(localStorage.getItem("kaiteyo:theme"));
+        var root = document.documentElement;
+        if (theme && theme.baseMode) {
+          root.dataset.baseMode = theme.baseMode;
+          root.dataset.accent = theme.accent || "signature";
+          root.dataset.glass = theme.glass ? "true" : "false";
+        } else {
+          root.dataset.baseMode =
+            window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "oled";
+          root.dataset.accent = "signature";
+        }
+        var nav = JSON.parse(localStorage.getItem("kaiteyo:nav"));
+        if (nav) {
+          root.dataset.navPosition = nav.mode === "floating" ? "floating" : (nav.position || "left");
+          root.dataset.navCollapsed = nav.collapsed ? "true" : "false";
+          root.dataset.navAutoHide = nav.autoHide ? "true" : "false";
+          if (nav.width && nav.width !== "default") {
+            var widths = { compact: 220, wide: 300 };
+            root.style.setProperty("--sidebar-width", widths[nav.width] + "px");
+          }
+          if (nav.floating) {
+            root.style.setProperty("--floating-x", nav.floating.x + "px");
+            root.style.setProperty("--floating-y", nav.floating.y + "px");
+          }
+        }
+      } catch (e) {}
+    })();
+  </script>
+  
+</head>
+
+<body>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+
+  
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none" aria-hidden="true">
+  <defs>
+    <symbol id="icon-dashboard" viewBox="0 0 24 24">
+      <rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/>
+      <rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/>
+    </symbol>
+    <symbol id="icon-layers" viewBox="0 0 24 24">
+      <path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="m3 13 9 5 9-5"/><path d="m3 17 9 5 9-5"/>
+    </symbol>
+    <symbol id="icon-image" viewBox="0 0 24 24">
+      <rect x="3" y="4" width="18" height="16" rx="3"/>
+      <circle cx="9" cy="10" r="2"/><path d="m4 18 6-6 4 4 3-3 3 3"/>
+    </symbol>
+    <symbol id="icon-palette" viewBox="0 0 24 24">
+      <path d="M12 3a9 9 0 0 0 0 18h1.5a1.5 1.5 0 0 0 0-3H12a2 2 0 0 1-2-2v0a2 2 0 0 1 2-2h3a2 2 0 0 0 2-2v-1a5 5 0 0 0-5-5Z"/>
+      <circle cx="8" cy="9" r="1"/><circle cx="11" cy="6.5" r="1"/><circle cx="15" cy="7" r="1"/>
+    </symbol>
+    <symbol id="icon-download" viewBox="0 0 24 24">
+      <path d="M12 3v12"/><path d="m6 10 6 6 6-6"/><path d="M4 20h16"/>
+    </symbol>
+    <symbol id="icon-book" viewBox="0 0 24 24">
+      <path d="M12 6.5C10.5 4.8 8.3 4 5.5 4c-1 0-2 .2-2.5.5v14c.5-.3 1.5-.5 2.5-.5 2.8 0 5 .8 6.5 2.5 1.5-1.7 3.7-2.5 6.5-2.5 1 0 2 .2 2.5.5v-14C21 4.2 20 4 19 4c-2.8 0-5 .8-6.5 2.5Z"/>
+      <path d="M12 6.5V21"/>
+    </symbol>
+    <symbol id="icon-compass" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5 5-2Z"/>
+    </symbol>
+    <symbol id="icon-help" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 0 1 5 0c0 1.6-2.5 2-2.5 3.8"/><circle cx="12" cy="16.5" r="0.5" fill="currentColor" stroke="none"/>
+    </symbol>
+    <symbol id="icon-keyboard" viewBox="0 0 24 24">
+      <rect x="2" y="6" width="20" height="13" rx="2"/>
+      <path d="M6 9.5h.01M10 9.5h.01M14 9.5h.01M18 9.5h.01M7 13h10M6 16h.01M10 16h.01M14 16h.01"/>
+    </symbol>
+    <symbol id="icon-milestone" viewBox="0 0 24 24">
+      <path d="M5 3v18"/><path d="M5 4h11l2.5 3.5L16 11H5"/>
+    </symbol>
+    <symbol id="icon-history" viewBox="0 0 24 24">
+      <path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 8v4l3 2"/>
+    </symbol>
+    <symbol id="icon-contribute" viewBox="0 0 24 24">
+      <path d="M12 20.5S4 15.5 4 9.8A4.3 4.3 0 0 1 12 7a4.3 4.3 0 0 1 8 2.8c0 5.7-8 10.7-8 10.7Z"/>
+    </symbol>
+    <symbol id="icon-puzzle" viewBox="0 0 24 24">
+      <path d="M9 4h6v3h1a2 2 0 0 1 2 2v1h-3a1.5 1.5 0 0 0 0 3h3v1a2 2 0 0 1-2 2h-1v-3a1.5 1.5 0 0 0-3 0v3H9v-1a2 2 0 0 1-2-2v-1h3a1.5 1.5 0 0 0 0-3H7V9a2 2 0 0 1 2-2v-3Z"/>
+    </symbol>
+    <symbol id="icon-users" viewBox="0 0 24 24">
+      <circle cx="9" cy="8" r="3.5"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.5a4.5 4.5 0 0 1 4.5 4.5"/>
+    </symbol>
+    <symbol id="icon-scale" viewBox="0 0 24 24">
+      <path d="M12 4v16"/><path d="M8 4h8"/><path d="M4 8l-1 6a3 3 0 0 0 6 0L8 8"/><path d="M16 8l-1 6a3 3 0 0 0 6 0l-1-6"/><path d="M3 20h18"/>
+    </symbol>
+    <symbol id="icon-shield" viewBox="0 0 24 24">
+      <path d="M12 3 5 6v6c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6l-7-3Z"/>
+    </symbol>
+    <symbol id="icon-tag" viewBox="0 0 24 24">
+      <path d="M3 3h8l10 10-8 8L3 11V3Z"/><circle cx="8" cy="8" r="1.5"/>
+    </symbol>
+    <symbol id="icon-chat" viewBox="0 0 24 24">
+      <path d="M21 12a8 8 0 0 1-8 8H4l2.5-3A8 8 0 1 1 21 12Z"/>
+    </symbol>
+    <symbol id="icon-github" viewBox="0 0 24 24">
+      <path fill="currentColor" stroke="none" d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.56-1.11-4.56-4.94 0-1.1.39-1.99 1.03-2.69-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02a9.58 9.58 0 0 1 5 0c1.91-1.3 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"/>
+    </symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="7"/><path d="m20 20-4.5-4.5"/>
+    </symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24">
+      <path d="M6 6l12 12M18 6 6 18"/>
+    </symbol>
+    <symbol id="icon-sun" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="4.5"/>
+      <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19"/>
+    </symbol>
+    <symbol id="icon-moon" viewBox="0 0 24 24">
+      <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5Z"/>
+    </symbol>
+    <symbol id="icon-layout" viewBox="0 0 24 24">
+      <rect x="3" y="3" width="18" height="18" rx="3"/>
+      <path d="M9 3v18M3 12h6"/>
+    </symbol>
+    <symbol id="icon-grip" viewBox="0 0 24 24">
+      <circle cx="9" cy="6" r="1.3" fill="currentColor" stroke="none"/>
+      <circle cx="15" cy="6" r="1.3" fill="currentColor" stroke="none"/>
+      <circle cx="9" cy="12" r="1.3" fill="currentColor" stroke="none"/>
+      <circle cx="15" cy="12" r="1.3" fill="currentColor" stroke="none"/>
+      <circle cx="9" cy="18" r="1.3" fill="currentColor" stroke="none"/>
+      <circle cx="15" cy="18" r="1.3" fill="currentColor" stroke="none"/>
+    </symbol>
+    <symbol id="icon-copy" viewBox="0 0 24 24">
+      <rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+    </symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24">
+      <path d="m4 12.5 5 5L20 6.5"/>
+    </symbol>
+    <symbol id="icon-arrow-right" viewBox="0 0 24 24">
+      <path d="M4 12h16"/><path d="m14 6 6 6-6 6"/>
+    </symbol>
+    <symbol id="icon-arrow-left" viewBox="0 0 24 24">
+      <path d="M20 12H4"/><path d="m10 6-6 6 6 6"/>
+    </symbol>
+    <symbol id="icon-arrow-up" viewBox="0 0 24 24">
+      <path d="M12 20V4"/><path d="m6 10 6-6 6 6"/>
+    </symbol>
+    <symbol id="icon-arrow-down" viewBox="0 0 24 24">
+      <path d="M12 4v16"/><path d="m6 14 6 6 6-6"/>
+    </symbol>
+    <symbol id="icon-chevron-down" viewBox="0 0 24 24">
+      <path d="m6 9 6 6 6-6"/>
+    </symbol>
+    <symbol id="icon-chevron-right" viewBox="0 0 24 24">
+      <path d="m9 6 6 6-6 6"/>
+    </symbol>
+    <symbol id="icon-external" viewBox="0 0 24 24">
+      <path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M19 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5"/>
+    </symbol>
+    <symbol id="icon-menu" viewBox="0 0 24 24">
+      <path d="M4 7h16M4 12h16M4 17h16"/>
+    </symbol>
+    <symbol id="icon-star" viewBox="0 0 24 24">
+      <path fill="currentColor" stroke="none" d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.3l-5.9 3.2 1.2-6.5L2.5 9.4l6.6-.9 2.9-6Z"/>
+    </symbol>
+    <symbol id="icon-terminal" viewBox="0 0 24 24">
+      <rect x="2.5" y="4.5" width="19" height="15" rx="2"/>
+      <path d="m7 9 3 3-3 3"/><path d="M12.5 15H17"/>
+    </symbol>
+    <symbol id="icon-file" viewBox="0 0 24 24">
+      <path d="M6 2.5h8L20 8.5v13H6v-19Z"/><path d="M14 2.5v6h6"/>
+    </symbol>
+    <symbol id="icon-sparkles" viewBox="0 0 24 24">
+      <path d="M12 4 13.8 9 19 10.8 13.8 12.6 12 17.8 10.2 12.6 5 10.8 10.2 9 12 4Z"/>
+      <path d="M19 3.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7.7-1.8ZM5 15l.6 1.4L7 17l-1.4.6L5 19l-.6-1.4L3 17l1.4-.6L5 15Z"/>
+    </symbol>
+    <symbol id="icon-flag" viewBox="0 0 24 24">
+      <path d="M5 21V4"/><path d="M5 4h12l-2 4 2 4H5"/>
+    </symbol>
+    <symbol id="icon-eye" viewBox="0 0 24 24">
+      <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/>
+      <circle cx="12" cy="12" r="3"/>
+    </symbol>
+    <symbol id="icon-edit" viewBox="0 0 24 24">
+      <path d="M4 20h4L19.5 8.5a2.1 2.1 0 0 0-3-3L5 17l-1 4Z"/>
+    </symbol>
+    <symbol id="icon-play" viewBox="0 0 24 24">
+      <path fill="currentColor" stroke="none" d="M8 5.5v13l11-6.5L8 5.5Z"/>
+    </symbol>
+    <symbol id="icon-zap" viewBox="0 0 24 24">
+      <path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/>
+    </symbol>
+    <symbol id="icon-clock" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>
+    </symbol>
+    <symbol id="icon-windows" viewBox="0 0 24 24">
+      <path fill="currentColor" stroke="none" d="M3 5.5 10.5 4.3v7.3H3V5.5Zm8.5-.8L21 3.2v8.4h-9.5V4.7ZM3 13.4h7.5v7.3L3 19.5v-6.1Zm9.5 0H21v8.4l-9.5-1.3v-7.1Z"/>
+    </symbol>
+    <symbol id="icon-apple" viewBox="0 0 24 24">
+      <path fill="currentColor" stroke="none" d="M16.7 12.8c0-2.2 1.8-3.2 1.9-3.3-1-1.5-2.6-1.7-3.2-1.7-1.3-.1-2.6.8-3.3.8-.7 0-1.7-.8-2.9-.8-1.5 0-2.9.9-3.6 2.2-1.6 2.7-.4 6.7 1.1 8.9.7 1.1 1.6 2.3 2.8 2.2 1.1 0 1.5-.7 2.9-.7s1.7.7 2.9.7c1.2 0 2-1.1 2.7-2.2.9-1.2 1.2-2.4 1.2-2.5-.1 0-2.4-.9-2.5-3.6ZM14.2 6c.6-.7 1-1.7.9-2.7-.9 0-1.9.6-2.5 1.3-.6.6-1.1 1.7-.9 2.7 1 0 1.9-.5 2.5-1.3Z"/>
+    </symbol>
+    <symbol id="icon-android" viewBox="0 0 24 24">
+      <path fill="currentColor" stroke="none" d="M7.5 10.5h9v6.5a1.5 1.5 0 0 1-1.5 1.5H16v2a1 1 0 0 1-2 0v-2h-4v2a1 1 0 0 1-2 0v-2h-1a1.5 1.5 0 0 1-1.5-1.5v-6.5Zm2.5-4.5 1-1.5M14 6l1-1.5M7 5a9 9 0 0 1 10 0M8 8.5h8l-1 2H9l-1-2Z"/>
+    </symbol>
+    <symbol id="icon-linux" viewBox="0 0 24 24">
+      <path fill="currentColor" stroke="none" d="M12 3c1.5 0 2.4 1.2 2.3 2.6l-.3 2.2 2.3-1c1.5-.6 3 0 3 1.6 0 .7-.4 1.2-1 1.6l-.9.6.9.6c.6.4 1 1 1 1.7 0 1.6-1.5 2.2-3 1.6l-2.3-1 .3 2.2c.1 1.4-.8 2.6-2.3 2.6s-2.4-1.2-2.3-2.6l.3-2.2-2.3 1c-1.5.6-3 0-3-1.6 0-.7.4-1.2 1-1.6l.9-.6-.9-.6c-.6-.4-1-1-1-1.7 0-1.6 1.5-2.2 3-1.6l2.3 1-.3-2.2C9.6 4.2 10.5 3 12 3Z"/>
+    </symbol>
+    <symbol id="icon-mobile" viewBox="0 0 24 24">
+      <rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/>
+      <path d="M11 5h2M10.5 18.5h3"/>
+    </symbol>
+    <symbol id="icon-monitor" viewBox="0 0 24 24">
+      <rect x="3" y="4" width="18" height="13" rx="2"/>
+      <path d="M9 21h6M12 17v4"/>
+    </symbol>
+    <symbol id="icon-lock" viewBox="0 0 24 24">
+      <rect x="5" y="11" width="14" height="10" rx="2"/>
+      <path d="M8 11V8a4 4 0 0 1 8 0v3"/>
+    </symbol>
+    <symbol id="icon-heart" viewBox="0 0 24 24">
+      <path d="M12 20.5S4 15.5 4 9.8A4.3 4.3 0 0 1 12 7a4.3 4.3 0 0 1 8 2.8c0 5.7-8 10.7-8 10.7Z"/>
+    </symbol>
+    <symbol id="icon-folder" viewBox="0 0 24 24">
+      <path d="M3 6a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6Z"/>
+    </symbol>
+    <symbol id="icon-rss" viewBox="0 0 24 24">
+      <path d="M4 4a16 16 0 0 1 16 16"/><path d="M4 11a9 9 0 0 1 9 9"/><circle cx="5.5" cy="18.5" r="1.3" fill="currentColor" stroke="none"/>
+    </symbol>
+    <symbol id="icon-bolt" viewBox="0 0 24 24">
+      <path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/>
+    </symbol>
+    <symbol id="icon-grid" viewBox="0 0 24 24">
+      <rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/>
+      <rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/>
+    </symbol>
+    <symbol id="icon-pen" viewBox="0 0 24 24">
+      <path d="m4 20 1-4L16.5 4.5a2.1 2.1 0 0 1 3 3L8 19l-4 1Z"/><path d="m14 6.5 3 3"/>
+    </symbol>
+    <symbol id="icon-flip" viewBox="0 0 24 24">
+      <rect x="3" y="5" width="18" height="8" rx="2"/><rect x="6" y="16" width="12" height="4" rx="1.5"/>
+      <path d="M6.5 3v2M17.5 3v2"/>
+    </symbol>
+    <symbol id="icon-review" viewBox="0 0 24 24">
+      <path d="M12 3v18"/><path d="m6 7 6 6 6-6"/><path d="M4 21h16"/>
+    </symbol>
+    <symbol id="icon-dark-mode" viewBox="0 0 24 24">
+      <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5Z"/>
+    </symbol>
+    <symbol id="icon-offline" viewBox="0 0 24 24">
+      <path d="M12 3a8.5 8.5 0 0 1 8.5 8.5c0 1.6-.4 3-1.2 4.3M3.7 15.5A8.4 8.4 0 0 1 3.5 11.5"/>
+      <path d="M7 21h10"/><path d="M12 13v5"/><path d="M4 4l16 16"/>
+    </symbol>
+    <symbol id="icon-sync" viewBox="0 0 24 24">
+      <path d="M4 10a8 8 0 0 1 14.5-2.5"/><path d="M20 6v4h-4"/>
+      <path d="M20 14a8 8 0 0 1-14.5 2.5"/><path d="M4 18v-4h4"/>
+    </symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3 1a7 7 0 0 0-2-1.2L14.2 3h-4l-.4 2.7a7 7 0 0 0-2 1.2l-2.3-1-2 3.4 2 1.5A7 7 0 0 0 5.1 12c0 .4 0 .8.1 1.2l-2 1.5 2 3.4 2.3-1c.6.5 1.3.9 2 1.2l.4 2.7h4l.4-2.7a7 7 0 0 0 2-1.2l2.3 1 2-3.4-2-1.5c.1-.4.1-.8.1-1.2Z"/>
+    </symbol>
+    <symbol id="icon-font" viewBox="0 0 24 24">
+      <path d="M5 6h14"/><path d="M12 6v13"/><path d="M9 19h6"/>
+    </symbol>
+    <symbol id="icon-globe" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9"/>
+      <path d="M3 12h18M12 3c2.5 2.5 4 5.5 4 9s-1.5 6.5-4 9c-2.5-2.5-4-5.5-4-9s1.5-6.5 4-9Z"/>
+    </symbol>
+    <symbol id="icon-chart" viewBox="0 0 24 24">
+      <path d="M4 20V4"/><path d="M4 20h16"/><path d="M8 16v-5"/><path d="M13 16V7"/><path d="M18 16v-3"/>
+    </symbol>
+    <symbol id="icon-api" viewBox="0 0 24 24">
+      <path d="M7 8 3 12l4 4M17 8l4 4-4 4M14 4l-4 16"/>
+    </symbol>
+  </defs>
+</svg>
+
+  <div class="app-window">
+    
+<nav class="nav-panel" id="navPanel" aria-label="Site navigation">
+  <div class="drag-handle" data-tooltip="Drag to move" aria-hidden="true"></div>
+  <div class="nav-inner">
+    <a class="nav-brand" href="/Kaiteyo/">
+      <img class="nav-logo" src="/Kaiteyo/assets/images/kaiteyo-mark.svg" alt="Kaiteyo logo" width="36" height="36" />
+      <span class="nav-brand-text">
+        <span class="nav-brand-name">KAITEYO</span>
+        <span class="nav-brand-tagline"><span class="lang-ja">書いてよ</span> — Write. Practice. Master.</span>
+      </span>
+    </a>
+
+    <div class="nav-divider"></div>
+
+    <div class="nav-groups">
+      
+      <div class="nav-group">
+        <div class="nav-group-title">Learn</div>
+        <ul class="nav-list">
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/download/"
+               data-badge="v2.2.1">
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-download"/></svg>
+              <span class="nav-label">Download</span>
+              <span class="badge badge-muted nav-badge">v2.2.1</span>
+            </a>
+          </li>
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/product/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-layers"/></svg>
+              <span class="nav-label">Product</span>
+              
+            </a>
+          </li>
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/learn/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-book"/></svg>
+              <span class="nav-label">Learn</span>
+              
+            </a>
+          </li>
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/features/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-grid"/></svg>
+              <span class="nav-label">Features</span>
+              
+            </a>
+          </li>
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/screenshots/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-image"/></svg>
+              <span class="nav-label">Screenshots</span>
+              
+            </a>
+          </li>
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/theme-gallery/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-palette"/></svg>
+              <span class="nav-label">Theme Gallery</span>
+              
+            </a>
+          </li>
+          
+        </ul>
+      </div>
+      
+      <div class="nav-group">
+        <div class="nav-group-title">Explore</div>
+        <ul class="nav-list">
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/docs/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-file"/></svg>
+              <span class="nav-label">Documentation</span>
+              
+            </a>
+          </li>
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/wiki/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-compass"/></svg>
+              <span class="nav-label">Wiki</span>
+              
+            </a>
+          </li>
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/guides/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-milestone"/></svg>
+              <span class="nav-label">Guides</span>
+              
+            </a>
+          </li>
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/faq/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-help"/></svg>
+              <span class="nav-label">Q&amp;A</span>
+              
+            </a>
+          </li>
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/shortcuts/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-keyboard"/></svg>
+              <span class="nav-label">Keyboard Shortcuts</span>
+              
+            </a>
+          </li>
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/roadmap/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-milestone"/></svg>
+              <span class="nav-label">Product Roadmap</span>
+              
+            </a>
+          </li>
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/changelog/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-history"/></svg>
+              <span class="nav-label">Changelog</span>
+              
+            </a>
+          </li>
+          
+        </ul>
+      </div>
+      
+      <div class="nav-group">
+        <div class="nav-group-title">Command Center</div>
+        <ul class="nav-list">
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/project/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-layers"/></svg>
+              <span class="nav-label">Project Status</span>
+              
+            </a>
+          </li>
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/project/kanban/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-grid"/></svg>
+              <span class="nav-label">Kanban</span>
+              
+            </a>
+          </li>
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/project/roadmap/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-milestone"/></svg>
+              <span class="nav-label">Roadmap</span>
+              
+            </a>
+          </li>
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/project/whiteboard/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-compass"/></svg>
+              <span class="nav-label">Whiteboard</span>
+              
+            </a>
+          </li>
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/project/suggestions/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-chat"/></svg>
+              <span class="nav-label">Suggestions</span>
+              
+            </a>
+          </li>
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/project/decisions/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-scale"/></svg>
+              <span class="nav-label">Architecture Decisions</span>
+              
+            </a>
+          </li>
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/project/activity/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-history"/></svg>
+              <span class="nav-label">Activity</span>
+              
+            </a>
+          </li>
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/project/contributing/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-contribute"/></svg>
+              <span class="nav-label">Contributing</span>
+              
+            </a>
+          </li>
+          
+        </ul>
+      </div>
+      
+      <div class="nav-group">
+        <div class="nav-group-title">Community</div>
+        <ul class="nav-list">
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/integrations/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-sync"/></svg>
+              <span class="nav-label">Integrations</span>
+              
+            </a>
+          </li>
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/install/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-monitor"/></svg>
+              <span class="nav-label">Install</span>
+              
+            </a>
+          </li>
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/about/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-users"/></svg>
+              <span class="nav-label">About</span>
+              
+            </a>
+          </li>
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/community/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-chat"/></svg>
+              <span class="nav-label">Community</span>
+              
+            </a>
+          </li>
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/data/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-folder"/></svg>
+              <span class="nav-label">Data &amp; Attribution</span>
+              
+            </a>
+          </li>
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/plugins/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-puzzle"/></svg>
+              <span class="nav-label">Plugins</span>
+              
+            </a>
+          </li>
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/credits/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-heart"/></svg>
+              <span class="nav-label">Credits</span>
+              
+            </a>
+          </li>
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/license/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-scale"/></svg>
+              <span class="nav-label">License</span>
+              
+            </a>
+          </li>
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/privacy/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-lock"/></svg>
+              <span class="nav-label">Privacy Policy</span>
+              
+            </a>
+          </li>
+          
+          <li>
+            <a class="nav-item" href="/Kaiteyo/security/"
+               >
+              <svg class="icon nav-icon" aria-hidden="true"><use href="#icon-shield"/></svg>
+              <span class="nav-label">Security</span>
+              
+            </a>
+          </li>
+          
+        </ul>
+      </div>
+      
+    </div>
+
+    <div class="nav-divider"></div>
+
+    <div class="nav-footer">
+      <a class="btn btn-primary nav-cta" href="/Kaiteyo/download/">
+        <svg class="icon" aria-hidden="true"><use href="#icon-download"/></svg>
+        <span class="nav-cta-label">Download Kaiteyo</span>
+      </a>
+      <div class="flex gap-2 items-center">
+        <button class="btn-icon" type="button" data-nav-collapse-toggle
+                data-tooltip="Toggle collapsed" aria-label="Toggle navigation collapsed state">
+          <svg class="icon" aria-hidden="true"><use href="#icon-layout"/></svg>
+        </button>
+        <button class="btn-icon" type="button" data-open-theme
+                data-tooltip="Theme" aria-label="Open theme settings">
+          <svg class="icon" aria-hidden="true"><use href="#icon-palette"/></svg>
+        </button>
+        <button class="btn-icon" type="button" data-open-nav-settings
+                data-tooltip="Navigation" aria-label="Open navigation settings">
+          <svg class="icon" aria-hidden="true"><use href="#icon-layout"/></svg>
+        </button>
+        <a class="btn-icon" href="https://github.com/ValiantZippu/Kaiteyo" data-tooltip="GitHub" aria-label="Kaiteyo on GitHub" target="_blank" rel="noopener">
+          <svg class="icon" aria-hidden="true"><use href="#icon-github"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+    <div class="nav-scrim" id="navScrim" aria-hidden="true"></div>
+
+    <div class="content-panel">
+      
+<header class="topbar">
+  <button class="btn-icon topbar-menu" type="button" data-nav-open aria-label="Open navigation">
+    <svg class="icon" aria-hidden="true"><use href="#icon-menu"/></svg>
+  </button>
+  <div class="topbar-title">
+    <h1>Kaiteyo — Current Issues</h1>
+  </div>
+  <div class="topbar-actions">
+    <button class="btn btn-ghost btn-sm" type="button" data-open-search aria-label="Open search">
+      <svg class="icon" aria-hidden="true"><use href="#icon-search"/></svg>
+      Search
+      <kbd>Ctrl K</kbd>
+    </button>
+    <a class="btn btn-primary btn-sm" href="/Kaiteyo/download/">
+      <svg class="icon" aria-hidden="true"><use href="#icon-download"/></svg>
+      Download
+    </a>
+    <button class="btn-icon" type="button" data-open-theme data-tooltip="Theme" aria-label="Open theme settings">
+      <svg class="icon" aria-hidden="true"><use href="#icon-sun"/></svg>
+    </button>
+    <button class="btn-icon" type="button" data-open-nav-settings data-tooltip="Navigation settings" aria-label="Open navigation settings">
+      <svg class="icon" aria-hidden="true"><use href="#icon-layout"/></svg>
+    </button>
+    <a class="btn-icon" href="https://github.com/ValiantZippu/Kaiteyo" data-tooltip="GitHub" aria-label="Kaiteyo on GitHub" target="_blank" rel="noopener">
+      <svg class="icon" aria-hidden="true"><use href="#icon-github"/></svg>
+    </a>
+  </div>
+</header>
+
+      <main class="content-main is-fullwidth" id="mainContent" tabindex="-1">
+        
+<div class="docs-layout">
+  <aside class="docs-sidebar" aria-label="Documentation sections">
+    <div class="docs-sidebar-title">Documentation</div>
+    
+    <details class="docs-section" >
+      <summary class="docs-section-title">
+        <span></span>
+        <span class="docs-count">2</span>
+      </summary>
+      <ul class="docs-list">
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/start-here/readme/">Kaiteyo (書いてよ) — Documentation</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/start-here/project_vision/">Kaiteyo (書いてよ) — Project Vision</a>
+        </li>
+        
+      </ul>
+    </details>
+    
+    <details class="docs-section" >
+      <summary class="docs-section-title">
+        <span></span>
+        <span class="docs-count">8</span>
+      </summary>
+      <ul class="docs-list">
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/design/brand_guidelines/">Kaiteyo (書いてよ) — Brand Guidelines</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/design/design_language/">Kaiteyo (書いてよ) — Design Language</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/design/branding/">Kaiteyo (書いてよ) — Branding</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/design/ui_system/">Kaiteyo (書いてよ) — UI System</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/design/theme_system/">Kaiteyo (書いてよ) — Theme System</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/design/animation_system/">Kaiteyo (書いてよ) — Animation System</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/design/readme/">🎯 branding — Kaiteyo Brand Assets</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/design/readme/">🎨 design — Kaiteyo Design System</a>
+        </li>
+        
+      </ul>
+    </details>
+    
+    <details class="docs-section" >
+      <summary class="docs-section-title">
+        <span></span>
+        <span class="docs-count">7</span>
+      </summary>
+      <ul class="docs-list">
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/features/features/">Kaiteyo (書いてよ) — Feature Status</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/features/desktop/">Kaiteyo — Desktop Experience Specification</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/features/library/">📚 Library — Unified Content Hub</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/features/media/">Media — Immersion Workspace</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/features/statistics/">Statistics &amp; Examination System</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/features/themes/">Kaiteyo — Theme System &amp; Theme Studio</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/features/readme/">⚡ features — Kaiteyo Feature Specifications</a>
+        </li>
+        
+      </ul>
+    </details>
+    
+    <details class="docs-section" >
+      <summary class="docs-section-title">
+        <span></span>
+        <span class="docs-count">28</span>
+      </summary>
+      <ul class="docs-list">
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/architecture/overview/">Kaiteyo (書いてよ) — Architecture Overview</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/architecture/data_platform/">Japanese Language Data Platform</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/architecture/node_architecture/">Kaiteyo Node Architecture — Master Specification</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/architecture/database/">Kaiteyo Architecture — Database Specification &amp; Migration Plan</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/architecture/dictionary/">Kaiteyo Architecture — Dictionary Engine Specification</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/architecture/language-model/">Kaiteyo Architecture — Language Data Model &amp; Knowledge Graph</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/architecture/study-engine/">Kaiteyo Architecture — Study Engine &amp; Card Model</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/architecture/statistics/">Kaiteyo Architecture — Statistics &amp; Event Model</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/architecture/exams/">Kaiteyo Architecture — Exam System Specification</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/architecture/media/">Kaiteyo Architecture — Media, Playback &amp; Subtitle Engine</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/architecture/mining/">Kaiteyo Architecture — Mining Workflow Specification</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/architecture/localization/">Kaiteyo Architecture — Localization Plan</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/architecture/browser/">Kaiteyo Architecture — Embedded Browser (Planned)</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/architecture/sync/">Kaiteyo Synchronization Architecture v1.2</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/architecture/account/">Kaiteyo Account &amp; Synchronization Structure v1.2</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/architecture/navigation/">Kaiteyo (書いてよ) — Navigation System</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/architecture/file_structure/">Repository File Structure Reference</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/architecture/performance/">Kaiteyo Architecture — Performance Strategy</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/architecture/toolchain/">Kaiteyo Architecture — Toolchain &amp; Development Environment</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/architecture/content/">Kaiteyo Architecture — Content System &amp; Authoring</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/architecture/backup/">Kaiteyo Architecture — Backup, Import &amp; Export</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/architecture/accessibility/">Kaiteyo Architecture — Accessibility Plan</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/architecture/ci-cd/">Kaiteyo Architecture — CI/CD &amp; Release Pipeline</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/architecture/assets/">Kaiteyo Architecture — Asset System Specification</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/architecture/integrations/">Kaiteyo Architecture — Integrations Specification</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/architecture/journey/">Kaiteyo Architecture — Journey, World &amp; Game Runtime Plan</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/architecture/pitch-frequency/">Pitch Accent &amp; Frequency Architecture</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/architecture/readme/">🔌 api — Kaiteyo API Documentation</a>
+        </li>
+        
+      </ul>
+    </details>
+    
+    <details class="docs-section" >
+      <summary class="docs-section-title">
+        <span></span>
+        <span class="docs-count">19</span>
+      </summary>
+      <ul class="docs-list">
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/decisions/0001-brand/">ADR-0001: Kaiteyo Brand Identity</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/decisions/0002-theme/">ADR-0002: Theme System Architecture</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/decisions/0003-kotlin-multiplatform/">ADR-0003: Kotlin Multiplatform + Compose Multiplatform</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/decisions/0004-shared-ui-and-screen-pattern/">ADR-0004: Shared UI with the 4-File Screen Pattern + Koin DI</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/decisions/0005-sqldelight-two-databases/">ADR-0005: Two SQLDelight Databases (immutable app data / mutable user data)</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/decisions/0006-fsrs-srs/">ADR-0006: FSRS-5 for Spaced Repetition</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/decisions/0007-kjd-data-platform/">ADR-0007: KJD — Standalone Data Platform for the Bundled Language Database</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/decisions/0008-desktop-suite/">ADR-0008: Desktop Immersion Suite as a Self-Contained Module</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/decisions/0009-github-sync-and-account/">ADR-0009: GitHub Device-Flow OAuth + Private-Gist Sync (No Central Service)</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/decisions/0010-installer-decoupling/">ADR-0010: Installer Subsystem Decoupled from the Gradle Build</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/decisions/0011-plugin-security-first/">ADR-0011: Plugin Runtime Loading Deferred (Security First)</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/decisions/0012-engineering-standards/">ADR-0012: Professional Engineering Standards</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/decisions/0013-node-architecture/">ADR-0013: Node-Based Architecture (Target)</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/decisions/0014-journey-target-architecture/">ADR-0014: Journey as Target Architecture</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/decisions/0015-content-authoring/">ADR-0015: Data-Driven Content Authoring</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/decisions/0016-event-driven-user-knowledge/">ADR-0016: Event-Driven User Knowledge (Dimensioned, FSRS-Owned Scheduling)</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/decisions/0017-one-product-architecture/">ADR-0017: One Product — Resolve the Two Parallel Applications</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/decisions/0018-game-engine-evaluation/">ADR-0018: Game Engine Evaluation (Decision Pending)</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/decisions/0019-website-command-center/">ADR-0019: Website as Project Command Center</a>
+        </li>
+        
+      </ul>
+    </details>
+    
+    <details class="docs-section" >
+      <summary class="docs-section-title">
+        <span></span>
+        <span class="docs-count">3</span>
+      </summary>
+      <ul class="docs-list">
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/data/architecture/">Data Architecture</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/data/sources/">Open-Source Data Sources &amp; Attribution</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/data/readme/">Data &amp; Attribution</a>
+        </li>
+        
+      </ul>
+    </details>
+    
+    <details class="docs-section" >
+      <summary class="docs-section-title">
+        <span></span>
+        <span class="docs-count">6</span>
+      </summary>
+      <ul class="docs-list">
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/integrations/anki/">Anki Integration</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/integrations/yomitan_dictionaries/">Yomitan-Style Dictionaries &amp; Popup Lookup</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/integrations/media_backends/">Media Playback Backends</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/integrations/local_api/">Local HTTP API (desktop)</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/integrations/plugins/">Plugin Architecture</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/integrations/readme/">Integrations</a>
+        </li>
+        
+      </ul>
+    </details>
+    
+    <details class="docs-section" >
+      <summary class="docs-section-title">
+        <span></span>
+        <span class="docs-count">5</span>
+      </summary>
+      <ul class="docs-list">
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/user-guide/getting_started/">Getting Started</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/user-guide/studying/">Studying with Kaiteyo</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/user-guide/desktop_suite/">The Desktop Suite (Windows / macOS / Linux)</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/user-guide/customization/">Customization</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/user-guide/readme/">User Guide</a>
+        </li>
+        
+      </ul>
+    </details>
+    
+    <details class="docs-section" >
+      <summary class="docs-section-title">
+        <span></span>
+        <span class="docs-count">3</span>
+      </summary>
+      <ul class="docs-list">
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/guides/beginner_guide/">Kaiteyo — Beginner&#39;s Guide</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/guides/git_guide/">Kaiteyo — Git Guide</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/guides/setup_guide/">Kaiteyo — Setup Guide</a>
+        </li>
+        
+      </ul>
+    </details>
+    
+    <details class="docs-section" >
+      <summary class="docs-section-title">
+        <span></span>
+        <span class="docs-count">12</span>
+      </summary>
+      <ul class="docs-list">
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/development/developer_guide/">Kaiteyo (書いてよ) — Development Guide</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/development/coding_standards/">Kaiteyo (書いてよ) — Coding Standards</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/development/assets/">Kaiteyo (書いてよ) — Assets</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/development/release_process/">Kaiteyo (書いてよ) — Release Process</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/development/release_checklist/">Release Checklist</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/development/firstbuild/">First Build</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/development/freshsetup/">Fresh Setup</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/development/requiredsoftware/">Required Software</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/development/updatingdependencies/">Updating Dependencies</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/development/dependencyupdates/">Dependency Updates</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/development/versionhistory/">Version History and Build History</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/development/knownlimitations/">Known Limitations</a>
+        </li>
+        
+      </ul>
+    </details>
+    
+    <details class="docs-section" >
+      <summary class="docs-section-title">
+        <span></span>
+        <span class="docs-count">6</span>
+      </summary>
+      <ul class="docs-list">
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/platform/windows/">Windows</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/platform/linux/">Linux</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/platform/macos/">macOS</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/platform/android/">Android</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/platform/ios/">iOS</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/platform/readme/">Platform Documentation</a>
+        </li>
+        
+      </ul>
+    </details>
+    
+    <details class="docs-section" >
+      <summary class="docs-section-title">
+        <span></span>
+        <span class="docs-count">2</span>
+      </summary>
+      <ul class="docs-list">
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/security/privacy/">Privacy</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/security/readme/">Security</a>
+        </li>
+        
+      </ul>
+    </details>
+    
+    <details class="docs-section" >
+      <summary class="docs-section-title">
+        <span></span>
+        <span class="docs-count">2</span>
+      </summary>
+      <ul class="docs-list">
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/legal/third_party_notices/">Third-Party Notices</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/legal/readme/">Legal &amp; Licensing</a>
+        </li>
+        
+      </ul>
+    </details>
+    
+    <details class="docs-section" >
+      <summary class="docs-section-title">
+        <span></span>
+        <span class="docs-count">1</span>
+      </summary>
+      <ul class="docs-list">
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/testing/readme/">Testing Strategy</a>
+        </li>
+        
+      </ul>
+    </details>
+    
+    <details class="docs-section" >
+      <summary class="docs-section-title">
+        <span></span>
+        <span class="docs-count">12</span>
+      </summary>
+      <ul class="docs-list">
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/troubleshooting/android/">Android</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/troubleshooting/builderrors/">Build Errors</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/troubleshooting/commonproblems/">Common Problems</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/troubleshooting/desktop/">Desktop</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/troubleshooting/git/">Git</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/troubleshooting/gradle/">Gradle</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/troubleshooting/ios/">iOS</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/troubleshooting/java/">Java</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/troubleshooting/linux/">Linux</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/troubleshooting/macos/">macOS</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/troubleshooting/vscode/">VS Code</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/troubleshooting/windows/">Windows</a>
+        </li>
+        
+      </ul>
+    </details>
+    
+    <details class="docs-section" >
+      <summary class="docs-section-title">
+        <span></span>
+        <span class="docs-count">4</span>
+      </summary>
+      <ul class="docs-list">
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/website/readme/">Kaiteyo Website</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/website/architecture/">Website Architecture</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/website/data_model/">Website — Unified Project Data Model</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/website/api/">Website — API Contracts (interactive layer)</a>
+        </li>
+        
+      </ul>
+    </details>
+    
+    <details class="docs-section" >
+      <summary class="docs-section-title">
+        <span></span>
+        <span class="docs-count">2</span>
+      </summary>
+      <ul class="docs-list">
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/contributing/contributing/">Contributing to Kaiteyo</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/contributing/development_setup/">Kaiteyo — Development Setup</a>
+        </li>
+        
+      </ul>
+    </details>
+    
+    <details class="docs-section" >
+      <summary class="docs-section-title">
+        <span></span>
+        <span class="docs-count">1</span>
+      </summary>
+      <ul class="docs-list">
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/ai/ai_agent_guide/">AI Agent Guide</a>
+        </li>
+        
+      </ul>
+    </details>
+    
+    <details class="docs-section" >
+      <summary class="docs-section-title">
+        <span></span>
+        <span class="docs-count">4</span>
+      </summary>
+      <ul class="docs-list">
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/planning/roadmap/">Kaiteyo (書いてよ) — Roadmap</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/planning/completed/">Kaiteyo — Completed Features</a>
+        </li>
+        
+        <li>
+          <a class="docs-link"
+             href="/Kaiteyo/docs/planning/future_ideas/">Kaiteyo — Future Ideas</a>
+        </li>
+        
+        <li>
+          <a class="docs-link is-active"
+             href="/Kaiteyo/docs/planning/current_issues/">Kaiteyo — Current Issues</a>
+        </li>
+        
+      </ul>
+    </details>
+    
+
+    <div class="docs-sidebar-footer">
+      <a class="btn btn-ghost btn-sm" href="https://github.com/ValiantZippu/Kaiteyo/tree/develop/docs" target="_blank" rel="noopener">
+        <svg class="icon" aria-hidden="true"><use href="#icon-github"/></svg>
+        Source in the repository
+      </a>
+    </div>
+  </aside>
+
+  <article class="docs-article prose">
+    
+    <nav aria-label="Breadcrumb">
+      <ol class="breadcrumbs">
+        
+        <li>
+          
+          <a href="/Kaiteyo/docs/">Documentation</a>
+          <span class="breadcrumb-sep" aria-hidden="true">/</span>
+          
+        </li>
+        
+        <li>
+          
+          <a href="/Kaiteyo/docs/planning/">Planning</a>
+          <span class="breadcrumb-sep" aria-hidden="true">/</span>
+          
+        </li>
+        
+        <li>
+          
+          <span class="current">Kaiteyo — Current Issues</span>
+          
+        </li>
+        
+      </ol>
+    </nav>
+    <div style="height: var(--space-5)"></div>
+    
+
+    <header style="margin-bottom: var(--space-8)">
+      <h1>Kaiteyo — Current Issues</h1>
+      <p style="font-size: var(--text-lg); color: var(--text-secondary)">Living issue tracker. Categories (see README.md(README.md)): BUG (reproducible</p>
+      
+      <a class="prose-edit-link" href="https://github.com/ValiantZippu/Kaiteyo/blob/develop/planning/CURRENT_ISSUES.md" target="_blank" rel="noopener">
+        <svg class="icon" aria-hidden="true"><use href="#icon-edit"/></svg>
+        Edit this page on GitHub
+      </a>
+      
+    </header>
+
+    <h1 id="kaiteyo-current-issues">Kaiteyo — Current Issues</h1>
+<p>Living issue tracker. <strong>Categories</strong> (see <a href="https://github.com/ValiantZippu/Kaiteyo/blob/develop/docs/planning/README.md"><code>README.md</code></a>): <code>BUG</code> (reproducible
+defect being fixed/investigated) · <code>KNOWN ISSUE</code> (acknowledged limitation, not yet
+scheduled) · <code>BLOCKED</code> (waiting on platform access or a decision) · <code>DONE</code> (fixed).</p>
+<p><strong>Priorities</strong> — 🔴 P0 critical · 🟡 P1 high · 🟢 P2 medium · 🔵 P3 low.</p>
+<hr />
+<h2 id="bug-known-issue-open">BUG / KNOWN ISSUE — open</h2>
+<h3 id="p0-desktop-quality-desktop-suite">🔴 P0 — Desktop quality (desktop suite)</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Item</th>
+<th>Category</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Animation stutter during hover / theme switching / window move — target 60 FPS</td>
+<td>KNOWN ISSUE</td>
+<td>partially addressed by the window-system rebuild (native drag already 1:1; dock no longer animates during resize); remaining polish pass</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Resize glitches — panels jump, spacing changes, animations break on resize</td>
+<td>BUG</td>
+<td>addressed in the window-system rebuild (work-area-clamped resize, dock snaps during resize, breakpoint hysteresis + crossfade); needs a runtime sweep</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Hover animations inconsistent across components</td>
+<td>KNOWN ISSUE</td>
+<td>Some animate, some don't</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Inconsistent spacing / alignment / corner-radius strategy</td>
+<td>KNOWN ISSUE</td>
+<td>4dp grid not uniformly followed</td>
+</tr>
+</tbody>
+</table>
+<h3 id="p1">🟡 P1</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Item</th>
+<th>Category</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5</td>
+<td>Archived decks still visible in main lists; no "Archived" restore section</td>
+<td>BUG</td>
+<td><code>is_archived</code> works (v2.0); filter + restore UI missing</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Settings still has randomly placed appearance options</td>
+<td>KNOWN ISSUE</td>
+<td>Route everything through Settings Center categories</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Mobile nav lacks snap behavior (top/bottom only)</td>
+<td>FEATURE</td>
+<td>see TODO.md</td>
+</tr>
+</tbody>
+</table>
+<h3 id="p2">🟢 P2</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Item</th>
+<th>Category</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8</td>
+<td>OCR is Tesseract-dependent; missing-engine UX is a hint, not a guided setup</td>
+<td>KNOWN ISSUE</td>
+<td>hardening planned</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Auto-update not yet enabled for end users</td>
+<td>KNOWN ISSUE</td>
+<td>architecture complete; rollout staged</td>
+</tr>
+<tr>
+<td>10</td>
+<td>iOS is secondary; several platform paths verified only by build</td>
+<td>KNOWN ISSUE</td>
+<td>see BLOCKED below</td>
+</tr>
+<tr>
+<td>11</td>
+<td><strong>Two parallel applications</strong> — the shipped core app (<code>KaiteyoApp</code>) and the desktop suite (<code>KaiteyoDesktopSuite</code>) maintain duplicate SRS/settings/statistics/nav/decks</td>
+<td>KNOWN ISSUE</td>
+<td><strong>media resolved</strong> — the Media Centre is now a first-class core destination (<code>MainDestination.Media</code> → <code>DesktopMediaCentreContent</code> mounts the suite's <code>MediaView</code> in the shipped app, incl. dictionary popup + mining inside the workspace; see DONE below). Remaining: standalone suite views (Dictionary manager, OCR, Browser, Reading) are still not core destinations; SRS/settings/statistics/nav/decks duplication still needs the consolidation decision — see <code>PRODUCT_AUDIT.md</code> §1</td>
+</tr>
+<tr>
+<td>12</td>
+<td><strong>Game slice renders 2.5D top-down</strong> (Compose Canvas backend); 3D engine is PLANNED</td>
+<td>KNOWN ISSUE</td>
+<td>The engine core is renderer-agnostic (<code>RenderBackend</code> boundary) — 3D swaps in without touching content/quests/learning/saves. Controller support is real (JNA XInput/evdev, hot-plug, rebind UI), touch controls implemented (dynamic-origin joystick + look drag, Settings toggle — awaiting a touch-device runtime sweep), dialogue TTS via Kaiteyo's kana-clip voice, menu focus navigation (keyboard + gamepad), in-world kana writing, procedural audio (SFX + ambient pads), time-gated content (evening festival), NPC patrols + weather/season presence gates, a season cycle (palette + weather bias) and a Kamakura night quest chain. Honest per-system status + backlog: <code>docs/game/VERTICAL_SLICE.md</code>, <code>docs/game/TODO.md</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="blocked-code-complete-but-unverified-needs-platform-runtime">BLOCKED — code-complete but unverified (needs platform runtime)</h2>
+<p>These items are <strong>implemented and compiled</strong> but not verified on the target platform.
+They are not <code>DONE</code> until runtime-verified.</p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>What's needed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Core MPP changes (backup unification rewire, 12-file dead-code deletion, <code>DeckFeaturesHub</code> import removal, <code>DeckManager.kt</code> trim, mock-history fallback removal)</td>
+<td>JVM compile (<code>:core</code>) + Android build; source-only per user instruction</td>
+</tr>
+<tr>
+<td>iOS <code>.apkg</code> import/export (<code>AnkiPackage.ios.kt</code>, pure-Kotlin ZIP/inflate)</td>
+<td>macOS build + simulator/device</td>
+</tr>
+<tr>
+<td>iOS file picker/save (<code>UIDocumentPickerViewController</code>)</td>
+<td>macOS build + device</td>
+</tr>
+<tr>
+<td>Android SAF picker + persistable re-import grant</td>
+<td>Android build + device</td>
+</tr>
+<tr>
+<td>Windows system media keys (<code>WH_KEYBOARD_LL</code> hook)</td>
+<td>Windows runtime</td>
+</tr>
+<tr>
+<td>Windows/Linux native window drag (JNA)</td>
+<td>Windows + Linux runtime</td>
+</tr>
+<tr>
+<td>AnkiConnect deck import (<code>AnkiImporter</code>)</td>
+<td>Live Anki + AnkiConnect</td>
+</tr>
+<tr>
+<td>Desktop card-pool persistence on every mutation path</td>
+<td>Desktop runtime sweep</td>
+</tr>
+<tr>
+<td>Desktop <code>.apkg</code> import/export after rewrite</td>
+<td>Desktop runtime sweep</td>
+</tr>
+<tr>
+<td>Floating dock island / custom window chrome styling</td>
+<td>Desktop runtime sweep</td>
+</tr>
+<tr>
+<td>Window chrome now reads the live theme (black-bar fix), Windows 11 DWM rounding + theme border, work-area-constrained startup/resize/watch</td>
+<td>Desktop runtime sweep (esp. taskbar-top Windows, multi-monitor, 125–200% DPI)</td>
+</tr>
+<tr>
+<td>First-run onboarding completion path</td>
+<td>Desktop runtime sweep</td>
+</tr>
+<tr>
+<td>Core detail-page study state + onboarding (Info screen) — SRS state, review counts, writing accuracy, deck membership, tags/note, practice/suspend/add-to-deck/note actions; <code>OnboardingWizard</code> (JLPT target + daily limits → real JLPT decks)</td>
+<td>Desktop runtime sweep</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="done-recently-fixed-history">DONE — recently fixed (history)</h2>
+<h3 id="media-centre-crash-proofing-opening-media-can-never-close-the-app-desktop-suite">Media Centre crash-proofing — opening Media can never close the app (desktop suite)</h3>
+<ul>
+<li><strong>Root cause class fixed: the 10 Hz reconciliation loop ran unguarded.</strong>
+  <code>MediaView</code> starts an infinite <code>while(true) { media.tick(); delay(100) }</code> on the
+  composition's coroutine scope. Any exception inside <code>tick()</code> (a dead VLC/mpv
+  process mid-poll, a broken subtitle state, an unexpected settings value) escaped
+  the loop and tore down the whole window — the "clicking Media closes the
+  application" crash. <code>MediaEngine.tick()</code> is now a fail-safe wrapper around
+  <code>tickInternal()</code>: failures are swallowed, surfaced as a throttled toast + activity-
+  log entry, and a backend that both throws and reports unavailable is closed and
+  dropped so it can't poison every subsequent tick. The loop itself can never die.</li>
+<li><strong>Composition-read helpers hardened</strong> — <code>tokensFor</code>, <code>coverageFor</code>,
+  <code>currentCoverage</code> and <code>mediaStatsFor</code> (called every frame from the subtitle
+  overlay / dashboard strip) now degrade to empty/zero through <code>runCatching</code>
+  instead of taking the window down on a segmentation hiccup.</li>
+<li><strong><code>MediaView</code> init guarded</strong> — the settings-restore <code>LaunchedEffect</code> runs inside
+  <code>runCatching</code> (corrupt values already fall back to defaults), the AWT host-window
+  lookup is <code>runCatching</code>, and drag-and-drop's <code>DropTarget</code> creation is optional:
+  if it can't be created (unusual desktop/headless setups) the workspace still opens.</li>
+<li><strong>Regression test</strong> — <code>MediaEngineTickSafetyTest</code> (<code>desktopApp/src/jvmTest/.../engine/media/</code>):
+  a backend that explodes on the first poll across 50 consecutive ticks, an
+  unavailable+throwing backend getting cleaned up (<code>activeBackend → null</code>,
+  <code>backendKind → None</code>, <code>playbackError</code> set), the no-backend no-op path, the
+  healthy-backend position-advance path, and segmentation helpers never throwing.
+  Each test runs a real <code>AppState</code> with <code>user.home</code> redirected into a throwaway dir.</li>
+</ul>
+<h3 id="library-as-hub-kana-system-knowledge-profile-desktop-suite-source-only">Library-as-hub + Kana system + knowledge profile (desktop suite, source-only)</h3>
+<ul>
+<li><strong>Study is no longer a top-level destination.</strong> The primary dock, compact tab
+  bar and floating launchpad now lead with <strong>Home · Library · Browse · Stats ·
+  Media · Settings</strong>; the Review surface (the active study session) moved into
+  the "Study tools" overflow group alongside Exams/Writing/Grammar/Collections.
+  The Library nav item carries the due-count badge, so "what needs studying
+  today" stays one glance away. Study is an action taken from a deck.</li>
+<li><strong>Collections are deck containers.</strong> <code>CollectionDef</code> gained <code>deckIds</code>;
+  <code>SmartCollectionEngine</code> provides <code>decksIn</code>/<code>resolveDecks</code>/<code>addDeck</code>/
+  <code>removeDeck</code> (idempotent membership; the decks themselves stay canonical in
+  the Library store). The Library opens with a <strong>Collections strip</strong> at the top
+  (the hub starts with its containers, not a flat deck list); the deck catalog
+  scopes to a collection via <code>LibraryScope.Collection</code>, deck actions gained
+  "Add to collection…", and the Collections detail view lists each owned deck.</li>
+<li><strong>Kana is a real content system.</strong> New <code>engine/kana/</code>: <code>KanaData</code> (full
+  syllabary: base hiragana/katakana, dakuten, handakuten, yōon combinations,
+  and the extended katakana set used in loanword transcription), <code>KanaStrokes</code>
+  (canonical stroke polylines in the same 0..100 grid the built-in evaluator
+  uses), and <code>KanaCatalog</code> (canonical kana notes + premade decks — Hiragana,
+  Katakana, Dakuten, Extended Katakana, Full Kana — seeded idempotently on
+  first run). <code>ContentKind.Kana</code> + <code>LearningItemKind.Kana</code> flow through the
+  unified learning store with their own card types and study modes.</li>
+<li><strong>Kana is writable like kanji.</strong> The built-in <code>StrokeEvaluator</code> resolves kana
+  characters (voiced kana evaluate against their base shape) so <code>supports()</code>/
+  <code>evaluate()</code> work for the whole syllabary through the same writing engine.
+  Kana decks start writing practice exactly like kanji decks.</li>
+<li><strong>Kana stats.</strong> Stats' Learning Overview gained Kana studied / Kana
+  established / Kana writing accuracy tiles (from real stroke events); the
+  knowledge profile tracks kana as its own dimension.</li>
+<li><strong>Knowledge profile.</strong> New <code>KnowledgeProfileEngine</code> — a study-based estimate
+  (never a fake JLPT score) with kana/kanji/vocabulary/writing coverage
+  dimensions, measured accuracy where real attempts exist, theoretical
+  cumulative JLPT coverage (N5→N1, labeled approximate) and frequency-band
+  coverage (top 1k/2k/5k/10k) from real frequency metadata, plus a data-driven
+  confidence label. The Dashboard gained a <strong>Knowledge snapshot</strong> card
+  (per-dimension bars + accuracy + confidence, "Full stats" deep-link).</li>
+<li><strong>Home is the hub's front door.</strong> The "Collections" quick action now opens
+  the Library; the Recent decks card became <strong>Collections</strong> with deck/card
+  counts and a due badge, and clicking one deep-links into the Library scoped
+  to that collection (<code>AppState.pendingCollectionId</code>, consumed by <code>LibraryView</code>).</li>
+<li><strong>Heatmap year navigation</strong> was already present in the working tree (52-weeks
+  ↔ calendar-year chips with animated slide transitions via
+  <code>HeatmapEngine.buildAlignedYear</code>); StatsView was extended with the knowledge
+  profile card + kana tiles.</li>
+</ul>
+<p><em>(Source-only per user instruction — compile verification deferred.)</em></p>
+<h3 id="engagement-tracking-afk-rain-product-tutorial-heatmap-years-bubble-gesture-hardening-desktop-suite-source-only">Engagement tracking, AFK rain, product tutorial, heatmap years, bubble gesture hardening (desktop suite, source-only)</h3>
+<ul>
+<li><strong>Study time is engagement-based, never app-open time</strong> — new <code>ActivityTracker</code>
+  (<code>desktopApp/.../engine/activity/ActivityTracker.kt</code>) models real activity as
+  timestamped intervals: signals open/extend an engagement, a lapse past the timeout
+  closes it (AFK), and the next signal reopens a new interval (the session resumes,
+  it is never permanently ended). <code>endReview</code>/<code>endWriting</code> now credit
+  <code>activity.engagedSince(sessionStartedAt)</code> (a pure overlap sum, always ≤ wall time)
+  instead of raw session wall-clock — so walking away mid-session no longer inflates
+  study time. Falls back to wall time when tracking is disabled, preserving the old
+  behavior for users who opt out.</li>
+<li><strong>Signal sources</strong> — global pointer/key observation at the workspace shell root
+  (clicks, drags, hover/scroll movement past a threshold — Initial pass, never
+  consumed) plus study/writing signals from <code>rateCurrent</code>, <code>rateWriting</code> and every
+  session-start path. AFK state is derived per-second, O(1), no timers in the engine.</li>
+<li><strong>Smart vs custom AFK</strong> — new <code>Activity</code> settings category: <code>activity.tracking</code>,
+  <code>activity.afk-mode</code> (Smart = context-aware timeouts: General 2 min / Study 5 /
+  Writing 6 / Media 10; Custom = fixed <code>activity.afk-timeout-minutes</code> 1–120).</li>
+<li><strong>AFK rain</strong> — new <code>AfkRain</code> overlay: kanji/vocabulary from the real card pool fall
+  like rain while away (theme-aware, deterministic particle function, ≤48 particles,
+  no per-frame allocation, auto-stops when the user returns / window blurs, duration
+  capped, respects reduced motion). Configurable: density, speed, opacity, duration,
+  content (kanji/vocab/both). Pure decoration — never touches learning state.</li>
+<li><strong>Product tutorial</strong> — new <code>TutorialOverlay</code> (<code>desktopApp/.../ui/tutorial/</code>):
+  Welcome → Navigation → Library → Study → Writing → Browse → Media → Mining → Stats →
+  Customization → Done, with skip / continue / back / jump-to-chapter / finish, live
+  previews built from the real engines (draggable bubble demo uses the actual
+  <code>LauncherSnapMath</code>; browse preview searches the real card pool; heatmap preview
+  renders real summaries; theme chapter re-themes live). Per-chapter completion
+  persists (<code>tutorial.completed</code>); open from Settings → General → Product tutorial
+  with per-chapter replay.</li>
+<li><strong>Heatmap year switching</strong> — Stats heatmap gains 52-weeks ↔ calendar-year chips;
+  year changes animate as a push/slide transition between two real calendars
+  (<code>HeatmapEngine.buildAlignedYear</code>, <code>AnimatedContent</code> slide; respects reduced
+  motion). Blank days stay blank; intensity is still real review+new activity.</li>
+<li><strong>Floating bubble gesture hardening</strong> — the drag/click/hold/right-click state
+  machine now handles <code>PointerEventType.Cancel</code> (interrupted gestures settle the
+  bubble instead of leaving it mid-drag or stuck), guards non-finite drag deltas,
+  and both long-press and right-click open the mode panel through one command
+  (<code>openFloatingBubbleMenu()</code>).</li>
+<li><strong>Tests</strong> — new <code>ActivityTrackerTest</code> (engaged-time overlap, AFK pause/resume,
+  smart vs custom timeouts, disabled fallback, per-day buckets, reset).</li>
+</ul>
+<p><em>(Source-only per user instruction — compile verification deferred.)</em></p>
+<h3 id="home-launchpad-bubble-product-pass-source-only">Home / launchpad / bubble product pass (source-only)</h3>
+<ul>
+<li><strong>Launchpad tile artifact removed (core <code>Launchpad.kt</code>)</strong> — the tile shadow
+  (<code>materialShadow</code>) was ordered <em>after</em> <code>clip</code> + <code>background</code> + <code>border</code>, so the
+  elevation shadow painted <strong>on top of</strong> every tile instead of behind it —  the "square/box over the buttons" artifact. Shadow now precedes clip/background
+  (the same root cause was fixed on the core bubble glyph, the core
+  <code>BubbleModeSwitchPanel</code>, the core nav-settings dialog + preview mocks, and the
+  desktop suite's <code>DsFloatingLauncher</code> bubble).</li>
+<li><strong>Shadow-ordering sweep across remaining screens</strong> — audited every
+  <code>shadow</code>/<code>materialShadow</code> usage in the desktop suite (Library, Collections,
+  Review use <code>DsCard</code> surfaces; the dock rail/bar/compact bar, floating panels,
+  dictionary popup, bubble + mode panel + launchpad are all shadow-first) and in
+  the core nav package. One remaining instance was found and fixed: the core
+  nav placement popup (<code>NavShell.kt</code>) applied <code>.clip()</code> → <code>.background()</code> →
+  <code>.shadow()</code>, painting the shadow on top of the surface; it now applies the
+  shadow before clip/background.</li>
+<li><strong>Launchpad opens centered (core <code>Launchpad.kt</code>)</strong> — the glass panel was parked
+  near the top of the window (wordmark + panel in a full-height scroll column).
+  The panel now centers in the vertical space between the wordmark and the hint
+  (weight-based), and scrolls internally on very short windows instead of
+  clipping. Scale-from-bubble transform origin and cascade animations unchanged.</li>
+<li><strong>Dashboard Study Target card (desktop suite)</strong> — new <code>StudyTargetCard</code> shows
+  TODAY <code>done / target</code> with a progress bar, remaining count ("N reviews
+  remaining") or "Target complete", and a Study-now button. The target is real
+  and configurable: new <code>stats.daily-target</code> setting (Settings → Statistics →
+  Daily review target, default 20) feeds both the Study Target card and the
+  Goals card's daily-reviews goal (<code>GoalsEngine.defaultGoals(dailyReviewTarget)</code>),
+  so they never disagree. Completed count comes from today's persisted summary
+  and updates live as reviews are graded.</li>
+<li><strong>Dashboard study target updates live on settings change (desktop suite)</strong> —
+  the target was read once at composition time, so changing it in Settings →
+  Statistics left the Dashboard stale until navigation. New
+  <code>rememberSettingsInt(settings, key, default)</code> in <code>DashboardView.kt</code> registers
+  a <code>SettingsEngine</code> observer in a <code>DisposableEffect</code> and refreshes on change;
+  both the Study Target card and the Goals card now use it. <code>SettingsEngine.observe</code>
+  now returns an unsubscribe lambda (previously it could only add listeners), and
+  a new <code>SettingsEngineTest</code> locks in the contract: fires on real changes
+  (including <code>restore</code>), skips no-op writes, and stops after unsubscribe.</li>
+<li><strong>Dashboard Writing Practice card (desktop suite)</strong> — new <code>WritingPracticeCard</code>
+  surfaces the weakest kanji from real writing attempts
+  (<code>LearningEngine.weakestKanji</code> — lowest accuracy with ≥2 attempts), its
+  accuracy/attempt count, overall writing accuracy, a Practice-writing button,
+  and an honest empty state when no writing data exists yet. Wired into the
+  dashboard's adaptive card grid (4-up on wide windows, 3-up otherwise).</li>
+<li><strong>Floating bubble drag / snap / persistence</strong> — already implemented and
+  unit-tested (<code>LauncherSnapMathTest</code>: 12 anchors, drag→snap→persist,
+  corrupt/NaN restore, window-shrink re-snap); no further changes needed.</li>
+<li><strong>Unit tests for Study Target + weakest-kanji math</strong> — new
+  <code>GoalsEngineTest</code> (<code>desktopApp/src/jvmTest/.../engine/stats/</code>) covers the
+  study-target derivation: today-only windowing, fraction clamping, completion,
+  the configurable <code>dailyReviewTarget</code>, weekly/monthly windows, malformed-day
+  skipping, and the minutes/new-card metrics. <code>StatisticsRepositoryTest</code> gains
+  writing-derivation tests: ≥2-attempt minimum, <code>correct = accuracy &gt;= 0.99f</code>,
+  kanji-kind filtering, weakest-first ordering + limit, and empty-store states.
+  Also hardened <code>GoalsEngine.progress</code> to parse day strings through
+  <code>AnalyticsEngine.parseDate</code> (safe) instead of a bare <code>toInt()</code> — a corrupt
+  summary day crashed the whole Dashboard; it is now skipped like elsewhere.</li>
+</ul>
+<h3 id="product-wide-responsive-ui-pass-core-app-source-only">Product-wide responsive UI pass (core app, source-only)</h3>
+<ul>
+<li><strong>Adaptive content width system</strong> — new <code>common/ui/AdaptiveContent.kt</code>:
+  <code>rememberContentLayoutTier()</code> (Phone/Medium/Wide from the real window width) +
+  <code>rememberAdaptiveContentMaxWidth()</code> + <code>isWideContentLayout()</code>. Screens that used to
+  render a fixed 400dp phone column on desktop now grow with the window.</li>
+<li><strong><code>ScrollableScreenContainer</code> (core <code>Screen.kt</code>)</strong> — no longer a hardcoded 400dp column:
+  grows to 560dp (tablet) / 720dp (desktop) and centers instead of pinning a tiny column
+  to the left edge. Fixes the "desktop is a big phone" layout on every form-style screen
+  that uses it (Account, Sync, settings forms, …).</li>
+<li><strong>General Dashboard (Home)</strong> — content max width is now adaptive (520→1100dp) and
+  centered; on wide windows the hero card + weekly summary sit side by side, and Recent
+  Decks + Recent Activity pair as two columns, so Home reads as a command center instead
+  of a phone column in a huge window.</li>
+<li><strong>Deck dashboard lists</strong> (<code>DeckDashboardLoadedStateContainer</code>) — adaptive width
+  (400→720dp) + centered; the merge/sort mode rows got proper clip-before-background so
+  the surfaces no longer bleed square corners.</li>
+<li><strong><code>AppListItem</code></strong> — clip now precedes background (kills the "rectangular fragments
+  around rounded rows" artifact app-wide) and the default padding is consumed as
+  <code>ListItem.contentPadding</code> instead of stacking a second outer padding (double-padding
+  on every list row fixed).</li>
+<li><strong>Info screen no-data state + TextAnalysis error row</strong> — width caps are adaptive
+  (480/560dp on wider windows) instead of the fixed phone <code>Dimens.ScreenWidth</code>.</li>
+<li><strong>Library</strong> — mode chips now wrap (<code>FlowRow</code>) instead of overflowing a fixed <code>Row</code> on
+  narrow screens; header title/subtitle use <code>MaterialTheme.typography</code>.</li>
+<li><strong>Kanji Browser</strong> — header title + result count bar use <code>MaterialTheme.typography</code>
+  instead of invented sizes.</li>
+<li><strong>Practice / study screens (flashcard, writing, reading)</strong> — the fixed 400dp
+  containers grew adaptively so the study interaction uses wide windows: flashcard
+  meaning/sentence and reading-picker meaning cards (400→480→560dp), the kanji/vocab
+  writing canvas + brush selector + study-finished button (400→480→560dp), and the
+  practice configuration/summary lists (400→560→720dp). Phone keeps the classic 400dp
+  column; the writing canvas still centers as the focused interaction on desktop but is
+  no longer tiny. Compact controls (auto-play pill, wave bars) intentionally unchanged.</li>
+</ul>
+<p><em>(Source-only per user instruction — compile verification deferred.)</em></p>
+<h3 id="media-centre-integration-core-navigation-shipped-app-host-homebrowsedetail-ui">Media Centre integration (core navigation + shipped-app host + home/browse/detail UI)</h3>
+<ul>
+<li><strong>Media is now a real core destination, reachable in the shipped app.</strong>
+  <code>MainDestination.Media</code> (core) resolves a <code>MediaCentreContent</code> provider:
+  <code>desktopApp/Main.kt</code> overrides the core default with
+  <code>DesktopMediaCentreContent</code>, which mounts the suite's full <code>MediaView</code>
+  (player backends, subtitle engine, dictionary popup, mining) with its own
+  <code>AppState</code> inside the shipped app. The core default is an honest
+  desktop-only screen (EN/JP strings) so the entry is never a dead link on
+  mobile. Registered in <code>defaultMainDestinations</code>, the primary nav section
+  (sidebar + compact rail + horizontal bar + floating launchpad) with a
+  <code>VideoLibrary</code> icon and the command palette ("Media Centre"), and the
+  <code>mediaCentreModule</code> in <code>di/AppModule.kt</code>.</li>
+<li><strong>Media Centre home (desktop)</strong> — new <code>MediaHomePanel</code>: adaptive grid with
+  Continue Watching (real persisted progress, resumes on click), Pinned,
+  Watch Later, Collections (Anime/Movies/TV/Music…), Recently Added,
+  Playlists, Recently Mined (jump-back into the source timestamp) and
+  Watched folders; empty-state guidance with Add-file/Add-folder actions;
+  toolbar Add file / Add folder / Open URL / New playlist plus drag-and-drop
+  (existing) and a Home ⇄ Browse switch.</li>
+<li><strong>Browse / explorer</strong> — <code>MediaBrowsePanel</code>: search across name/path/
+  collection/tags, sort (Title/Date added/Recently watched/Duration/
+  Progress/File size/Last modified), watch filters (Any/Unwatched/In
+  progress/Completed), kind + tag filters, grid/list toggle, folder
+  breadcrumbs with subfolder chips and watched-folder roots.</li>
+<li><strong>Media detail page</strong> — <code>MediaDetailPanel</code>: progress/resume, metadata,
+  collection/tags/notes/comprehension editing, subtitle association (companion
+  files + picker + forget track), playlist membership, watch history (each
+  entry jumps to its position), mined-from-this-media list, bookmarks &amp; audio
+  clips, and Manage (reveal in folder, relink, remove keeping history).</li>
+<li><strong>Playlists + playlist folders (persistent)</strong> — create/rename/delete/
+  duplicate/favorite/move-to-folder/reorder/shuffle, nested collapsible
+  folders with move dialogs; persisted in <code>library.json</code> alongside the rest
+  of the library (playlist folders are part of <code>LibraryDto</code>).</li>
+<li><strong>Engine additions</strong> — <code>MediaLibrary</code>: playlist folders, folder browsing
+  (<code>itemsDirectlyUnder</code>/<code>subfoldersUnder</code>/<code>folderName</code>), sort/watch-filter
+  enums, watch-later tag helpers; <code>MediaEngine</code>: <code>playShuffled</code>,
+  <code>openItemAt</code> (seek + play), <code>toggleWatchLater</code>.</li>
+</ul>
+<h3 id="library-study-honesty-pass-source-only-compile-verification-pending">Library / study honesty pass (source-only, compile verification pending)</h3>
+<ul>
+<li><strong>Core Library hub (shipped app) no longer delegates to the legacy Kanji.Dojo
+  dashboards</strong> — the "Kanji Decks" and "Vocabulary" drill-downs into
+  <code>LettersDashboardScreen</code> / <code>VocabDashboardScreen</code> were replaced with the real
+  destinations: Decks → <code>DeckBrowser</code>, Vocabulary → <code>SearchEngine</code>. The misleading
+  "Grammar" and "Sentences" entries (which pointed at the vocab dashboard and the
+  word search) were removed; the STUDY section now lists only working entry
+  points (Kanji browser, Vocabulary search, Decks, Radicals).</li>
+<li><strong>First-run demo seeding is honest (desktop suite)</strong> — <code>buildDemoCards</code> /
+  <code>buildDemoContentCards</code> no longer fabricate SRS state (statuses, intervals,
+  lapses, reps, due dates, accuracy) or user markers (flags, favorites); every
+  seeded entry starts <code>New</code> with zero reviews. <code>seedSummaries</code> (a fabricated
+  180-day statistics history plus fake review-log entries), <code>seedCollections</code>
+  (fake "First Week"/"Favorites" collections) and the fabricated per-mode
+  progress in <code>seedLibrary</code> were removed, so Library / Review / Statistics
+  numbers are earned through real study only.</li>
+<li><strong>Entry detail deck membership (desktop suite)</strong> — <code>LibraryStore.decksContaining</code>
+  returns every deck holding an entry (explicit membership + filter matches);
+  the Library entry detail now shows a "Decks" section listing all of them
+  (auto/filter decks labeled "auto") with real Add-to-deck (deck picker) and
+  Remove actions instead of a single misleading "In deck: <first match>" line.</li>
+</ul>
+<h3 id="native-window-experience-rebuild-desktop-code-complete-runtime-verification-pending">Native window experience rebuild (desktop) — code-complete, runtime verification pending</h3>
+<ul>
+<li><strong>Work-area correctness (Windows taskbar fix)</strong> — <code>WindowWorkAreas</code> (<code>desktopApp/.../WindowWorkArea.kt</code>) computes every display's usable area from AWT screen bounds minus <code>Toolkit.getScreenInsets</code> (taskbar on <strong>any</strong> edge, macOS menu bar + dock). Startup geometry is validated and clamped against the work area of the display the window was on (<code>WindowStateStore.load</code>, with per-display DPI conversion via <code>defaultTransform.scaleX</code>); resize drags clamp to the work area; a 2s safety watch recovers a floating window that is fully off-area or oversized after display-topology changes (monitor unplugged, taskbar moved). Maximize is delegated to the OS (<code>MAXIMIZED_BOTH</code>), which already respects the work area; the maximized state now persists across launches with the last floating bounds.</li>
+<li><strong>Black-bar / theme-aware chrome fix</strong> — the title bar, divider and window surface previously read the <em>default</em> <code>LocalSurfaceColors</code> (OLED black) because <code>AppTheme</code> was only composed inside the content. Theme setup was extracted into <code>KaiteyoThemeRoot</code> (core <code>KaiteyoApp.kt</code>) with a <code>shell</code> slot; <code>Main.kt</code> and <code>SuiteMain.kt</code> now mount <code>KaiteyoWindow</code> inside the theme root, so the chrome uses the live theme (light/dark/OLED/custom), Theme Studio radius config shapes the window corners, and the window border/control colors come from the shared tokens.</li>
+<li><strong>Native rounding</strong> — Windows 11: <code>NativeWindowChrome</code> sets <code>DWMWA_WINDOW_CORNER_PREFERENCE=ROUND</code> + a theme-colored <code>DWMWA_BORDER_COLOR</code> via JNA (square while maximized); everywhere else the rounded app surface (radius from <code>DsRadius.Xl</code>) sits on the theme background, so no black rectangle or fake border anywhere.</li>
+<li><strong>Resize performance / responsiveness</strong> — <code>LocalWindowResizing</code> (now defined in core next to <code>LocalWindowPlacement</code>, provided by the desktop shell) makes every resize-animated layout snap while a drag is active: the suite dock (rail/bar), the compact/desktop shell crossfade (hysteresis-gated), <strong>and the core <code>NavShell</code>'s sidebar content reserve</strong> — so the main app's content reflow no longer chases the window with a spring during a resize drag; chrome hover/fade animations honor reduced motion; minimum size is enforced in both the custom handles and <code>frame.minimumSize</code>; window controls use theme glyph colors. The suite's compact tab-bar tier (720dp breakpoint) is now reachable: <code>KaiteyoWindow</code> takes a <code>minSize</code> parameter (defaults to the main app's 860dp content minimum), and <code>SuiteMain</code> passes <code>WindowConstraints.SuiteMinWidth/Height</code> (700×560dp) so the dev suite can shrink into its compact layout instead of it being dead code. The compact tab bar also gained a top/bottom position toggle (previously <code>updateCompactNavPosition</code> had no UI caller), and the floating launcher's compact insets/phone-position storage engage at the same breakpoint.</li>
+<li><strong>Full-window layout pass</strong> — new <code>DsResponsive.kt</code> (width tiers + <code>adaptiveWidth</code>/<code>adaptiveDialogWidth</code>/<code>gridColumnCount</code>) in the suite design system. <code>DsDialog</code> now sizes to the window (≈60% of available width, 480–860dp; compact confirm/prompt/progress dialogs stay 400–560dp), so every dialog (Mining, editor, batch-edit, deck settings, media, etc.) spreads on wide windows instead of floating at a fixed width. Mining dialog no longer overrides to 560dp; CollectionsView left list is now ≈26% of the window (260–400dp) instead of a fixed 300dp. Verified suite main views (Stats, Library, Media) and core DB screens (Home/Library/Decks/Dictionary) already use adaptive full-width layouts (weighted rows, <code>GridCells.Adaptive</code>). The <strong>Dashboard</strong> gained a wide-window tier: below 1440dp the lower cards stay 2-up (heatmap+pace, goals+weak spots, JLPT+forecast, pinned+imports, decks+added); at ≥1440dp (<code>rememberWidthTier</code> ≥ 3) the six chart/goal/learning cards are extracted into reusable <code>*Card</code> slots and re-flowed 3-up (heatmap+pace+goals, weak spots+JLPT+forecast) and the deck lists 4-up (pinned+imports+decks+added), so a wide window is filled instead of parking cards in the middle.</li>
+<li><strong>Core app dialogs use the window too</strong> — the shipped app's dialog surfaces got the same adaptive-width treatment as the suite: new <code>rememberAdaptiveDialogWidth(maxWidth)</code> helper in core <code>AdaptiveContent.kt</code> (phone fills the screen minus the 24dp margin, medium 80% ≤ 600dp, wide 60% clamped 480–860dp). <code>MultiplatformDialog</code> dropped its fixed 360dp and now sizes via <code>BoxWithConstraints</code> + the helper (with <code>usePlatformDefaultWidth = false</code>). New <code>KaiteyoAlertDialog</code> in <code>presentation/common/ui</code> is a drop-in replacement for M3's <code>AlertDialog</code> (same 13-param signature, M3 token defaults, icon/title/text/button-row layout) that replaces M3's internal <code>sizeIn(maxWidth = 560.dp)</code> cap with the adaptive width — all 61 <code>AlertDialog</code> call sites across 21 screens (deck/bulk/tag/flag/note dialogs, stats, exam runner, info sections) were swapped to it, so they no longer park at 560dp in the middle of wide windows.</li>
+<li><strong>Multi-monitor + DPI</strong> — all geometry is AWT device px; dp conversions use the window density; dead-monitor recovery picks the nearest display's work area.</li>
+</ul>
+<p>Fixed and shipped items are preserved in <strong><code>COMPLETED.md</code></strong> (by version) and
+<strong><code>CHANGELOG.md</code></strong> (repo root). Notable recent fixes (v2.2–v2.3 era):</p>
+<h3 id="navigation-system-rebuild-core-navshell-floating-sidebar">Navigation system rebuild (core <code>NavShell</code> — Floating + Sidebar)</h3>
+<ul>
+<li><strong>Sidebar no longer swallows 100% of the window</strong> — the vertical dock now has an
+  explicit width (<code>≈20%</code> of the window, clamped 208–384 dp, ratio from the expanded-width
+  preference) instead of letting the inner <code>fillMaxSize</code> column measure against the whole
+  window. Content keeps ~80%. Root cause of the "whole app becomes a sidebar" bug.</li>
+<li><strong>Adaptive sidebar width</strong> replaces the fixed hardcoded widths: <code>width = available × ratio</code>
+  with min/max bounds, shared by the content reservation, the dock surface and the published
+  bottom-bar space so they can never disagree.</li>
+<li><strong>Click / hold / drag disambiguation</strong> — the bubble is driven by a single pointer handler:
+  a move past the drag slop is a drag (never a click), a press held past the configurable hold
+  duration opens the mode panel (never the launchpad), and a clean release toggles the
+  launchpad. The old double-fire (inner <code>clickable</code> + gesture handler toggling the same state)
+  that made hold open the wrong surface is gone.</li>
+<li><strong>Hold panel</strong> now also exposes <em>Navigation settings</em> ("change how navigation works"),
+  opening the real settings overlay from the bubble.</li>
+<li><strong>Snap math hardened</strong> — all 12 snap anchors and every drag clamp derive from a configurable
+  safe margin; stored positions are validated against the current window on restore and
+  corrected instead of crashing. Restart persistence of RIGHT-CENTER (and any snap) works.</li>
+<li><strong>Drag performance</strong> — position is tracked in plain state during a drag (no per-move
+  coroutine launches, which caused lag/jitter); the <code>Animatable</code> only animates the magnetic
+  release. A subtle snap-preview ring telegraphs the release anchor while dragging.</li>
+<li><strong>Launchpad</strong> — shows only the curated primary destinations (Home · Library · Study · Browse
+  · Stats · Settings) shared with the sidebar; theme-aware colors (no more white-on-light
+  tiles), real exit animation (previously the panel was unmounted instantly), and full
+  keyboard navigation (arrows + Enter, Escape, focus rings). Media has no core destination
+  (desktop-suite only) so it is intentionally absent.</li>
+<li><strong>Settings</strong> — Floating section gained <em>Hold duration</em>, <em>Safe margin</em> and <em>Auto-hide presets</em>
+  (Never / 10 s / 20 s / 30 s / 1 min / Custom). Every new control is wired to real behavior.</li>
+<li><strong>Persistence validation</strong> — every stored layout value is sanitized on load (sizes, margins,
+  offsets, phone edge → Top/Bottom) so a stale or hand-edited blob can never crash layout
+  after relaunch.</li>
+<li><strong>Compact rail header</strong> — the mode/compact/placement cluster now stacks vertically in the
+  64 dp rail instead of overflowing; phone top/bottom bars drop the control cluster entirely
+  for a clean touch bar.</li>
+</ul>
+<p><em>(Code-complete; compile verification deferred per user instruction — source-only task.)</em></p>
+<ul>
+<li>Anki <code>.apkg</code> import/export rewritten and working (JVM/Android/iOS) — dead/dangling code
+  removed</li>
+<li>Core kanji/vocab detail pages gained a real <code>Study Status</code> section (<code>InfoLoadLearningStateUseCase</code>)
+  — per-practice-type SRS state, review counts, writing accuracy, deck membership, tags, note,
+  plus working actions (practice writing/reading/flashcard, add-to-deck dialog, suspend toggle,
+  note editor), all backed by persisted state</li>
+<li>First-run <code>OnboardingWizard</code> for new users — JLPT target + daily new/review limits create the
+  real JLPT kanji/vocab decks from the bundled dictionary DB and apply limits via <code>DailyLimitManager</code>
+  (existing users unaffected; <code>onboardingCompleted</code> preference)</li>
+<li>Card pool persisted to <code>~/.kaiteyo/library/cards.json</code> (imports/edits/reviews survive
+  restarts; demo seeding is first-run only)</li>
+<li>Import/Export screen wired to the real pipeline; core imports persist through
+  <code>mergeImportedCards()</code> with FSRS scheduling</li>
+<li>Screen load failures now emit <code>RefreshableData.Failed</code> (no infinite spinners) with
+  retry states on dashboards</li>
+<li>Review keyboard shortcuts actually handled (<code>Space</code>, <code>1–4</code>, <code>B</code>, <code>S</code>, <code>R</code>, <code>Ctrl+Enter</code>,
+  <code>Ctrl+Z</code> — guarded against the reschedule dialog)</li>
+<li>Window dragging scoped to the title bar; interactive components no longer draggable</li>
+<li>Floating dock island design shipped (<code>WorkspaceShell.kt</code> / <code>WorkspaceNav.kt</code>)</li>
+<li>iOS project fully renamed to Kaiteyo; repo-wide rebranding sweep complete</li>
+<li>Compose import fixes (<code>animateColorAsState</code>, <code>animateFloatAsState</code>, <code>window.close()</code>)</li>
+<li>Unsafe casts in Deck Details made null-safe; dead/disabled controls removed or wired</li>
+<li>AnkiConnect transport + local API bearer auth + integration hub + settings persistence</li>
+<li>System media keys, media notifications (Windows)</li>
+</ul>
+<h3 id="exam-workspace-upgraded-to-a-full-exam-system-see-desktopappuiexamsexamviewkt-enginelearningexamenginekt">Exam workspace upgraded to a full exam system (see <code>desktopApp/.../ui/exams/ExamView.kt</code> + <code>engine/learning/ExamEngine.kt</code>)</h3>
+<ul>
+<li><strong>Grammar exams</strong> — two new types: <code>Grammar structure</code> (meaning → pattern selection)
+  and <code>Grammar usage</code> (sentence completion / cloze from real example sentences); grammar
+  pools fall back to notes so exams work before cards exist for grammar</li>
+<li><strong>JLPT simulation</strong> — a real timed, sectioned exam: 文字・語彙 (Vocabulary) · 文法
+  (Grammar) · 読解 (Reading), each section with its own clock (auto-advance + skip on
+  timeout), per-section scoring, JLPT-band scope</li>
+<li><strong>New question types</strong> — <code>PatternSelection</code> and <code>SentenceCompletion</code> (cloze blanks real
+  examples, distractors are real same-band patterns/words); <code>responseTimeMs</code> now recorded
+  per answer</li>
+<li><strong>Sectioned drafts/results</strong> — <code>ExamDraft.sections</code> with per-section timing + intros;
+  <code>ExamQuestionResult.section</code> feeds per-section analytics</li>
+<li><strong>Smart recommendations</strong> (config screen) — one-click training from real analytics:
+  weakest question type, weakest JLPT band, recognition-vs-production gap</li>
+<li><strong>Taking screen</strong> — section header + per-section progress + intro, per-section
+  countdown, keyboard shortcuts (1–9 select, R reveal, S skip, Enter next)</li>
+<li><strong>Results screen</strong> — per-section breakdown bars, answer review (your answer vs correct),
+  Take again (regenerates the same config)</li>
+<li><strong>History</strong> — score trend chart + accuracy by exam type + exam log with sections</li>
+<li><strong>Analytics</strong> — accuracy by section card added; exam time tile; all stats still feed
+  the global Statistics view via review events + <code>StudyVsExamGap</code></li>
+</ul>
+<h3 id="media-player-tuning-pass-desktop-suite-videoaudio-extras-playlists-seek-bar-upgrades">Media player tuning pass (desktop suite) — video/audio extras, playlists, seek-bar upgrades</h3>
+<ul>
+<li><strong>Video display modes + aspect ratios</strong> — <code>VideoDisplayMode</code> (Fit/Fill/Crop/Original/Stretch)
+  and <code>AspectRatioPreset</code> (Auto/4:3/16:9/16:10/21:9/3:2/1:1/5:4/Square) modeled in
+  <code>PlaybackModels.kt</code>, applied through <code>VlcBackend</code> (libVLC <code>scale</code>/<code>crop</code>/aspect options)
+  and <code>MpvBackend</code> (IPC properties), with per-mode capability gating</li>
+<li><strong>Video adjustments</strong> — brightness/contrast/saturation/gamma/hue (0..200, 100 neutral)
+  plus deinterlace, mapped to VLC <code>videoAdjustments</code> and mpv <code>brightness/contrast/…</code>;
+  persisted to settings, applied on open, reset available</li>
+<li><strong>Equalizer</strong> — <code>EqualizerSettings</code> with preamp + 10 ISO bands (60 Hz–16 kHz) and the
+  full VLC preset family (Flat…Techno, 18 presets), real band gains in dB; VLC uses
+  <code>Audio.equalizer</code>, mpv uses <code>af=lavfi=superequalizer</code> fallback where the backend
+  supports it; custom bands persist</li>
+<li><strong>Audio extras</strong> — audio delay stepper (±50/±500 ms), channel presets (Stereo/Reverse/
+  Left/Right/Mono/Headphones), and audio-output device selection where the backend
+  exposes them</li>
+<li><strong><code>MediaTuningPanel</code></strong> (Media → Video &amp; Audio) — every control is wired to the live
+  backend and gated on <code>PlaybackCapability</code>; unsupported features are hidden with an
+  explanation, never faked</li>
+<li><strong>Named playlists</strong> — <code>MediaLibrary</code> gained persistent playlists (create/rename/delete,
+  add/remove/reorder items, resolve to items), <code>MediaEngine.playPlaylist</code>/<code>queuePlaylist</code>
+  bridge them into the play queue, and the library panel shows playlist cards + an
+  add-to-playlist dropdown on every item</li>
+<li><strong>Seek bar</strong> — buffered region (from <code>bufferedPositionMs</code>) drawn ahead of the playhead,
+  hover timestamp preview + drag scrubbing with time label, subtitle + chapter markers
+  preserved</li>
+<li><strong>New media hotkeys</strong> — mute, fullscreen (F11), subtitle delay (J/K/Shift+L), speed
+  ladder ([ / ]), frame step (, / .), chapter navigation (PageUp/PageDown), display-mode
+  cycle (I), aspect cycle (O); all rebindable in Media → Settings</li>
+<li><strong>New settings</strong> — <code>media.display-mode</code>, <code>media.aspect-ratio</code>, <code>media.video-*</code>,
+  <code>media.audio-delay-ms</code>, <code>media.audio-channel</code>, <code>media.audio-output</code>, <code>media.eq-*</code>,
+  <code>media.subtitle-scale</code>, <code>media.controls-hide-ms</code>, <code>media.screenshot-format/-folder</code></li>
+<li><strong>Screenshot naming</strong> — canonical <code>Kaiteyo_&lt;media&gt;_&lt;HH-MM-SS&gt;.&lt;ext&gt;</code> extracted into
+  <code>MediaEngine.screenshotFileName</code> (pure, tested); format/folder configurable</li>
+<li><strong>Tests</strong> — <code>MediaPlaylistTest</code> (CRUD/reorder/persist/missing items), <code>MediaTuningModelsTest</code>
+  (EQ preset integrity, adjustment clamping, display modes, screenshot naming), expanded
+  <code>MediaShortcutsTest</code> for the new chords</li>
+</ul>
+<p><em>(Code-complete; compile verification pending the build environment — per user
+instruction, compile/test runs deferred. The <code>core</code> module was additionally unblocked:
+missing <code>mutableStateOf</code> import in <code>HomeScreenUI.kt</code>, <code>maxWidth</code> receiver capture in
+<code>AppearanceStudio.kt</code>, and Long-vs-Int hex constants in the SHA-256 K array in
+<code>BackupSystemExt.kt</code> — all pre-existing WIP breakage, minimal mechanical fixes.)</em></p>
+<h3 id="dead-controls-wired-fake-code-removed-audit-pass-see-product_auditmd">Dead controls wired / fake code removed (audit pass — see <code>PRODUCT_AUDIT.md</code>)</h3>
+<ul>
+<li>Compact bottom-nav "More" overflow button now opens a real tab menu (was a <code>// TODO</code> no-op)</li>
+<li>Bottom-nav tab buttons no longer double-fire (<code>VerticalTabButton</code> had two <code>.clickable</code>s)</li>
+<li>Tag Manager selection-mode Merge/Delete now act on the selected tags via <code>DeckFeaturesController</code></li>
+<li>Plugin Manager Refresh re-registers built-ins; plugin config Apply actually writes config</li>
+<li><code>BackupVerifier</code> no longer fakes results — real pure-Kotlin SHA-256 checksums (verified against FIPS vectors)</li>
+<li>Dead <code>CompactLauncher</code> composable removed</li>
+</ul>
+<p><em>(Code-complete; compile verification pending the build environment — see <code>PRODUCT_AUDIT.md</code> §5.1.)</em></p>
+<p>Full detail: <a href="https://github.com/ValiantZippu/Kaiteyo/blob/develop/docs/planning/COMPLETED.md"><code>COMPLETED.md</code></a> and the root <a href="https://github.com/ValiantZippu/Kaiteyo/blob/develop/CHANGELOG.md"><code>CHANGELOG.md</code></a>.</p>
+<hr />
+<h2 id="done-unified-learning-ecosystem-desktop-suite">DONE — unified learning ecosystem (desktop suite)</h2>
+<p>Implemented as one connected layer over the existing real SRS/deck stack —
+no new fake data anywhere; every number traces to persisted events.</p>
+<ul>
+<li><strong>Unified learning model</strong> (<code>engine/learning/LearningModels.kt</code>): <code>LearningNote</code>
+  (content) → <code>CardType</code> (study direction) → <code>NoteCard</code> (note × type, own SRS state),
+  <code>LearningStage</code> with explicit criteria (introduced/learning/established/mature),
+  per-deck <code>DeckStudyConfig</code>, immutable <code>LearningReviewEvent</code> / <code>WritingAttemptEvent</code> /
+  <code>ExamResult</code> / <code>StudySessionRecord</code> — all <code>@Serializable</code></li>
+<li><strong><code>LearningStore</code></strong> — single persisted source of truth (<code>~/.kaiteyo/learning/learning.json</code>),
+  note dedupe by kind+expression, stable card ids so regeneration never resets SRS,
+  custom-note protection (source data never overwrites user notes)</li>
+<li><strong><code>StudyEngine</code></strong> — queue from real DB state (new + due, per-deck limits, interleave),
+  grading through the shared <code>SrsScheduler</code> with full-fidelity review events,
+  suspend/bury/forget/reschedule, resumable sessions</li>
+<li><strong><code>StatisticsRepository</code></strong> — the single statistics pipeline: period stats, streaks,
+  JLPT stage coverage, character progress, writing stats/weakest-kanji, card history,
+  exam analytics, study-vs-exam gap, due forecast, mistakes snapshot, goals — all from
+  events, never from current card state alone</li>
+<li><strong><code>ExamEngine</code></strong> + <strong>Exams workspace</strong> — real question generation from decks/JLPT/
+  mistakes/weekly activity with real distractors, typed + multiple-choice + multi-select,
+  scoring, persistence, per-question analytics, recognition-vs-production gap</li>
+<li><strong><code>MistakeEngine</code></strong> — queue built from actual Again events, failed writing attempts,
+  wrong exam answers and lapsed cards</li>
+<li><strong><code>ImportExportEngine</code></strong> — JSON snapshot (full fidelity) + CSV/TSV import/export with
+  dedupe and validation</li>
+<li><strong>Wiring</strong>: <code>AppState.learning</code> bridges the legacy card pool on launch (<code>syncFromLegacy</code>),
+  <code>rateCurrent</code>/<code>rateWriting</code> feed the event stream, StatsView gained a Learning Overview
+  section, Exams reachable from the dock + command palette</li>
+</ul>
+<h3 id="deck-settings-ui-per-deck-study-config">Deck settings UI (per-deck study config)</h3>
+<ul>
+<li><strong><code>DeckStudySettingsDialog</code></strong> (LibraryView deck menu → "Study settings…"): edits the
+  persisted <code>DeckStudyConfig</code> — new/review daily limits, learning steps (comma list),
+  graduating / easy / maximum intervals, bury-related toggles, suspend-on-lapse, and an
+  enabled-card-types chip selector (empty = per-kind defaults)</li>
+<li>Saving goes through <code>LearningEngine.saveDeckStudyConfig</code> → <code>LearningStore.setDeckConfig</code>
+  (persisted to <code>learning.json</code>); <code>StudyEngine.buildQueue</code> already consumes these limits</li>
+</ul>
+<h3 id="mistakes-study-mode">Mistakes study mode</h3>
+<ul>
+<li><strong><code>MistakesView</code></strong> (new workspace, dock + palette + <code>open-mistakes</code> shortcut): real
+  mistake stats, category breakdown (writing/reading/meaning/recognition/exam/lapses) and
+  a worst-first queue — all derived from review events, failed writing attempts, wrong
+  exam answers and lapsed cards</li>
+<li><strong><code>AppState.startMistakesReview</code></strong> materializes the mistake cards as a normal review
+  session, so studying mistakes updates SRS + statistics exactly like regular study</li>
+<li><strong><code>MistakeEngine.asStudyQueue</code></strong> bridges the queue into the shared study flow</li>
+</ul>
+<h3 id="import-export-ui-unified-learning-data">Import / export UI (unified learning data)</h3>
+<ul>
+<li><strong>TransferView "Learning data" tab</strong>: JSON full-fidelity export (notes, cards, deck
+  configs, review events, writing attempts, exam results, sessions) + CSV/TSV
+  spreadsheet exports, with save-to-file (native picker), clipboard, live preview and
+  per-format counts</li>
+<li>Import merges (never deletes): JSON restores full fidelity; CSV/TSV add notes and
+  auto-generate default cards (<code>ensureCards</code>); the legacy card pool is re-synced so every
+  view sees the imported content immediately</li>
+</ul>
+<h3 id="engine-tests-desktopappsrcjvmtestenginelearning">Engine tests (<code>desktopApp/src/jvmTest/.../engine/learning/</code>)</h3>
+<ul>
+<li><strong><code>LearningStoreTest</code></strong> — note dedupe, custom-note protection, stable card ids across
+  regeneration, suspend persistence, deck-config defaults, full persistence round-trip
+  (notes/cards/events/exams/config survive reload), <code>toDesktopCard</code> bridge, delete cascade</li>
+<li><strong><code>StudyEngineTest</code></strong> — queue building (limits, due inclusion, suspend/bury exclusion,
+  mode filter), grading through <code>SrsScheduler</code> (new→learning, Again lapses, Easy interval
+  growth, running accuracy), resumable sessions, <code>deckTotals</code> stage counts</li>
+<li><strong><code>ExamEngineTest</code></strong> — generation from real notes, empty-pool → null, real distractors,
+  deck scope, multiple-choice + typed (normalized) evaluation, skipped-questions,
+  exam→SRS event feed, weekly assessment (studied-only content, null when nothing studied)</li>
+<li><strong><code>StatisticsRepositoryTest</code></strong> — period stats from events, streaks (incl. break), JLPT
+  stage coverage, character progress, weakest-kanji from failed writing, mistake snapshot,
+  study-vs-exam gap, due forecast bucketing, <code>dueToday</code>, goals, exam aggregates</li>
+</ul>
+<h3 id="stroke-evaluator-enginestroke_evaluatorstrokeevaluatorkt">Stroke evaluator (<code>engine/stroke_evaluator/StrokeEvaluator.kt</code>)</h3>
+<ul>
+<li><strong>Real per-stroke evaluation</strong>: canonical stroke sequences (0..100 grid polylines) for
+  20+ common kanji with correct stroke order — shape deviation, direction error and order
+  quality are scored per stroke with explicit tolerances (22 grid units / 45°)</li>
+<li>Greedy nearest-reference matching, arc-length resampling to 12 points, aspect-ratio
+  normalization — works when the learner draws in a different order or merges strokes</li>
+<li>Characters without canonical data report <code>supported = false</code> and record a plain attempt
+  instead of fabricating strokes</li>
+<li><strong>Wired into writing practice</strong>: the canvas captures strokes, <code>WritingCanvasState</code>
+  normalizes them, and <code>AppState.rateWriting</code> → <code>LearningEngine.recordEvaluatedWriting</code>
+  stores per-stroke <code>StrokeAttempt</code>s with real accuracy; the view shows a per-stroke
+  analysis card (correct / shape / direction / both) after reveal</li>
+</ul>
+<h3 id="kanjivg-writing-evaluation-wired-into-the-shipped-app-writingevaluatorkt">KanjiVG writing evaluation wired into the shipped app (<code>WritingEvaluator.kt</code>)</h3>
+<ul>
+<li><strong><code>WritingEvaluator</code> facade</strong> routes writing evaluation through the canonical KanjiVG
+  stack when a licensed dataset directory is present (<code>~/.kaiteyo/kanjivg/</code> or
+  <code>~/kanjivg/</code> with <code>kanji/*.svg</code> or <code>kanjivg.xml</code>): the platform database is built from
+  the installed dictionaries (<code>PlatformBuilder.fromRepository</code>) with real SVG geometry
+  and attempts are evaluated through <code>KanjiWritingSession</code> + <code>StrokeEvaluationBridge</code>
+  (shape/direction/order, <code>WritingStrictness.Normal</code>)</li>
+<li><strong>Honest fallback</strong>: without a KanjiVG directory the built-in common-kanji dataset is
+  used with the same result shape; every result carries a <code>sourceLabel</code> ("kanjivg" /
+  "builtin") that the writing UI shows as a badge, plus an "install KanjiVG for full
+  coverage" hint when the fallback is active — the app never pretends KanjiVG geometry
+  exists when it does not</li>
+<li><code>AppState.writingEvaluator</code> (lazy), <code>pointsToSvgPath</code> canvas→SVG conversion,
+  <code>WritingEvaluatorTest</code> (7 tests: source selection, correct/incorrect strokes,
+  unsupported honesty, SVG conversion)</li>
+</ul>
+<h3 id="per-deck-review-launch-grid-review-view">Per-deck review launch grid (Review view)</h3>
+<ul>
+<li>The "Unified study" card lists every non-archived deck with real new/learning/due
+  counts from the unified store; clicking a row starts that deck's unified review
+  (<code>startUnifiedDeckReview</code>) or shows an honest "nothing due" toast</li>
+</ul>
+<h3 id="writing-statistics-history-statistics-view">Writing statistics history (Statistics view)</h3>
+<ul>
+<li><strong>Writing History card</strong>: recent <code>WritingAttemptEvent</code>s with per-stroke correct counts
+  ("3/4 strokes") vs self-graded entries, accuracy bars, and a per-character accuracy
+  trend strip (last 14 attempts, color-coded) — all from the real writing-event stream</li>
+<li><code>LearningEngine.recentWritingAttempts</code> / <code>writingAccuracyTrend</code> facade methods</li>
+</ul>
+<h3 id="unified-review-review-screen-sources-the-learning-store">Unified review (Review screen sources the learning store)</h3>
+<ul>
+<li><strong><code>AppState.startUnifiedReview</code> / <code>startUnifiedDeckReview</code></strong> — builds the queue from
+  <code>StudyEngine.buildQueue</code> (due + new, per-deck limits), materializes cards into the
+  legacy <code>ReviewSession</code> UI, tracks a <code>StudySessionRecord</code></li>
+<li><strong>Grading routes through <code>StudyEngine.grade</code></strong> (full-fidelity review events) when the
+  unified source is active; suspend/forget sync to the unified store; session completion
+  persists the study-session record; the launch panel gained a "Unified study" card with
+  real due/new/recorded-review counts</li>
+</ul>
+<h3 id="jlpt-coverage-forecast-on-the-dashboard">JLPT coverage + forecast on the Dashboard</h3>
+<ul>
+<li><strong>JLPT coverage card</strong> — per-level N5→N1 stage-based bars (introduced/learning/unseen,
+  due) from <code>StatisticsRepository.jlptCoverage</code> — real SRS stages, labeled as estimated
+  study coverage, never a certification claim</li>
+<li><strong>Due forecast card</strong> — 14-day expected workload from actual due dates
+  (<code>StatisticsRepository.forecast</code>)</li>
+</ul>
+<h3 id="statistics-exam-analytics-card-history">Statistics: Exam analytics + card history</h3>
+<ul>
+<li><strong>Exam Analytics card</strong> — study-vs-exam gap (recognition/production/writing), accuracy
+  by exam type, score-trend chart and recent exam history — all from persisted <code>ExamResult</code>s</li>
+<li><strong>Card History card</strong> — per-card review timeline (date, rating, card type, interval
+  before→after, correct/miss) from the immutable review-event stream with a card picker</li>
+</ul>
+<h3 id="library-unified-search-deck-stats">Library: unified search + deck stats</h3>
+<ul>
+<li><strong><code>LearningEngine.search</code></strong> — one indexed search over notes+cards with scoring
+  (exact &gt; prefix &gt; substring &gt; reading &gt; meaning), kind/JLPT/tag/state filters and real
+  stage/due per result</li>
+<li><strong>Unified search section</strong> in the Library — kind chips + JLPT chips + results with
+  stage/due badges; clicking opens the card</li>
+<li><strong>Unified deck stats section</strong> — per-deck new/learning/review/due/suspended counts
+  straight from the learning store's card state</li>
+</ul>
+<h3 id="ghost-ui-pass-fake-export-active-theme-json-command-fixed">Ghost UI pass — fake "Export active theme JSON" command fixed</h3>
+<ul>
+<li><strong>Command palette "Export active theme JSON" was a fake action</strong> — it showed a
+  success toast ("Theme JSON copied to clipboard") without ever touching the system
+  clipboard. The command now serializes the active theme via
+  <code>ThemeManager.exportJson(activeTheme.id)</code> and writes the pretty-printed JSON to the
+  system clipboard before showing the toast. No other ghost controls found in the
+  sweep: the only inert buttons in the codebase are the Theme Studio's live preview
+  gallery (a design-system showcase, intentionally non-interactive) and providers
+  honestly labeled "Coming soon" in Account settings.</li>
+</ul>
+<h3 id="mobilecore-mpp-ghost-ui-pass-backup-manager-start-restore-fixed">Mobile/core MPP ghost-UI pass — Backup Manager "Start Restore" fixed</h3>
+<ul>
+<li><strong><code>BackupManagerScreen</code> Restore tab was a fully fake screen (reachable from
+  Library → Manage → Backup)</strong> — "Start Restore" had an empty <code>onClick</code>, the
+  Restore-Options checkboxes did nothing, and the copy claimed "your current data
+  will be backed up automatically" (false). The tab now lists the real backups with
+  radio selection, "Start Restore" is enabled only when one is selected and calls the
+  same <code>onRestoreBackup</code> path as the per-item Restore menu, the dead checkboxes are
+  gone, and the copy + empty state are honest.</li>
+<li><strong>Backup systems unified — the deck-features Backup Manager now drives the real
+  engine</strong> (replaces the earlier metadata-only gap):</li>
+<li><strong>Create + Restore</strong> in <code>BackupManagerScreen</code> (header action, Backups tab,
+    per-item menu, Restore tab) now launch the real file-based backup flow
+    (<code>MainDestination.Backup</code> → platform file picker + <code>BackupManager</code>, which zips
+    the real database + preferences and version-checks restores).</li>
+<li><strong>Real metadata</strong>: the JVM/Android/iOS backup ViewModels record actual
+    filename + size (from <code>javaFile</code>, the picked URI via <code>ContentResolver</code>, or the
+    tmp file via <code>SystemFileSystem</code>) into <code>CardDatabaseManager</code> after a successful
+    <code>backupTo</code>, so the manager's history list shows real backups.</li>
+<li><strong>Fake paths removed</strong>: <code>DeckFeaturesController.recordBackup</code> (size-0,
+    checksum-"" records), <code>recordRestore</code> and <code>recordVerify</code> (log-only) are gone;
+    the fake "Verify" menu item is removed (a metadata row has no file to verify);
+    the Settings/Schedule tabs are honestly labeled as stored-but-not-active
+    (automatic scheduling ships later).</li>
+<li>Remaining: verify per-platform behavior at runtime (JVM + Android sweeps;
+    iOS build).</li>
+<li><strong>Dead-code cleanup backlog — RESOLVED.</strong> Every decks-folder screen was verified
+  against the live routes (<code>features/DeckFeatureScreens.kt</code> + <code>MainNavigation.kt</code>):
+  <code>CardBrowserFull</code>, <code>DeckBrowserFull</code>, <code>BulkActionsScreen</code>, <code>HistoryTrackerScreen</code>,
+  <code>NoteEditorScreen</code>, <code>AnkiOpsFull</code>, <code>AnkiCardOperations</code>, <code>CardManager</code>, <code>TagManager</code>,
+  <code>TagManagerScreen</code>, <code>FlagManagerScreen</code>, <code>SearchEngineImpl</code>, <code>ImportExportSystem</code>,
+  <code>KeyboardShortcutsPage</code>, <code>ReviewShortcutsSettings</code>, <code>PluginSystem</code>, <code>TagDialogs</code>,
+  <code>TagFlagDialogs</code>, <code>CardEnhancements</code> are all <strong>live</strong> (the earlier guess that
+  CardBrowserFull/DeckBrowserFull/BulkActions/History/NoteEditor/Anki* were dead was
+  wrong — CardBrowserRoute/DeckBrowserRoute/BulkActionsRoute/HistoryRoute/
+  NoteEditorRoute/AnkiOperationsRoute compose them). The genuinely unreferenced files
+  were deleted — see the Dead-code deletion entry below. Remaining known dead-but-
+  harmless code: <code>generateMockCards/Decks/Tags/HeatmapData</code> in
+  <code>LearningPowerDataModels.kt</code> (unreachable; the file itself is live via
+  <code>HistoryEntryType</code>).</li>
+</ul>
+<h3 id="dead-code-deletion-mock-history-fix-core-mpp-source-only">Dead-code deletion + mock-history fix (core MPP, source-only)</h3>
+<ul>
+<li><strong>Deleted 12 unreferenced files</strong> from <code>screen/decks/</code>: the entire achievement
+  subsystem (<code>AchievementSystem.kt</code>, <code>AchievementManager.kt</code>, <code>AchievementChecks.kt</code>,
+  <code>AchievementDefs_*.kt</code> ×5 — no reachable UI, no wiring anywhere), plus
+  <code>DeckBrowserEnhanced.kt</code>, <code>DeckManagerEnhanced.kt</code>, <code>NoteEditorEnhanced.kt</code> and
+  <code>UndoSystem.kt</code> (<code>UndoManager</code>/<code>UndoableAction</code>/<code>UndoSnackbar</code> — nothing references
+  them; <code>DeckFeaturesController</code> has its own undo stack). All public symbols were
+  verified unreferenced repo-wide (including tests) before deletion.</li>
+<li><strong>Removed the dangling <code>DeckFeaturesHub</code> import</strong> from <code>MainNavigation.kt</code> — the
+  only external reference to the deleted <code>DeckManagerEnhanced.kt</code> (an unused import
+  that would have broken the build).</li>
+<li><strong>Trimmed <code>DeckManager.kt</code></strong> to the live model surface only (<code>KaiteyoDeck</code> +
+  <code>DeckFilters</code>, both consumed by the deck routes): removed the unreferenced
+  mock-data <code>DeckManager()</code> composable (fake decks, one empty <code>.clickable {}</code>) and
+  the dead <code>BulkOperation</code>/<code>BulkAction</code>/<code>SmartDeckRule</code>/<code>SmartDeckDefinition</code> models.</li>
+<li><strong>Fixed a live mock-data leak in <code>HistoryFullScreen</code></strong> (reachable via Library →
+  Manage → History): when the real history was empty it fabricated <strong>50 fake entries</strong>
+  with random timestamps/descriptions (<code>generateMockHistory()</code> fallback). The
+  fallback is gone; an empty history now renders the real empty state.</li>
+</ul>
+<h3 id="blocked-unified-learning-ecosystem-needs-runtime-verification">BLOCKED — unified learning ecosystem (needs runtime verification)</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>What's needed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exams workspace end-to-end (generate → take → score → analytics)</td>
+<td>Desktop runtime sweep</td>
+</tr>
+<tr>
+<td>LearningStore persistence round-trip across restarts</td>
+<td>Desktop runtime sweep</td>
+</tr>
+<tr>
+<td>Legacy→unified bridge with an existing populated card pool</td>
+<td>Desktop runtime sweep</td>
+</tr>
+<tr>
+<td>Statistics Learning Overview numbers vs legacy engines</td>
+<td>Desktop runtime sweep</td>
+</tr>
+<tr>
+<td>Deck study-settings dialog save → queue limit behavior</td>
+<td>Desktop runtime sweep</td>
+</tr>
+<tr>
+<td>Mistakes workspace + mistakes review session</td>
+<td>Desktop runtime sweep</td>
+</tr>
+<tr>
+<td>Learning data export/import (JSON/CSV/TSV) round-trip</td>
+<td>Desktop runtime sweep</td>
+</tr>
+<tr>
+<td>Engine tests (4 files) pass under <code>:desktopApp:jvmTest</code></td>
+<td>Gradle test run (per user instruction, compile/test runs deferred)</td>
+</tr>
+<tr>
+<td>Stroke evaluator scoring quality against real handwriting</td>
+<td>Desktop runtime sweep (needs a pen/mouse)</td>
+</tr>
+<tr>
+<td>KanjiVG path (real geometry when a dataset directory is present)</td>
+<td>Desktop runtime sweep + dataset</td>
+</tr>
+<tr>
+<td>Unified review end-to-end (queue → grade → session record)</td>
+<td>Desktop runtime sweep</td>
+</tr>
+<tr>
+<td>Per-deck review launch grid + deck-scoped unified sessions</td>
+<td>Desktop runtime sweep</td>
+</tr>
+<tr>
+<td>Writing History card (stroke counts, per-character trends)</td>
+<td>Desktop runtime sweep</td>
+</tr>
+<tr>
+<td>JLPT coverage / forecast numbers on Dashboard vs legacy engines</td>
+<td>Desktop runtime sweep</td>
+</tr>
+<tr>
+<td>Exam analytics + card history drill-down</td>
+<td>Desktop runtime sweep</td>
+</tr>
+<tr>
+<td>Unified library search + deck stats</td>
+<td>Desktop runtime sweep</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="how-to-use-this-tracker">How to use this tracker</h2>
+<ol>
+<li><strong>New bug</strong> → add a row under BUG with priority; verify against
+   <code>../troubleshooting/</code> first.</li>
+<li><strong>Fix verified</strong> → move the row to DONE (brief note), add to <code>COMPLETED.md</code> +
+   <code>CHANGELOG.md</code>.</li>
+<li><strong>Code-complete but unverified</strong> → list under BLOCKED with what's needed.</li>
+<li><strong>Won't fix / deferred</strong> → move to <code>FUTURE_IDEAS.md</code> with a reason.</li>
+</ol>
+
+    
+    <nav class="pagination" aria-label="Pagination">
+      
+      <a class="pagination-link" href="/Kaiteyo/docs/planning/future_ideas/">
+        <span class="pagination-label">Previous</span>
+        <span class="pagination-title">Kaiteyo — Future Ideas</span>
+      </a>
+      
+      
+    </nav>
+    
+  </article>
+</div>
+
+      </main>
+
+      
+<footer class="content-footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a class="nav-brand" href="/Kaiteyo/" style="padding: 0; margin-bottom: var(--space-4)">
+        <img class="nav-logo" src="/Kaiteyo/assets/images/kaiteyo-mark.svg" alt="Kaiteyo logo" width="32" height="32" />
+        <span class="nav-brand-text">
+          <span class="nav-brand-name">KAITEYO</span>
+          <span class="nav-brand-tagline"><span class="lang-ja">書いてよ</span> — Write. Practice. Master.</span>
+        </span>
+      </a>
+      <p>A premium, cross-platform Japanese language learning application.
+         Study kanji, kana, and vocabulary with spaced repetition and writing practice — offline-first and free.</p>
+      <p>
+        <span class="badge badge-accent">v2.2.1</span>
+        <span class="badge badge-muted">GPL-3.0</span>
+      </p>
+    </div>
+
+    
+    <div class="footer-column">
+      <h4>Learn</h4>
+      <ul>
+        
+        <li>
+          
+          <a href="/Kaiteyo/download/">Download</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="/Kaiteyo/product/">Product</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="/Kaiteyo/learn/">Learn</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="/Kaiteyo/features/">Features</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="/Kaiteyo/screenshots/">Screenshots</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="/Kaiteyo/theme-gallery/">Theme Gallery</a>
+          
+        </li>
+        
+      </ul>
+    </div>
+    
+    <div class="footer-column">
+      <h4>Explore</h4>
+      <ul>
+        
+        <li>
+          
+          <a href="/Kaiteyo/docs/">Documentation</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="/Kaiteyo/wiki/">Wiki</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="/Kaiteyo/guides/">Guides</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="/Kaiteyo/faq/">Q&amp;A</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="/Kaiteyo/shortcuts/">Keyboard Shortcuts</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="/Kaiteyo/roadmap/">Product Roadmap</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="/Kaiteyo/changelog/">Changelog</a>
+          
+        </li>
+        
+      </ul>
+    </div>
+    
+    <div class="footer-column">
+      <h4>Command Center</h4>
+      <ul>
+        
+        <li>
+          
+          <a href="/Kaiteyo/project/">Project Status</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="/Kaiteyo/project/kanban/">Kanban</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="/Kaiteyo/project/roadmap/">Roadmap</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="/Kaiteyo/project/whiteboard/">Whiteboard</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="/Kaiteyo/project/suggestions/">Suggestions</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="/Kaiteyo/project/decisions/">Architecture Decisions</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="/Kaiteyo/project/activity/">Activity</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="/Kaiteyo/project/contributing/">Contributing</a>
+          
+        </li>
+        
+      </ul>
+    </div>
+    
+    <div class="footer-column">
+      <h4>Community</h4>
+      <ul>
+        
+        <li>
+          
+          <a href="/Kaiteyo/integrations/">Integrations</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="/Kaiteyo/install/">Install</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="/Kaiteyo/about/">About</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="/Kaiteyo/community/">Community</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="/Kaiteyo/data/">Data &amp; Attribution</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="/Kaiteyo/plugins/">Plugins</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="/Kaiteyo/credits/">Credits</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="/Kaiteyo/license/">License</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="/Kaiteyo/privacy/">Privacy Policy</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="/Kaiteyo/security/">Security</a>
+          
+        </li>
+        
+      </ul>
+    </div>
+    
+    <div class="footer-column">
+      <h4>Community</h4>
+      <ul>
+        
+        <li>
+          
+          <a href="https://github.com/ValiantZippu/Kaiteyo" target="_blank" rel="noopener">GitHub</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="https://github.com/ValiantZippu/Kaiteyo/releases" target="_blank" rel="noopener">Releases</a>
+          
+        </li>
+        
+        <li>
+          
+          <a href="https://github.com/ValiantZippu/Kaiteyo/discussions" target="_blank" rel="noopener">Discussions</a>
+          
+        </li>
+        
+      </ul>
+    </div>
+    
+  </div>
+
+  <div class="footer-bottom">
+    <span>&copy; <span data-year>2026</span> Kaiteyo contributors</span>
+    <span class="lang-ja">書いてよ</span>
+    <span>Built with Kotlin Multiplatform &amp; Compose</span>
+    <a href="/Kaiteyo/changelog/">Changelog</a>
+    <a href="/Kaiteyo/rss.xml" target="_blank" rel="noopener">
+      <svg class="icon" style="width: 14px; height: 14px" aria-hidden="true"><use href="#icon-rss"/></svg>
+      RSS
+    </a>
+    <span style="margin-left: auto">The website is an extension of the application.</span>
+  </div>
+</footer>
+    </div>
+  </div>
+
+  
+
+<dialog id="themeDialog" data-dialog aria-labelledby="themeDialogTitle">
+  <div class="dialog-header">
+    <div>
+      <h2 id="themeDialogTitle">Theme</h2>
+      <p>Base mode, accent, and display preferences. Saved on this device.</p>
+    </div>
+    <button class="btn-icon dialog-close" type="button" data-close-dialog aria-label="Close">
+      <svg class="icon" aria-hidden="true"><use href="#icon-close"/></svg>
+    </button>
+  </div>
+
+  <div class="dialog-section-title">Base Mode</div>
+  <div class="grid-2">
+    
+    <button class="theme-swatch" type="button" data-theme-base="oled"
+            style="--preview-bg: #050505; --preview-surface: #0D0D0D; --preview-border: #2A2A2A; --preview-accent: #C2FC8B">
+      <span class="theme-swatch-preview" aria-hidden="true">
+        <span class="theme-swatch-bar"></span>
+        <span class="theme-swatch-accent"></span>
+        <span class="theme-swatch-bar" style="width: 80%"></span>
+      </span>
+      <span>
+        <span class="theme-swatch-name">OLED Black</span>
+        
+      </span>
+    </button>
+    
+    <button class="theme-swatch" type="button" data-theme-base="dark"
+            style="--preview-bg: #121212; --preview-surface: #1A1A1A; --preview-border: #2A2A2A; --preview-accent: #C2FC8B">
+      <span class="theme-swatch-preview" aria-hidden="true">
+        <span class="theme-swatch-bar"></span>
+        <span class="theme-swatch-accent"></span>
+        <span class="theme-swatch-bar" style="width: 80%"></span>
+      </span>
+      <span>
+        <span class="theme-swatch-name">Dark Gray</span>
+        
+      </span>
+    </button>
+    
+    <button class="theme-swatch" type="button" data-theme-base="light"
+            style="--preview-bg: #F5F5F5; --preview-surface: #EEEEEE; --preview-border: #D0D0D0; --preview-accent: #C2FC8B">
+      <span class="theme-swatch-preview" aria-hidden="true">
+        <span class="theme-swatch-bar"></span>
+        <span class="theme-swatch-accent"></span>
+        <span class="theme-swatch-bar" style="width: 80%"></span>
+      </span>
+      <span>
+        <span class="theme-swatch-name">Light</span>
+        
+      </span>
+    </button>
+    
+    <button class="theme-swatch" type="button" data-theme-base="sepia"
+            style="--preview-bg: #F5F0E8; --preview-surface: #EDE5D8; --preview-border: #D4C8B8; --preview-accent: #C2FC8B">
+      <span class="theme-swatch-preview" aria-hidden="true">
+        <span class="theme-swatch-bar"></span>
+        <span class="theme-swatch-accent"></span>
+        <span class="theme-swatch-bar" style="width: 80%"></span>
+      </span>
+      <span>
+        <span class="theme-swatch-name">Sepia</span>
+        
+        <span class="theme-swatch-sub">Reading mode</span>
+        
+      </span>
+    </button>
+    
+  </div>
+
+  <div class="dialog-section-title">Accent</div>
+  <div class="flex gap-3" style="flex-wrap: wrap">
+    
+    <button class="accent-swatch" type="button" data-theme-accent="signature"
+            data-tooltip="Signature Pineapple" aria-label="Accent: Signature Pineapple"
+            style="background: #C2FC8B"></button>
+    
+    <button class="accent-swatch" type="button" data-theme-accent="cotton-candy"
+            data-tooltip="Cotton Candy" aria-label="Accent: Cotton Candy"
+            style="background: #D4A5F0"></button>
+    
+    <button class="accent-swatch" type="button" data-theme-accent="ocean"
+            data-tooltip="Ocean" aria-label="Accent: Ocean"
+            style="background: #00D4AA"></button>
+    
+    <button class="accent-swatch" type="button" data-theme-accent="forest"
+            data-tooltip="Forest" aria-label="Accent: Forest"
+            style="background: #81C784"></button>
+    
+    <button class="accent-swatch" type="button" data-theme-accent="sunset"
+            data-tooltip="Sunset" aria-label="Accent: Sunset"
+            style="background: #FF6B6B"></button>
+    
+    <button class="accent-swatch" type="button" data-theme-accent="lavender"
+            data-tooltip="Lavender" aria-label="Accent: Lavender"
+            style="background: #B39DDB"></button>
+    
+    <button class="accent-swatch" type="button" data-theme-accent="monochrome"
+            data-tooltip="Monochrome" aria-label="Accent: Monochrome"
+            style="background: #E0E0E0"></button>
+    
+  </div>
+
+  <div class="dialog-section-title">Display</div>
+  <div class="flex-col gap-3">
+    <label class="switch">
+      <input type="checkbox" data-theme-glass />
+      <span class="switch-track" aria-hidden="true"></span>
+      Glass panels <small class="text-muted">(transparency + blur)</small>
+    </label>
+    <label class="switch">
+      <input type="checkbox" data-theme-motion />
+      <span class="switch-track" aria-hidden="true"></span>
+      Reduce motion
+    </label>
+  </div>
+
+  <div class="dialog-actions">
+    <button class="btn btn-ghost" type="button" data-theme-reset>Reset to defaults</button>
+    <button class="btn btn-primary" type="button" data-close-dialog>Done</button>
+  </div>
+</dialog>
+
+<dialog id="navSettingsDialog" data-dialog aria-labelledby="navSettingsTitle">
+  <div class="dialog-header">
+    <div>
+      <h2 id="navSettingsTitle">Navigation</h2>
+      <p>Position and behavior. Like the application sidebar, your choices are remembered.</p>
+    </div>
+    <button class="btn-icon dialog-close" type="button" data-close-dialog aria-label="Close">
+      <svg class="icon" aria-hidden="true"><use href="#icon-close"/></svg>
+    </button>
+  </div>
+
+  <div class="dialog-section-title">Position</div>
+  <div class="nav-pos-grid">
+    <button class="nav-pos-card" type="button" data-nav-pos="left" aria-label="Left">
+      <svg class="nav-pos-preview" viewBox="0 0 64 44" aria-hidden="true">
+        <rect class="np-bg" x="1" y="1" width="62" height="42" rx="5"/>
+        <rect class="np-rail" x="3.5" y="3.5" width="15" height="37" rx="3"/>
+        <rect class="np-content" x="21" y="8" width="40.5" height="8" rx="2"/>
+        <rect class="np-content" x="21" y="19" width="30" height="8" rx="2"/>
+      </svg>
+      <span class="nav-pos-name">Left</span>
+    </button>
+    <button class="nav-pos-card" type="button" data-nav-pos="right" aria-label="Right">
+      <svg class="nav-pos-preview" viewBox="0 0 64 44" aria-hidden="true">
+        <rect class="np-bg" x="1" y="1" width="62" height="42" rx="5"/>
+        <rect class="np-rail" x="45.5" y="3.5" width="15" height="37" rx="3"/>
+        <rect class="np-content" x="2.5" y="8" width="40.5" height="8" rx="2"/>
+        <rect class="np-content" x="2.5" y="19" width="30" height="8" rx="2"/>
+      </svg>
+      <span class="nav-pos-name">Right</span>
+    </button>
+    <button class="nav-pos-card" type="button" data-nav-pos="top" aria-label="Top">
+      <svg class="nav-pos-preview" viewBox="0 0 64 44" aria-hidden="true">
+        <rect class="np-bg" x="1" y="1" width="62" height="42" rx="5"/>
+        <rect class="np-rail" x="3.5" y="3.5" width="57" height="10" rx="3"/>
+        <rect class="np-content" x="3.5" y="17" width="40" height="8" rx="2"/>
+        <rect class="np-content" x="3.5" y="28" width="30" height="8" rx="2"/>
+      </svg>
+      <span class="nav-pos-name">Top</span>
+    </button>
+    <button class="nav-pos-card" type="button" data-nav-pos="bottom" aria-label="Bottom">
+      <svg class="nav-pos-preview" viewBox="0 0 64 44" aria-hidden="true">
+        <rect class="np-bg" x="1" y="1" width="62" height="42" rx="5"/>
+        <rect class="np-rail" x="3.5" y="30.5" width="57" height="10" rx="3"/>
+        <rect class="np-content" x="3.5" y="8" width="40" height="8" rx="2"/>
+        <rect class="np-content" x="3.5" y="19" width="30" height="8" rx="2"/>
+      </svg>
+      <span class="nav-pos-name">Bottom</span>
+    </button>
+    <button class="nav-pos-card" type="button" data-nav-pos="floating" aria-label="Floating">
+      <svg class="nav-pos-preview" viewBox="0 0 64 44" aria-hidden="true">
+        <rect class="np-bg" x="1" y="1" width="62" height="42" rx="5"/>
+        <rect class="np-content" x="3.5" y="8" width="40" height="8" rx="2"/>
+        <rect class="np-content" x="3.5" y="19" width="30" height="8" rx="2"/>
+        <circle class="np-bubble" cx="50" cy="32" r="7"/>
+      </svg>
+      <span class="nav-pos-name">Floating</span>
+    </button>
+  </div>
+
+  <div class="dialog-section-title">Width</div>
+  <div class="segmented" role="group" aria-label="Navigation width">
+    <button class="segmented-btn" type="button" data-nav-width="compact">Compact</button>
+    <button class="segmented-btn" type="button" data-nav-width="default">Default</button>
+    <button class="segmented-btn" type="button" data-nav-width="wide">Wide</button>
+  </div>
+
+  <div class="dialog-section-title">Behavior</div>
+  <div class="flex-col gap-3">
+    <label class="switch">
+      <input type="checkbox" data-nav-collapse />
+      <span class="switch-track" aria-hidden="true"></span>
+      Collapsed (icons only)
+    </label>
+    <label class="switch">
+      <input type="checkbox" data-nav-autohide-toggle />
+      <span class="switch-track" aria-hidden="true"></span>
+      Auto-hide (reveal at the screen edge)
+    </label>
+  </div>
+
+  <div class="dialog-actions">
+    <button class="btn btn-ghost" type="button" data-nav-reset>Reset</button>
+    <button class="btn btn-primary" type="button" data-close-dialog>Done</button>
+  </div>
+</dialog>
+
+<dialog id="commandPalette" class="palette" data-dialog aria-label="Search">
+  <div class="palette-input">
+    <svg class="icon" aria-hidden="true"><use href="#icon-search"/></svg>
+    <input type="search" placeholder="Search pages, documentation, wiki, shortcuts…"
+           autocomplete="off" spellcheck="false" aria-label="Search the website" />
+    <kbd>Esc</kbd>
+  </div>
+  <div class="palette-results" role="listbox" aria-label="Search results"></div>
+  <div class="palette-empty" hidden>Type to search the site, documentation, wiki, and more.</div>
+  <div class="palette-footer">
+    <span class="flex gap-1 items-center"><kbd>&uarr;</kbd><kbd>&darr;</kbd> navigate</span>
+    <span class="flex gap-1 items-center"><kbd>Enter</kbd> open</span>
+    <span class="flex gap-1 items-center"><kbd>Esc</kbd> close</span>
+  </div>
+</dialog>
+
+  <script type="module" src="/Kaiteyo/assets/scripts/main.js?v=1786940608"></script>
+  <script type="module" src="/Kaiteyo/assets/scripts/theme.js?v=1786940608"></script>
+  <script type="module" src="/Kaiteyo/assets/scripts/navigation.js?v=1786940608"></script>
+  <script type="module" src="/Kaiteyo/assets/scripts/components.js?v=1786940608"></script>
+  <script type="module" src="/Kaiteyo/assets/scripts/search.js?v=1786940608"></script>
+  <script type="module" src="/Kaiteyo/assets/scripts/persistence.js?v=1786940608"></script>
+  <script type="module" src="/Kaiteyo/assets/scripts/utils.js?v=1786940608"></script>
+</body>
+</html>

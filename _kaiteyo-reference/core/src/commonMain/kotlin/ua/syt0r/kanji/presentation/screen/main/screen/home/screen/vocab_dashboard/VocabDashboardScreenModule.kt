@@ -1,0 +1,53 @@
+package ua.syt0r.kanji.presentation.screen.main.screen.home.screen.vocab_dashboard
+
+import org.koin.dsl.module
+import ua.syt0r.kanji.presentation.multiplatformViewModel
+import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.vocab_dashboard.use_case.DefaultMergeVocabDecksUseCase
+import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.vocab_dashboard.use_case.DefaultSubscribeOnDashboardVocabDecksUseCase
+import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.vocab_dashboard.use_case.DefaultUpdateVocabDecksOrderUseCase
+import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.vocab_dashboard.use_case.MergeVocabDecksUseCase
+import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.vocab_dashboard.use_case.SubscribeOnDashboardVocabDecksUseCase
+import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.vocab_dashboard.use_case.UpdateVocabDeckArchivedUseCase
+import ua.syt0r.kanji.presentation.screen.main.screen.home.screen.vocab_dashboard.use_case.UpdateVocabDecksOrderUseCase
+
+val vocabDashboardScreenModule = module {
+
+    multiplatformViewModel<VocabDashboardScreenContract.ViewModel> {
+        VocabDashboardViewModel(
+            viewModelScope = it.component1(),
+            subscribeOnDashboardVocabDecksUseCase = get(),
+            mergeVocabDecksUseCase = get(),
+            updateDecksOrderUseCase = get(),
+            updateDeckArchivedUseCase = get(),
+            preferencesRepository = get(),
+            analyticsManager = get()
+        )
+    }
+
+    factory<SubscribeOnDashboardVocabDecksUseCase> {
+        DefaultSubscribeOnDashboardVocabDecksUseCase(
+            vocabSrsManager = get(),
+            timeUtils = get()
+        )
+    }
+
+    factory<MergeVocabDecksUseCase> {
+        DefaultMergeVocabDecksUseCase(
+            repository = get()
+        )
+    }
+
+    factory<UpdateVocabDecksOrderUseCase> {
+        DefaultUpdateVocabDecksOrderUseCase(
+            appPreferences = get(),
+            practiceRepository = get()
+        )
+    }
+
+    factory<VocabDashboardScreenContract.UpdateDeckArchivedUseCase> {
+        UpdateVocabDeckArchivedUseCase(
+            repository = get()
+        )
+    }
+
+}

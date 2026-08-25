@@ -1,0 +1,164 @@
+{# Dialogs: theme settings, navigation settings, and the command palette. #}
+
+<dialog id="themeDialog" data-dialog aria-labelledby="themeDialogTitle">
+  <div class="dialog-header">
+    <div>
+      <h2 id="themeDialogTitle">Theme</h2>
+      <p>Base mode, accent, and display preferences. Saved on this device.</p>
+    </div>
+    <button class="btn-icon dialog-close" type="button" data-close-dialog aria-label="Close">
+      <svg class="icon" aria-hidden="true"><use href="#icon-close"/></svg>
+    </button>
+  </div>
+
+  <div class="dialog-section-title">Base Mode</div>
+  <div class="grid-2">
+    {% for mode in themes.baseModes %}
+    <button class="theme-swatch" type="button" data-theme-base="{{ mode.id }}"
+            style="--preview-bg: {{ mode.surface.background }}; --preview-surface: {{ mode.surface.surface }}; --preview-border: {{ mode.surface.border }}; --preview-accent: {{ themes.accents[0].primary }}">
+      <span class="theme-swatch-preview" aria-hidden="true">
+        <span class="theme-swatch-bar"></span>
+        <span class="theme-swatch-accent"></span>
+        <span class="theme-swatch-bar" style="width: 80%"></span>
+      </span>
+      <span>
+        <span class="theme-swatch-name">{{ mode.displayName }}</span>
+        {% if mode.description %}
+        <span class="theme-swatch-sub">{{ mode.description }}</span>
+        {% endif %}
+      </span>
+    </button>
+    {% endfor %}
+  </div>
+
+  <div class="dialog-section-title">Accent</div>
+  <div class="flex gap-3" style="flex-wrap: wrap">
+    {% for accent in themes.accents %}
+    <button class="accent-swatch" type="button" data-theme-accent="{{ accent.id }}"
+            data-tooltip="{{ accent.displayName }}" aria-label="Accent: {{ accent.displayName }}"
+            style="background: {{ accent.primary }}"></button>
+    {% endfor %}
+  </div>
+
+  <div class="dialog-section-title">Display</div>
+  <div class="flex-col gap-3">
+    <label class="switch">
+      <input type="checkbox" data-theme-glass />
+      <span class="switch-track" aria-hidden="true"></span>
+      Glass panels <small class="text-muted">(transparency + blur)</small>
+    </label>
+    <label class="switch">
+      <input type="checkbox" data-theme-motion />
+      <span class="switch-track" aria-hidden="true"></span>
+      Reduce motion
+    </label>
+  </div>
+
+  <div class="dialog-actions">
+    <button class="btn btn-ghost" type="button" data-theme-reset>Reset to defaults</button>
+    <button class="btn btn-primary" type="button" data-close-dialog>Done</button>
+  </div>
+</dialog>
+
+<dialog id="navSettingsDialog" data-dialog aria-labelledby="navSettingsTitle">
+  <div class="dialog-header">
+    <div>
+      <h2 id="navSettingsTitle">Navigation</h2>
+      <p>Position and behavior. Like the application sidebar, your choices are remembered.</p>
+    </div>
+    <button class="btn-icon dialog-close" type="button" data-close-dialog aria-label="Close">
+      <svg class="icon" aria-hidden="true"><use href="#icon-close"/></svg>
+    </button>
+  </div>
+
+  <div class="dialog-section-title">Position</div>
+  <div class="nav-pos-grid">
+    <button class="nav-pos-card" type="button" data-nav-pos="left" aria-label="Left">
+      <svg class="nav-pos-preview" viewBox="0 0 64 44" aria-hidden="true">
+        <rect class="np-bg" x="1" y="1" width="62" height="42" rx="5"/>
+        <rect class="np-rail" x="3.5" y="3.5" width="15" height="37" rx="3"/>
+        <rect class="np-content" x="21" y="8" width="40.5" height="8" rx="2"/>
+        <rect class="np-content" x="21" y="19" width="30" height="8" rx="2"/>
+      </svg>
+      <span class="nav-pos-name">Left</span>
+    </button>
+    <button class="nav-pos-card" type="button" data-nav-pos="right" aria-label="Right">
+      <svg class="nav-pos-preview" viewBox="0 0 64 44" aria-hidden="true">
+        <rect class="np-bg" x="1" y="1" width="62" height="42" rx="5"/>
+        <rect class="np-rail" x="45.5" y="3.5" width="15" height="37" rx="3"/>
+        <rect class="np-content" x="2.5" y="8" width="40.5" height="8" rx="2"/>
+        <rect class="np-content" x="2.5" y="19" width="30" height="8" rx="2"/>
+      </svg>
+      <span class="nav-pos-name">Right</span>
+    </button>
+    <button class="nav-pos-card" type="button" data-nav-pos="top" aria-label="Top">
+      <svg class="nav-pos-preview" viewBox="0 0 64 44" aria-hidden="true">
+        <rect class="np-bg" x="1" y="1" width="62" height="42" rx="5"/>
+        <rect class="np-rail" x="3.5" y="3.5" width="57" height="10" rx="3"/>
+        <rect class="np-content" x="3.5" y="17" width="40" height="8" rx="2"/>
+        <rect class="np-content" x="3.5" y="28" width="30" height="8" rx="2"/>
+      </svg>
+      <span class="nav-pos-name">Top</span>
+    </button>
+    <button class="nav-pos-card" type="button" data-nav-pos="bottom" aria-label="Bottom">
+      <svg class="nav-pos-preview" viewBox="0 0 64 44" aria-hidden="true">
+        <rect class="np-bg" x="1" y="1" width="62" height="42" rx="5"/>
+        <rect class="np-rail" x="3.5" y="30.5" width="57" height="10" rx="3"/>
+        <rect class="np-content" x="3.5" y="8" width="40" height="8" rx="2"/>
+        <rect class="np-content" x="3.5" y="19" width="30" height="8" rx="2"/>
+      </svg>
+      <span class="nav-pos-name">Bottom</span>
+    </button>
+    <button class="nav-pos-card" type="button" data-nav-pos="floating" aria-label="Floating">
+      <svg class="nav-pos-preview" viewBox="0 0 64 44" aria-hidden="true">
+        <rect class="np-bg" x="1" y="1" width="62" height="42" rx="5"/>
+        <rect class="np-content" x="3.5" y="8" width="40" height="8" rx="2"/>
+        <rect class="np-content" x="3.5" y="19" width="30" height="8" rx="2"/>
+        <circle class="np-bubble" cx="50" cy="32" r="7"/>
+      </svg>
+      <span class="nav-pos-name">Floating</span>
+    </button>
+  </div>
+
+  <div class="dialog-section-title">Width</div>
+  <div class="segmented" role="group" aria-label="Navigation width">
+    <button class="segmented-btn" type="button" data-nav-width="compact">Compact</button>
+    <button class="segmented-btn" type="button" data-nav-width="default">Default</button>
+    <button class="segmented-btn" type="button" data-nav-width="wide">Wide</button>
+  </div>
+
+  <div class="dialog-section-title">Behavior</div>
+  <div class="flex-col gap-3">
+    <label class="switch">
+      <input type="checkbox" data-nav-collapse />
+      <span class="switch-track" aria-hidden="true"></span>
+      Collapsed (icons only)
+    </label>
+    <label class="switch">
+      <input type="checkbox" data-nav-autohide-toggle />
+      <span class="switch-track" aria-hidden="true"></span>
+      Auto-hide (reveal at the screen edge)
+    </label>
+  </div>
+
+  <div class="dialog-actions">
+    <button class="btn btn-ghost" type="button" data-nav-reset>Reset</button>
+    <button class="btn btn-primary" type="button" data-close-dialog>Done</button>
+  </div>
+</dialog>
+
+<dialog id="commandPalette" class="palette" data-dialog aria-label="Search">
+  <div class="palette-input">
+    <svg class="icon" aria-hidden="true"><use href="#icon-search"/></svg>
+    <input type="search" placeholder="Search pages, documentation, wiki, shortcuts…"
+           autocomplete="off" spellcheck="false" aria-label="Search the website" />
+    <kbd>Esc</kbd>
+  </div>
+  <div class="palette-results" role="listbox" aria-label="Search results"></div>
+  <div class="palette-empty" hidden>Type to search the site, documentation, wiki, and more.</div>
+  <div class="palette-footer">
+    <span class="flex gap-1 items-center"><kbd>&uarr;</kbd><kbd>&darr;</kbd> navigate</span>
+    <span class="flex gap-1 items-center"><kbd>Enter</kbd> open</span>
+    <span class="flex gap-1 items-center"><kbd>Esc</kbd> close</span>
+  </div>
+</dialog>

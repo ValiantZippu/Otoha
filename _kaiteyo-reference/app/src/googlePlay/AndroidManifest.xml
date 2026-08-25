@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- TODO disable ad_id -->
+
+    <application>
+
+        <meta-data
+            android:name="google_analytics_adid_collection_enabled"
+            android:value="false" />
+
+        <activity
+            android:name="ua.syt0r.kanji.presentation.screen.main.GooglePlayMainActivity"
+            android:exported="true"
+            android:launchMode="singleInstance"
+            android:theme="@style/KaiteyoBaseTheme.AppTheme">
+
+            <intent-filter>
+
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+
+
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="kaiteyo" />
+            </intent-filter>
+
+        </activity>
+
+    </application>
+
+</manifest>

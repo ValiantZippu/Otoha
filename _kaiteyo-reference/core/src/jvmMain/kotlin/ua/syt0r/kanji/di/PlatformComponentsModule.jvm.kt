@@ -1,0 +1,86 @@
+package ua.syt0r.kanji.di
+
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import org.koin.core.module.Module
+import org.koin.dsl.module
+import ua.syt0r.kanji.JvmMainBuildConfig
+import ua.syt0r.kanji.core.app_data.AppDataDatabaseProvider
+import ua.syt0r.kanji.core.app_data.JvmAppDataDatabaseProvider
+import ua.syt0r.kanji.core.file.PlatformFile
+import ua.syt0r.kanji.core.transfer.AnkiPackage
+import java.io.File
+import ua.syt0r.kanji.core.backup.BackupArchiveHandler
+import ua.syt0r.kanji.core.backup.JvmBackupArchiveHandler
+import ua.syt0r.kanji.core.file.JvmPlatformFileHandler
+import ua.syt0r.kanji.core.file.PlatformFileHandler
+import ua.syt0r.kanji.core.getUserPreferencesFile
+import ua.syt0r.kanji.core.logger.LoggerConfiguration
+import ua.syt0r.kanji.core.sync.JvmSyncBackupFileProvider
+import ua.syt0r.kanji.core.sync.SyncBackupFileProvider
+import ua.syt0r.kanji.core.tts.JavaKanaTtsManager
+import ua.syt0r.kanji.core.tts.KanaTtsManager
+import ua.syt0r.kanji.core.tts.Neural2BKanaVoiceData
+import ua.syt0r.kanji.core.user_data.JvmUserDataDatabasePlatformHandler
+import ua.syt0r.kanji.core.user_data.database.UserDataDatabaseContract
+import ua.syt0r.kanji.core.user_data.preferences.DefaultUserPreferencesMigrationManager
+import ua.syt0r.kanji.presentation.backupScreenComponents
+import ua.syt0r.kanji.presentation.multiplatformViewModel
+import ua.syt0r.kanji.presentation.screen.main.screen.account.AccountScreenContract
+import ua.syt0r.kanji.presentation.screen.main.screen.account.JvmAccountScreenContent
+import ua.syt0r.kanji.presentation.screen.main.screen.account.JvmAccountScreenContract
+import ua.syt0r.kanji.presentation.screen.main.screen.account.JvmAccountScreenViewModel
+
+
+actual val platformComponentsModule: Module = module {
+
+    factory { LoggerConfiguration(true) }
+
+    factory<KanaTtsManager> {
+        JavaKanaTtsManager(
+            voiceData = Neural2BKanaVoiceData(
+                assetPath = "files/${JvmMainBuildConfig.kanaVoiceAssetName}"
+            )
+        )
+    }
+
+    single<AppDataDatabaseProvider> {
+        JvmAppDataDatabaseProvider()
+    }
+
+    single<SyncBackupFileProvider> {
+        JvmSyncBackupFileProvider()
+    }
+
+    single<DataStore<*>> {
+        PreferenceDataStoreFactory.create(
+            migrations = DefaultUserPreferencesMigrationManager.DefaultMigrations,
+            produceFile = { getUserPreferencesFile() }
+        )
+    }
+
+    single<UserDataDatabaseContract.PlatformHandler> {
+        JvmUserDataDatabasePlatformHandler(
+            migrationProvider = get()
+        )
+    }
+
+    factory<PlatformFileHandler> {
+        JvmPlatformFileHandler()
+    }
+
+    factory<BackupArchiveHandler> { JvmBackupArchiveHandler() }
+
+    factory<PlatformFile> { PlatformFile(File(".")) }
+    single<AnkiPackage> { AnkiPackage() }
+
+    backupScreenComponents()
+    single<AccountScreenContract.Content> { JvmAccountScreenContent }
+    multiplatformViewModel<JvmAccountScreenContract.ViewModel> {
+        JvmAccountScreenViewModel(
+            coroutineScope = it.component1(),
+            accountManager = get()
+        )
+    }
+
+}

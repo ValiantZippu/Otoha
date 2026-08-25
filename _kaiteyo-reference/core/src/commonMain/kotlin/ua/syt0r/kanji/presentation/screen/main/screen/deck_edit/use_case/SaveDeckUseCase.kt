@@ -1,0 +1,95 @@
+package ua.syt0r.kanji.presentation.screen.main.screen.deck_edit.use_case
+
+import ua.syt0r.kanji.core.logger.Logger
+import ua.syt0r.kanji.core.user_data.database.LetterPracticeRepository
+import ua.syt0r.kanji.core.user_data.database.VocabPracticeRepository
+import ua.syt0r.kanji.presentation.screen.main.screen.deck_edit.DeckEditItemAction
+import ua.syt0r.kanji.presentation.screen.main.screen.deck_edit.DeckEditListItem
+import ua.syt0r.kanji.presentation.screen.main.screen.deck_edit.DeckEditScreenConfiguration
+import ua.syt0r.kanji.presentation.screen.main.screen.deck_edit.LetterDeckEditListItem
+import ua.syt0r.kanji.presentation.screen.main.screen.deck_edit.VocabDeckEditListItem
+
+interface SaveDeckUseCase {
+    suspend operator fun invoke(
+        configuration: DeckEditScreenConfiguration,
+        title: String,
+        list: List<DeckEditListItem>,
+        isArchived: Boolean? = null
+    )
+}
+
+class DefaultSaveDeckUseCase(
+    private val letterPracticeRepository: LetterPracticeRepository,
+    private val vocabPracticeRepository: VocabPracticeRepository
+) : SaveDeckUseCase {
+
+    override suspend fun invoke(
+        configuration: DeckEditScreenConfiguration,
+        title: String,
+        list: List<DeckEditListItem>,
+        isArchived: Boolean?
+    ) {
+        Logger.logMethod()
+        when (configuration) {
+            is DeckEditScreenConfiguration.LetterDeck.CreateNew,
+            is DeckEditScreenConfiguration.LetterDeck.CreateDerived -> {
+                letterPracticeRepository.createDeck(
+                    title = title,
+                    characters = list.filter<LetterDeckEditListItem>(DeckEditItemAction.Add)
+                        .map { it.character },
+                )
+            }
+
+            is DeckEditScreenConfiguration.LetterDeck.Edit -> {
+                letterPracticeRepository.updateDeck(
+                    id = configuration.letterDeckId,
+                    title = title,
+                    charactersToAdd = list.filter<LetterDeckEditListItem>(DeckEditItemAction.Add)
+                        .map { it.character },
+                    charactersToRemove = list.filter<LetterDeckEditListItem>(DeckEditItemAction.Remove)
+                        .map { it.character }
+                )
+                if (isArchived != null) {
+                    letterPracticeRepository.updateDeckArchived(configuration.letterDeckId, isArchived)
+                }
+            }
+
+            DeckEditScreenConfiguration.VocabDeck.CreateNew,
+            is DeckEditScreenConfiguration.VocabDeck.CreateDerived -> {
+                vocabPracticeRepository.createDeck(
+                    title = title,
+                    words = list.filter<VocabDeckEditListItem>(DeckEditItemAction.Add)
+                        .map { it.resultCardData.value }
+                )
+            }
+
+            is DeckEditScreenConfiguration.VocabDeck.Edit -> {
+                vocabPracticeRepository.updateDeck(
+                    id = configuration.vocabDeckId,
+                    title = title,
+                    cardsToAdd = list.filter<VocabDeckEditListItem>(DeckEditItemAction.Add)
+                        .map { it.resultCardData.value },
+                    cardsToUpdate = list.filter<VocabDeckEditListItem>(DeckEditItemAction.Nothing)
+                        .mapNotNull {
+                            it.savedVocabCard?.copy(
+                                data = it.editResult.value?.cardData ?: return@mapNotNull null
+                            )
+                        },
+                    cardsToRemove = list.filter<VocabDeckEditListItem>(DeckEditItemAction.Remove)
+                        .mapNotNull { it.savedVocabCard?.cardId }
+                )
+                if (isArchived != null) {
+                    vocabPracticeRepository.updateDeckArchived(configuration.vocabDeckId, isArchived)
+                }
+            }
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun <T : DeckEditListItem> List<DeckEditListItem>.filter(
+        action: DeckEditItemAction
+    ): List<T> {
+        return filter { it.action.value == action } as List<T>
+    }
+
+}
