@@ -4,14 +4,15 @@
 #include "../Export/FfmpegSupport.h"
 #include "ExportUi.h"
 #include "OtohaTheme.h"
+#include "Components/OtohaIcons.h"
 
 using namespace otoha::theme;
 
 #include <algorithm>
 
-// =============================================================================
-// RowComponent — waveform + name + duration + date + favorite star.
-// =============================================================================
+/* ======================================================================
+   RowComponent — card-style row: waveform + name + duration + date.
+   ====================================================================== */
 class LibraryView::RowComponent : public juce::Component
 {
 public:
@@ -26,17 +27,29 @@ public:
 
     void paint (juce::Graphics& g) override
     {
-        auto bounds = getLocalBounds().toFloat().reduced ((float) Spacing::sm, (float) Spacing::xs);
+        auto bounds = getLocalBounds().toFloat().reduced (4.0f, 3.0f);
 
-        g.setColour (selected ? colors::selection() : colors::surface());
+        // Card background: selection → accentSoft; hover → surfaceHover; default → surface
+        juce::Colour bg = colors::surface();
+        if (selected)                bg = colors::accentSoft();
+        else if (isMouseOver())      bg = colors::surfaceHover();
+
+        g.setColour (bg);
         g.fillRoundedRectangle (bounds, (float) Radius::medium);
 
-        const auto* item = view.itemForRow (row);
-        if (item == nullptr)
-            return;
+        // Subtle border: selected → accent; default → borderSubtle
+        g.setColour (selected ? colors::accent() : colors::borderSubtle());
+        g.drawRoundedRectangle (bounds.reduced (0.5f), (float) Radius::medium, selected ? 1.5f : 1.0f);
 
-        // Waveform area on the left.
-        auto waveArea = bounds.removeFromLeft (150.0f).reduced (6.0f);
+        // Focus ring
+        if (hasKeyboardFocus (true))
+            otoha::ds::drawFocusRing (g, bounds, (float) Radius::medium);
+
+        const auto* item = view.itemForRow (row);
+        if (item == nullptr) return;
+
+        // Waveform thumbnail (left side)
+        auto waveArea = bounds.removeFromLeft (120.0f).reduced (8.0f, 10.0f);
 
         std::vector<float> peaks;
         if (view.library.getWaveformCache().getPeaks (*item, peaks) && ! peaks.empty())
@@ -44,7 +57,6 @@ public:
             g.setColour (colors::waveform());
             const float midY = waveArea.getCentreY();
             const float step = waveArea.getWidth() / (float) peaks.size();
-
             for (size_t i = 0; i < peaks.size(); ++i)
             {
                 const float h = juce::jlimit (1.5f, waveArea.getHeight(), peaks[i] * waveArea.getHeight());
@@ -52,53 +64,45 @@ public:
                             juce::jmax (1.0f, step - 1.0f), h);
             }
         }
-        else if (item->type == otoha::MediaType::video)
-        {
-            g.setColour (colors::surfaceHover());
-            g.fillRoundedRectangle (waveArea, (float) Radius::small);   // thumbnail placeholder until video lands
-        }
         else
         {
+            // Fallback: muted icon
             g.setColour (colors::waveformMuted());
-            g.setFont (font (TextSize::caption));
-            g.drawText ("…", waveArea, juce::Justification::centred);  // generating
+            auto icon = otoha::icons::musicNote();
+            auto iconArea = waveArea.withSizeKeepingCentre (24.0f, 24.0f);
+            g.fillPath (icon, icon.getTransformToScaleToFit (iconArea, true));
         }
 
-        // Text block.
-        auto text = bounds.reduced (10.0f, 0.0f);
-        g.setColour (colors::textPrimary());
-        g.setFont (font (TextSize::heading));
-        g.drawText (item->displayName, text.removeFromTop (24), juce::Justification::centredLeft, true);
+        // Text block
+        auto text = bounds.reduced (10.0f, 6.0f);
 
+        // Name
+        g.setColour (colors::textPrimary());
+        g.setFont (font (TextSize::bodySmall));
+        g.drawText (item->displayName, text.removeFromTop (20), juce::Justification::centredLeft, true);
+
+        // Duration + date
         g.setColour (colors::textMuted());
         g.setFont (font (TextSize::caption));
+        auto infoLine = text.removeFromTop (16);
+        g.drawText (otoha::formatDuration (item->durationSeconds),
+                    infoLine.removeFromLeft (64), juce::Justification::centredLeft);
+        g.drawText (otoha::friendlyRelativeDate (item->createdAt),
+                    infoLine, juce::Justification::centredLeft);
 
-        auto infoLine = text.removeFromTop (18);
-        g.drawText (otoha::formatDuration (item->durationSeconds), infoLine.removeFromLeft (70),
-                    juce::Justification::centredLeft);
-        g.drawText (otoha::friendlyRelativeDate (item->createdAt), infoLine.removeFromRight (110),
-                    juce::Justification::centredLeft);
-
-        // Favorite star, far right — also a click target (see mouseDown).
-        auto star = bounds.removeFromRight (34.0f);
-        g.setColour (item->favorite ? colors::favorite() : colors::textMuted());
-        g.setFont (font (TextSize::heading));
-        g.drawText (item->favorite ? "★" : "☆", star, juce::Justification::centred);
+        // Play icon overlay when playing
+        if (view.player.hasFile() && view.player.getFile() == item->file && view.player.isPlaying())
+        {
+            g.setColour (colors::accent().withAlpha (0.85f));
+            auto playIcon = otoha::icons::play();
+            auto playArea = juce::Rectangle<float> (16.0f, 16.0f).withCentre (
+                { waveArea.getCentreX(), waveArea.getCentreY() });
+            g.fillPath (playIcon, playIcon.getTransformToScaleToFit (playArea, true));
+        }
     }
 
     void mouseDown (const juce::MouseEvent& e) override
     {
-        const auto* item = view.itemForRow (row);
-        if (item == nullptr)
-            return;
-
-        // Star hit-test: toggle favorite without changing selection.
-        if (e.position.x > (float) getWidth() - 40.0f)
-        {
-            view.toggleFavoriteForRow (row);
-            return;
-        }
-
         if (e.mods.isRightButtonDown())
         {
             if (! view.listBox.isRowSelected (row))
@@ -106,13 +110,12 @@ public:
             view.showContextMenuFor (row);
             return;
         }
-
         view.selectRowWithModifiers (row, e);
     }
 
     void mouseDoubleClick (const juce::MouseEvent& e) override
     {
-        if (e.mods.isLeftButtonDown() && e.position.x <= (float) getWidth() - 40.0f)
+        if (e.mods.isLeftButtonDown())
             view.handleRowActivated (row);
     }
 
@@ -122,19 +125,21 @@ private:
     bool selected = false;
 };
 
-// =============================================================================
-// DetailsPanel — simple metadata for a single selection.
-// =============================================================================
+/* ======================================================================
+   DetailsPanel — compact metadata for a single selection.
+   ====================================================================== */
 class LibraryView::DetailsPanel : public juce::Component
 {
 public:
     explicit DetailsPanel (LibraryService& lib) : library (lib)
     {
         title.setFont (font (TextSize::heading));
+        title.setColour (juce::Label::textColourId, colors::textPrimary());
         title.setJustificationType (juce::Justification::centredLeft);
         addAndMakeVisible (title);
 
         body.setFont (font (TextSize::caption));
+        body.setColour (juce::Label::textColourId, colors::textMuted());
         body.setJustificationType (juce::Justification::topLeft);
         addAndMakeVisible (body);
     }
@@ -146,7 +151,6 @@ public:
                        juce::dontSendNotification);
 
         auto sizeMb = juce::String ((double) item.fileSizeBytes / (1024.0 * 1024.0), 1);
-
         body.setText (
             juce::String ("Duration     ") + otoha::formatDuration (item.durationSeconds)
             + "\nFormat       " + item.format
@@ -166,7 +170,7 @@ public:
 
     void paint (juce::Graphics& g) override
     {
-        auto area = getLocalBounds().toFloat().reduced ((float) Spacing::sm);
+        auto area = getLocalBounds().toFloat().reduced (4.0f);
         g.setColour (colors::surface());
         g.fillRoundedRectangle (area, (float) Radius::large);
         g.setColour (colors::borderSubtle());
@@ -177,7 +181,8 @@ public:
     {
         auto area = getLocalBounds().reduced (14);
         title.setBounds (area.removeFromTop (26));
-        body.setBounds (area.removeFromTop (160));
+        area.removeFromTop (4);
+        body.setBounds (area);
     }
 
 private:
@@ -185,157 +190,181 @@ private:
     juce::Label title, body;
 };
 
-// =============================================================================
-// LibraryView
-// =============================================================================
+/* ======================================================================
+   LibraryView — M22 polished recording library.
+   ====================================================================== */
 LibraryView::LibraryView (LibraryService& lib, Player& pl, std::function<void()> goToRec,
                           OpenInEditorFn openInEditorFn, IsFileOpenFn fileOpenFn,
                           otoha::ExportManager& exportManagerRef,
                           otoha::ExportSettingsStore& exportStoreRef)
-    : library (lib),
-      player (pl),
-      goToRecording (std::move (goToRec)),
-      openInEditor (std::move (openInEditorFn)),
-      isFileOpenInEditor (std::move (fileOpenFn)),
-      exportManager (exportManagerRef),
-      exportStore (exportStoreRef)
+    : library (lib), player (pl), goToRecording (std::move (goToRec)),
+      openInEditor (std::move (openInEditorFn)), isFileOpenInEditor (std::move (fileOpenFn)),
+      exportManager (exportManagerRef), exportStore (exportStoreRef)
 {
-    addAndMakeVisible (searchBox);
-    searchBox.setTextToShowWhenEmpty ("Search recordings...", colors::textMuted());
-    searchBox.onTextChange = [this] { refreshItems(); };
+    setOpaque (true);
 
-    for (auto* b : { &filterAll, &filterAudio, &filterVideo, &filterFavorites })
+    // --- Header ---
+    headerTitle.setFont (font (TextSize::title));
+    headerTitle.setColour (juce::Label::textColourId, colors::textPrimary());
+    addAndMakeVisible (headerTitle);
+
+    countLabel.setFont (font (TextSize::caption));
+    countLabel.setColour (juce::Label::textColourId, colors::textMuted());
+    addAndMakeVisible (countLabel);
+
+    // --- Search ---
+    searchInput = std::make_unique<otoha::ds::Input> ("Search recordings", "Search recordings...");
+    searchInput->onTextChange = [this] { refreshItems(); };
+    addAndMakeVisible (*searchInput);
+
+    // --- Sort ---
+    sortCombo = std::make_unique<otoha::ds::ComboBox> ("Sort recordings");
+    sortCombo->addItem ("Newest", 1);
+    sortCombo->addItem ("Oldest", 2);
+    sortCombo->addItem ("Name A–Z", 3);
+    sortCombo->addItem ("Name Z–A", 4);
+    sortCombo->addItem ("Longest", 5);
+    sortCombo->addItem ("Shortest", 6);
+    sortCombo->setSelectedItemIndex (0, juce::dontSendNotification);
+    sortCombo->onChange = [this] { refreshItems(); };
+    addAndMakeVisible (*sortCombo);
+
+    // --- Filter chips ---
+    auto setupFilter = [this] (otoha::ds::Button& btn, otoha::LibraryFilter filter)
     {
-        b->setClickingTogglesState (true);
-        b->setRadioGroupId (1);
-        addAndMakeVisible (*b);
-        b->onClick = [this]
+        addAndMakeVisible (btn);
+        btn.onClick = [this, filter, &btn]
         {
-            if      (filterAll.getToggleState())       currentFilter = otoha::LibraryFilter::all;
-            else if (filterAudio.getToggleState())     currentFilter = otoha::LibraryFilter::audio;
-            else if (filterVideo.getToggleState())     currentFilter = otoha::LibraryFilter::video;
-            else                                       currentFilter = otoha::LibraryFilter::favorites;
+            currentFilter = filter;
             refreshItems();
         };
-    }
-    filterAll.setToggleState (true, juce::dontSendNotification);
+    };
+    setupFilter (filterAllBtn,   otoha::LibraryFilter::all);
+    setupFilter (filterAudioBtn, otoha::LibraryFilter::audio);
+    setupFilter (filterFavBtn,   otoha::LibraryFilter::favorites);
+    filterAllBtn.setEnabled (false);  // "All" is the active/default
 
-    sortCombo.addItem ("Newest", 1);
-    sortCombo.addItem ("Oldest", 2);
-    sortCombo.addItem ("Name A–Z", 3);
-    sortCombo.addItem ("Name Z–A", 4);
-    sortCombo.addItem ("Longest", 5);
-    sortCombo.addItem ("Shortest", 6);
-    sortCombo.setSelectedItemIndex (0, juce::dontSendNotification);   // Newest first
-    sortCombo.onChange = [this] { refreshItems(); };
-    addAndMakeVisible (sortCombo);
-
+    // --- ListBox (virtualised card grid) ---
     listBox.setModel (this);
-    listBox.setRowHeight (76);
+    listBox.setRowHeight (80);
     listBox.setMultipleSelectionEnabled (true);
     listBox.setColour (juce::ListBox::backgroundColourId, juce::Colours::transparentBlack);
     addAndMakeVisible (listBox);
 
+    // --- Selection / bulk actions ---
     selectionLabel.setFont (font (TextSize::caption));
     selectionLabel.setColour (juce::Label::textColourId, colors::textMuted());
     addAndMakeVisible (selectionLabel);
 
-    for (auto* b : { &bulkFavoriteButton, &bulkExportButton, &bulkDeleteButton })
-    {
-        addAndMakeVisible (*b);
-        b->setVisible (false);
-    }
-    bulkFavoriteButton.onClick = [this] { favoriteSelected(); };
-    bulkExportButton.onClick   = [this] { exportSelected(); };
-    bulkDeleteButton.onClick   = [this] { deleteSelected(); };
+    bulkExportBtn.onClick = [this] { exportSelected(); };
+    bulkDeleteBtn.onClick = [this] { deleteSelected(); };
+    addAndMakeVisible (bulkExportBtn);
+    addAndMakeVisible (bulkDeleteBtn);
+    bulkExportBtn.setVisible (false);
+    bulkDeleteBtn.setVisible (false);
 
+    // --- Details panel ---
     details = std::make_unique<DetailsPanel> (library);
     addAndMakeVisible (*details);
     details->clear();
 
-    emptyTitle.setText ("No recordings yet.", juce::dontSendNotification);
-    emptyTitle.setFont (font (TextSize::title));
-    emptyTitle.setJustificationType (juce::Justification::centred);
-    addAndMakeVisible (emptyTitle);
+    // --- Empty states ---
+    otoha::ds::EmptyState::Setup emptySetup;
+    emptySetup.icon        = otoha::icons::microphone();
+    emptySetup.title       = "No recordings yet.";
+    emptySetup.description = "Record something to start your library.";
+    emptySetup.action      = &emptyRecordBtn;
+    emptyState = std::make_unique<otoha::ds::EmptyState> (emptySetup);
+    addAndMakeVisible (*emptyState);
 
-    emptySubtitle.setText ("Record something with Otoha.", juce::dontSendNotification);
-    emptySubtitle.setFont (font (TextSize::body));
-    emptySubtitle.setJustificationType (juce::Justification::centred);
-    emptySubtitle.setColour (juce::Label::textColourId, colors::textMuted());
-    addAndMakeVisible (emptySubtitle);
+    otoha::ds::EmptyState::Setup searchSetup;
+    searchSetup.icon        = otoha::icons::search();
+    searchSetup.title       = "No recordings found.";
+    searchSetup.description = "Try another search.";
+    searchEmptyState = std::make_unique<otoha::ds::EmptyState> (searchSetup);
+    addAndMakeVisible (*searchEmptyState);
 
-    emptyRecordButton.onClick = [this] { if (goToRecording) goToRecording(); };
-    addAndMakeVisible (emptyRecordButton);
-
-    videoEmptyLabel.setText ("No videos yet.", juce::dontSendNotification);
-    videoEmptyLabel.setFont (font (TextSize::body));
-    videoEmptyLabel.setJustificationType (juce::Justification::centred);
-    videoEmptyLabel.setColour (juce::Label::textColourId, colors::textMuted());
-    addChildComponent (videoEmptyLabel);
+    emptyRecordBtn.onClick = [this] { if (goToRecording) goToRecording(); };
 
     refreshItems();
-    startTimerHz (2);   // repaints while background waveforms finish generating
+    startTimerHz (2);
 }
 
 LibraryView::~LibraryView() = default;
 
 void LibraryView::paint (juce::Graphics& g)
 {
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
-
-    g.setColour (colors::textPrimary());
-    g.setFont (font (TextSize::title));
-    g.drawText ("Otoha", Spacing::lg, 14, 200, 34, juce::Justification::centredLeft);
-
-    g.setColour (colors::textMuted());
-    g.setFont (font (TextSize::caption));
-    g.drawText ("Library", 220, 24, 300, 20, juce::Justification::centredLeft);
+    g.fillAll (colors::background());
 }
 
 void LibraryView::resized()
 {
-    auto bounds = getLocalBounds();
-    bounds.removeFromTop (54); // title strip
+    auto bounds = getLocalBounds().reduced (Spacing::xl);
+    const int maxW = 900;
+    auto content = bounds.withSizeKeepingCentre (juce::jmin (maxW, bounds.getWidth()),
+                                                 bounds.getHeight());
 
-    auto searchRow = bounds.removeFromTop (38).reduced (16, 2);
-    searchBox.setBounds (searchRow.removeFromLeft (juce::jmin (420, searchRow.getWidth())));
-    searchRow.removeFromLeft (12);
-    sortCombo.setBounds (searchRow.removeFromRight (130));
-
-    auto filterRow = bounds.removeFromTop (32).reduced (16, 0);
-    auto placeFilter = [&filterRow] (juce::ToggleButton& b, int w)
+    // Header row: title + count
     {
-        b.setBounds (filterRow.removeFromLeft (w).withHeight (26));
-        filterRow.removeFromLeft (10);
-    };
-    placeFilter (filterAll, 60);
-    placeFilter (filterAudio, 72);
-    placeFilter (filterVideo, 72);
-    placeFilter (filterFavorites, 92);
+        auto header = content.removeFromTop (32);
+        headerTitle.setBounds (header.removeFromLeft (120));
+        countLabel.setBounds (header.removeFromLeft (200));
+    }
+    content.removeFromTop (Spacing::xs);
 
-    auto bulkRow = bounds.removeFromTop (30).reduced (16, 0);
-    selectionLabel.setBounds (bulkRow.removeFromLeft (200));
-    bulkDeleteButton.setBounds (bulkRow.removeFromRight (80).reduced (2, 2));
-    bulkExportButton.setBounds (bulkRow.removeFromRight (80).reduced (2, 2));
-    bulkFavoriteButton.setBounds (bulkRow.removeFromRight (88).reduced (2, 2));
+    // Toolbar: search + sort + filter chips
+    {
+        auto toolbar = content.removeFromTop (36);
+        searchInput->setBounds (toolbar.removeFromLeft (juce::jmin (320, toolbar.getWidth() / 2))
+                                       .withHeight (28));
+        toolbar.removeFromLeft (Spacing::sm);
+        sortCombo->setBounds (toolbar.removeFromRight (130).withHeight (28));
+        toolbar.removeFromRight (Spacing::sm);
+        // Filter chips (right-aligned in remaining space)
+        auto chips = toolbar;
+        const int chipW = 64;
+        filterFavBtn.setBounds   (chips.removeFromRight (chipW).withHeight (26));
+        chips.removeFromRight (4);
+        filterAudioBtn.setBounds (chips.removeFromRight (chipW).withHeight (26));
+        chips.removeFromRight (4);
+        filterAllBtn.setBounds   (chips.removeFromRight (chipW).withHeight (26));
+    }
+    content.removeFromTop (Spacing::xs);
 
-    auto content = bounds.reduced (16, 8);
-    details->setBounds (content.removeFromRight (260));
+    // Bulk actions bar (shown when multiple selected)
+    {
+        auto bulk = content.removeFromTop (28);
+        selectionLabel.setBounds (bulk.removeFromLeft (200));
+        bulkDeleteBtn.setBounds (bulk.removeFromRight (72).withHeight (24));
+        bulk.removeFromRight (4);
+        bulkExportBtn.setBounds (bulk.removeFromRight (72).withHeight (24));
+    }
 
-    listBox.setBounds (content);
+    // Main content: list + details
+    {
+        auto main = content;
+        details->setBounds (main.removeFromRight (240));
+        main.removeFromRight (Spacing::sm);
+        listBox.setBounds (main);
+    }
 
-    auto centre = listBox.getBounds().withSizeKeepingCentre (320, 120);
-    emptyTitle.setBounds (centre.removeFromTop (34));
-    emptySubtitle.setBounds (centre.removeFromTop (24));
-    emptyRecordButton.setBounds (centre.removeFromTop (40).withSizeKeepingCentre (140, 34));
-    videoEmptyLabel.setBounds (listBox.getBounds().withSizeKeepingCentre (300, 30));
+    // Empty states overlay on the list area
+    auto listArea = listBox.getBounds().withSizeKeepingCentre (320, 120);
+    emptyState->setBounds (listArea);
+    searchEmptyState->setBounds (listArea);
+}
+
+void LibraryView::grabDefaultFocus()
+{
+    if (searchInput != nullptr)
+        searchInput->grabKeyboardFocus();
 }
 
 bool LibraryView::keyPressed (const juce::KeyPress& key)
 {
-    // Never steal shortcuts from the search field or dialogs.
     if (auto* focused = juce::Component::getCurrentlyFocusedComponent())
-        if (dynamic_cast<juce::TextEditor*> (focused) != nullptr && ! key.isKeyCode (juce::KeyPress::escapeKey))
+        if (dynamic_cast<juce::TextEditor*> (focused) != nullptr
+            && ! key.isKeyCode (juce::KeyPress::escapeKey))
             return false;
 
     if (key.isKeyCode (juce::KeyPress::spaceKey))
@@ -345,13 +374,11 @@ bool LibraryView::keyPressed (const juce::KeyPress& key)
         else player.togglePlayPause();
         return true;
     }
-
     if (key.isKeyCode (juce::KeyPress::deleteKey))
     {
         if (listBox.getNumSelectedRows() > 0) deleteSelected();
         return true;
     }
-
     if (key.isKeyCode ('A') && key.getModifiers().isCommandDown())
     {
         for (int i = 0; i < getNumRows(); ++i)
@@ -360,19 +387,16 @@ bool LibraryView::keyPressed (const juce::KeyPress& key)
         updateDetailsPanel();
         return true;
     }
-
     if (key.isKeyCode ('F') && key.getModifiers().isCommandDown())
     {
         grabDefaultFocus();
         return true;
     }
-
     return false;
 }
 
-// -----------------------------------------------------------------------------
-// ListBoxModel
-// -----------------------------------------------------------------------------
+// --- ListBoxModel ---------------------------------------------------------
+
 int LibraryView::getNumRows() { return (int) items.size(); }
 
 juce::Component* LibraryView::refreshComponentForRow (int row, bool selected, juce::Component* existing)
@@ -382,14 +406,12 @@ juce::Component* LibraryView::refreshComponentForRow (int row, bool selected, ju
         delete existing;
         return nullptr;
     }
-
     auto* rowComp = dynamic_cast<RowComponent*> (existing);
     if (rowComp == nullptr)
     {
         delete existing;
         rowComp = new RowComponent (*this);
     }
-
     rowComp->update (row, selected);
     return rowComp;
 }
@@ -407,7 +429,6 @@ void LibraryView::selectRowWithModifiers (int row, const juce::MouseEvent& e)
         listBox.flipRowSelection (row);
     else
         listBox.selectRow (row);
-
     updateBulkBar();
     updateDetailsPanel();
 }
@@ -417,21 +438,17 @@ void LibraryView::handleRowActivated (int row) { playItem (row); }
 void LibraryView::playItem (int row)
 {
     const auto* item = itemForRow (row);
-    if (item == nullptr || ! item->isValid())
-        return;
-
+    if (item == nullptr || ! item->isValid()) return;
     if (player.loadFile (item->file))
         player.play();
 }
 
-// -----------------------------------------------------------------------------
-// Actions
-// -----------------------------------------------------------------------------
+// --- Actions --------------------------------------------------------------
+
 void LibraryView::toggleFavoriteForRow (int row)
 {
     const auto* item = itemForRow (row);
     if (item == nullptr) return;
-
     library.setFavorite (item->id, ! item->favorite);
     refreshItems();
 }
@@ -466,11 +483,7 @@ void LibraryView::showContextMenuFor (int row)
                         {
                             switch (result)
                             {
-                                case 1:
-                                {
-                                    if (player.loadFile (path)) player.play();
-                                    break;
-                                }
+                                case 1: if (player.loadFile (path)) player.play(); break;
                                 case 2: renameDialogForId (id); break;
                                 case 7: openInEditor (library.get (id)); break;
                                 case 8: duplicateForRow (id); break;
@@ -493,9 +506,6 @@ void LibraryView::showContextMenuFor (int row)
                         });
 }
 
-// -----------------------------------------------------------------------------
-// #20 Duplicate — an independent copy; the original is never touched.
-// -----------------------------------------------------------------------------
 void LibraryView::duplicateForRow (juce::int64 id)
 {
     const auto newId = library.duplicateMedia (id);
@@ -503,44 +513,35 @@ void LibraryView::duplicateForRow (juce::int64 id)
     {
         juce::AlertWindow::showMessageBoxAsync (
             juce::MessageBoxIconType::WarningIcon, "Couldn't duplicate recording",
-            "The copy could not be created.\nCheck free disk space and try again.");   // #71
+            "The copy could not be created.\nCheck free disk space and try again.");
         return;
     }
     refreshItems();
 }
 
-// -----------------------------------------------------------------------------
-// #63-#65 Drag-and-drop import — reference in place, friendly on failure.
-// -----------------------------------------------------------------------------
+// --- Drag-and-drop import -------------------------------------------------
+
 bool LibraryView::isInterestedInFileDrag (const juce::StringArray& files)
 {
     return ! files.isEmpty();
 }
 
-void LibraryView::filesDropped (const juce::StringArray& files, int /*x*/, int /*y*/)
+void LibraryView::filesDropped (const juce::StringArray& files, int, int)
 {
     int imported = 0;
     juce::StringArray unsupported;
-
     for (const auto& f : files)
     {
         const auto file = juce::File (f);
         if (! file.existsAsFile()) continue;
-
-        // #64: register the external file where it lives — no conversion,
-        // no move, original stays untouched. The startup scan also tolerates
-        // these references going missing later (#66).
         if (library.registerAudioFile (file) != 0) ++imported;
-        else                                       unsupported.add (file.getFileName());
+        else unsupported.add (file.getFileName());
     }
-
     refreshItems();
-
     if (! unsupported.isEmpty())
         juce::AlertWindow::showMessageBoxAsync (
             juce::MessageBoxIconType::InfoIcon, "Some files weren't imported",
-            "Otoha can't open this audio format:\n"
-            + unsupported.joinIntoString ("\n"));   // #65
+            "Otoha can't open this audio format:\n" + unsupported.joinIntoString ("\n"));
 }
 
 void LibraryView::renameDialogForId (juce::int64 id)
@@ -563,7 +564,7 @@ void LibraryView::renameDialogForId (juce::int64 id)
                 library.rename (id, window->getTextEditorContents ("name"));
             refreshItems();
         }),
-        true /* deleteWhenDismissed */);
+        true);
 }
 
 void LibraryView::deleteSelected()
@@ -575,7 +576,6 @@ void LibraryView::deleteSelected()
 
     if (selected.empty()) return;
 
-    // Delete safety: never trash a recording whose editor document is still open.
     for (const auto& s : selected)
     {
         if (isFileOpenInEditor && isFileOpenInEditor (s.file))
@@ -590,25 +590,21 @@ void LibraryView::deleteSelected()
     }
 
     const bool multiple = selected.size() > 1;
-    juce::AlertWindow::showOkCancelBox (juce::MessageBoxIconType::QuestionIcon,
-                                        multiple ? "Delete recordings" : "Delete recording",
-                                        multiple
-                                            ? "Move " + juce::String ((int) selected.size())
-                                                  + " recordings to the trash?\nThis cannot be undone."
-                                            : "Move \"" + selected[0].displayName
-                                                  + "\" to the trash?\nThis cannot be undone.",
-                                        "Delete", "Cancel", this,
-                                        juce::ModalCallbackFunction::create (
-                                            [this, ids = selected] (int result)
-                                            {
-                                                if (result != 1) return;
-
-                                                player.unload();
-                                                for (const auto& item : ids)
-                                                    library.deleteMedia (item.id);
-
-                                                refreshItems();
-                                            }));
+    juce::AlertWindow::showOkCancelBox (
+        juce::MessageBoxIconType::QuestionIcon,
+        multiple ? "Delete recordings" : "Delete recording",
+        multiple
+            ? "Move " + juce::String ((int) selected.size()) + " recordings to the trash?\nThis cannot be undone."
+            : "Move \"" + selected[0].displayName + "\" to the trash?\nThis cannot be undone.",
+        "Delete", "Cancel", this,
+        juce::ModalCallbackFunction::create ([this, ids = selected] (int result)
+        {
+            if (result != 1) return;
+            player.unload();
+            for (const auto& item : ids)
+                library.deleteMedia (item.id);
+            refreshItems();
+        }));
 }
 
 void LibraryView::favoriteSelected()
@@ -616,7 +612,6 @@ void LibraryView::favoriteSelected()
     for (int i = 0; i < listBox.getNumSelectedRows(); ++i)
         if (const auto* it = itemForRow (listBox.getSelectedRow (i)))
             library.setFavorite (it->id, true);
-
     refreshItems();
 }
 
@@ -630,7 +625,6 @@ void LibraryView::exportSelected()
 
     if (selected.empty()) return;
 
-    // Batch export: one format/quality choice for the whole selection (#23).
     otoha::FfmpegLocator locator;
     otoha::FfmpegInfo info;
     const bool ffmpegAvailable = locator.locate (info) == otoha::EncoderStatus::available;
@@ -639,37 +633,31 @@ void LibraryView::exportSelected()
     if (! choice.confirmed) return;
 
     const auto startDir = exportStore.getLastDirectory();
-    chooser = std::make_unique<juce::FileChooser> (
-        "Choose the output folder", startDir);
-    chooser->launchAsync (juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectDirectories,
-                          [this, targets = selected, choice] (const juce::FileChooser& fc)
-                          {
-                              const auto dir = fc.getResult();
-                              if (dir == juce::File{}) return;
-
-                              exportStore.remember (choice.format, choice.quality, dir);
-
-                              // Each recording uses its OWN timeline/DSP state from
-                              // its sidecar — the manager loads per-recording state.
-                              for (const auto& item : targets)
-                              {
-                                  otoha::ExportRequest request;
-                                  request.sourceFile = item.file;
-                                  request.baseName = item.displayName.isEmpty()
-                                        ? item.file.getFileNameWithoutExtension() : item.displayName;
-                                  request.destinationDirectory = dir;
-                                  request.format = choice.format;
-                                  request.quality = choice.quality;
-                                  exportManager.submit (request);
-                              }
-
-                              showExportProgressWindow (this, exportManager);
-                          });
+    chooser = std::make_unique<juce::FileChooser> ("Choose the output folder", startDir);
+    chooser->launchAsync (
+        juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectDirectories,
+        [this, targets = selected, choice] (const juce::FileChooser& fc)
+        {
+            const auto dir = fc.getResult();
+            if (dir == juce::File{}) return;
+            exportStore.remember (choice.format, choice.quality, dir);
+            for (const auto& item : targets)
+            {
+                otoha::ExportRequest request;
+                request.sourceFile = item.file;
+                request.baseName = item.displayName.isEmpty()
+                    ? item.file.getFileNameWithoutExtension() : item.displayName;
+                request.destinationDirectory = dir;
+                request.format = choice.format;
+                request.quality = choice.quality;
+                exportManager.submit (request);
+            }
+            showExportProgressWindow (this, exportManager);
+        });
 }
 
-// -----------------------------------------------------------------------------
-// Refreshing / derived state
-// -----------------------------------------------------------------------------
+// --- Refresh / derived state ----------------------------------------------
+
 void LibraryView::refreshItems()
 {
     using Sort = otoha::LibrarySort;
@@ -677,17 +665,25 @@ void LibraryView::refreshItems()
                                             Sort::nameAscending, Sort::nameDescending,
                                             Sort::longestFirst, Sort::shortestFirst };
 
-    items = library.query (searchBox.getText(),
+    items = library.query (searchInput != nullptr ? searchInput->getText() : juce::String(),
                            currentFilter,
-                           sortsByItem[juce::jlimit (0, 5, sortCombo.getSelectedItemIndex())]);
+                           sortsByItem[juce::jlimit (0, 5, sortCombo != nullptr ? sortCombo->getSelectedItemIndex() : 0)]);
 
-    // Empty states feel intentional, never like an error.
-    const bool nothingAtAll = items.empty() && currentFilter != otoha::LibraryFilter::video
-                                          && searchBox.getText().isEmpty();
-    emptyTitle.setVisible (nothingAtAll);
-    emptySubtitle.setVisible (nothingAtAll);
-    emptyRecordButton.setVisible (nothingAtAll);
-    videoEmptyLabel.setVisible (currentFilter == otoha::LibraryFilter::video && items.empty());
+    const bool hasItems = ! items.empty();
+    const bool searching = searchInput != nullptr && searchInput->getText().isNotEmpty();
+    const bool nothingAtAll = ! hasItems && ! searching;
+
+    emptyState->setVisible (nothingAtAll);
+    searchEmptyState->setVisible (hasItems == false && searching);
+
+    // Recording count
+    countLabel.setText (hasItems ? juce::String ((int) items.size()) + " recordings" : juce::String(),
+                        juce::dontSendNotification);
+
+    // Update filter button enabled states
+    filterAllBtn.setEnabled (currentFilter != otoha::LibraryFilter::all);
+    filterAudioBtn.setEnabled (currentFilter != otoha::LibraryFilter::audio);
+    filterFavBtn.setEnabled (currentFilter != otoha::LibraryFilter::favorites);
 
     listBox.updateContent();
     updateBulkBar();
@@ -703,7 +699,6 @@ void LibraryView::updateDetailsPanel()
             details->showItem (*item);
             return;
         }
-
     details->clear();
 }
 
@@ -711,17 +706,14 @@ void LibraryView::updateBulkBar()
 {
     const int n = listBox.getNumSelectedRows();
     const bool bulk = n > 1;
-
     selectionLabel.setText (bulk ? juce::String (n) + " selected" : juce::String(),
                             juce::dontSendNotification);
-    bulkFavoriteButton.setVisible (bulk);
-    bulkExportButton.setVisible (bulk);
-    bulkDeleteButton.setVisible (bulk);
+    bulkExportBtn.setVisible (bulk);
+    bulkDeleteBtn.setVisible (bulk);
 }
 
 void LibraryView::timerCallback()
 {
-    // Rows show placeholders while their waveforms generate in the background.
     if (library.getWaveformCache().pendingCount() > 0)
         listBox.repaint();
 }

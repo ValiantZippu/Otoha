@@ -6,21 +6,19 @@
 #include "../Export/ExportManager.h"
 #include "../Export/ExportPresets.h"
 #include "../Library/LibraryService.h"
+#include "Components/DsButton.h"
+#include "Components/DsControls.h"
+#include "Components/DsCore.h"
+#include "Components/DsSurfaces.h"
 
-/*
-    LibraryView — answers "where are all my recordings?".
+/*    LibraryView — Otoha's recording library (M22).
 
-    - Search (display-name match, debounced-feel via immediate small SQLite query)
-    - Filters: All / Audio / Video / Favorites
-    - Sorts: Newest (default), Oldest, Name A–Z / Z–A, Longest, Shortest
-    - Multi-select rows (Cmd/Ctrl-click toggle, Shift-click range)
-    - Bulk: Favorite / Export (WAV copies) / Delete
-    - Context menu: Play / Rename / Favorite / Export / Show in Folder / Delete
-    - Details panel for a single selection
-    - Empty states: no recordings ("Record something") and "No videos yet."
+      Responsive card-grid browsing with search, sort, selection, bulk actions,
+      playback preview, rename, and delete. All visuals consume OtohaTheme tokens.
 
-    Keyboard: Ctrl/Cmd+F search · Space play/pause · Delete remove · Ctrl/Cmd+A all.
-    Waveforms come from the background WaveformCache; rows repaint as jobs finish.
+      Preserves all existing M7–M14 business logic (ListBox virtualisation,
+      drag-drop import, context menu, duplicate, export pipeline integration)
+      while restyling through the M18 design-system component kit.
 */
 class LibraryView : public juce::Component,
                     private juce::Timer,
@@ -43,23 +41,17 @@ public:
     void resized() override;
     bool keyPressed (const juce::KeyPress& key) override;
 
-    // #63/#64: drop audio files anywhere in the Library to register them.
-    // Files are REFERENCED where they are — never converted or moved on import.
     bool isInterestedInFileDrag (const juce::StringArray& files) override;
     void filesDropped (const juce::StringArray& files, int x, int y) override;
 
-    void grabDefaultFocus()  { searchBox.grabKeyboardFocus(); }
-
-    /** Re-queries the database (called when the shell shows this view). */
-    void refreshItemsForDisplay()  { refreshItems(); }
+    void grabDefaultFocus();
+    void refreshItemsForDisplay() { refreshItems(); }
 
 private:
-    // ListBoxModel
     int getNumRows() override;
     void paintListBoxItem (int, juce::Graphics&, int, int, bool) override {}
     juce::Component* refreshComponentForRow (int row, bool selected, juce::Component* existing) override;
 
-    // Helpers shared with RowComponent
     const otoha::MediaItem* itemForRow (int row) const;
     void selectRowWithModifiers (int row, const juce::MouseEvent& e);
     void handleRowActivated (int row);
@@ -71,7 +63,7 @@ private:
     void updateBulkBar();
 
     void playItem (int row);
-    void duplicateForRow (juce::int64 id);   // #20
+    void duplicateForRow (juce::int64 id);
     void renameDialogForId (juce::int64 id);
     void deleteSelected();
     void favoriteSelected();
@@ -84,32 +76,41 @@ private:
 
     LibraryService& library;
     Player& player;
-    std::function<void()> goToRecording;   // empty-state [RECORD] button
+    std::function<void()> goToRecording;
     OpenInEditorFn openInEditor;
-    IsFileOpenFn isFileOpenInEditor;       // delete-safety guard
+    IsFileOpenFn isFileOpenInEditor;
     otoha::ExportManager& exportManager;
     otoha::ExportSettingsStore& exportStore;
 
     std::vector<otoha::MediaItem> items;
 
-    juce::TextEditor searchBox;
-    juce::ToggleButton filterAll { "All" }, filterAudio { "Audio" },
-                       filterVideo { "Video" }, filterFavorites { "Favorites" };
-    juce::ComboBox sortCombo;
+    // M18 DS components for toolbar
+    juce::Label headerTitle { {}, "Library" };
+    juce::Label countLabel;
+    std::unique_ptr<otoha::ds::Input> searchInput;
+    std::unique_ptr<otoha::ds::ComboBox> sortCombo;
 
+    // Filter chips (M18 buttons acting as toggles)
+    otoha::ds::Button filterAllBtn     { "All",     otoha::ds::ButtonVariant::secondary, otoha::ds::ButtonSize::small };
+    otoha::ds::Button filterAudioBtn   { "Audio",   otoha::ds::ButtonVariant::secondary, otoha::ds::ButtonSize::small };
+    otoha::ds::Button filterFavBtn     { "Favorites", otoha::ds::ButtonVariant::secondary, otoha::ds::ButtonSize::small };
+
+    // Card grid (virtualised ListBox)
     juce::ListBox listBox;
+
+    // Bulk actions bar
     juce::Label selectionLabel;
-    juce::TextButton bulkFavoriteButton { "Favorite" }, bulkExportButton { "Export" },
-                     bulkDeleteButton { "Delete" };
+    otoha::ds::Button bulkExportBtn { "Export", otoha::ds::ButtonVariant::secondary, otoha::ds::ButtonSize::small };
+    otoha::ds::Button bulkDeleteBtn { "Delete", otoha::ds::ButtonVariant::danger,    otoha::ds::ButtonSize::small };
 
     std::unique_ptr<DetailsPanel> details;
 
-    juce::Label emptyTitle, emptySubtitle;
-    juce::TextButton emptyRecordButton { "RECORD" };
-    juce::Label videoEmptyLabel { {}, "No videos yet." };
+    // Empty state
+    otoha::ds::Button emptyRecordBtn { "Record", otoha::ds::ButtonVariant::primary };
+    std::unique_ptr<otoha::ds::EmptyState> emptyState;
+    std::unique_ptr<otoha::ds::EmptyState> searchEmptyState;
 
     otoha::LibraryFilter currentFilter = otoha::LibraryFilter::all;
-
     std::unique_ptr<juce::FileChooser> chooser;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LibraryView)

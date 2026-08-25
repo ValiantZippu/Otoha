@@ -220,3 +220,33 @@ The polished recording experience: choose mic → countdown → record → stop 
 **Device disconnect**: Recorder reports `FailureReason::deviceLost`; RecordView auto-stops, preserves the file if possible, refreshes the device list.
 
 **Audio safety**: countdown and meter run on UI thread only.  Audio callback meters/monitors through the existing lock-free FIFO; no UI objects touched on the audio thread.
+
+---
+
+## Library (M22 — `LibraryView.h/.cpp`)
+
+The recording library uses a responsive card-grid layout with M18 DS components.  All existing business logic (search, sort, multi-select, bulk actions, context menu, drag-drop import, rename, delete, export pipeline) is preserved while visuals consume theme tokens.
+
+**Layout** (vertical, max content width 900px):
+1. **Header** — title + recording count.
+2. **Toolbar** — `ds::Input` search, `ds::ComboBox` sort (Newest/Oldest/Name/Duration), filter chips (`ds::Button` small: All/Audio/Favorites).
+3. **Bulk bar** — selection count + Export/Delete (`ds::Button` secondary/danger).
+4. **Card grid** — virtualised `juce::ListBox` with `RowComponent` cards: waveform thumbnail (from `WaveformCache`), name, duration, friendly date.  Selection tinted `accentSoft`, hover `surfaceHover`, focus ring via `drawFocusRing`.
+5. **Details panel** — compact metadata for single selection.
+6. **Empty states** — `ds::EmptyState` with icon + title + description + Record action (empty library) or search icon + "No recordings found" (search miss).
+
+**Data source**: `LibraryService::query(searchText, filter, sort)` — real library metadata.  No fake recordings.
+
+**Search**: `ds::Input` with placeholder.  Case-insensitive display-name match via existing SQLite query.  Updates results immediately on text change.
+
+**Sort**: `ds::ComboBox` with 6 modes.  Default: Newest first.
+
+**Filter**: Three `ds::Button` chips (All/Audio/Favorites).  Active chip disabled to indicate current filter.  Removed unused Video filter.
+
+**Waveform preview**: Peak data from `WaveformCache`.  Background generation; rows repaint as jobs finish.  Fallback: muted music note icon.
+
+**Selection + bulk actions**: Multi-select via Cmd/Shift click.  Bulk Export (connected to existing export pipeline) and Delete (with confirmation).  Cmd+A selects all.
+
+**Context menu**: Play, Open in Editor, Rename, Duplicate, Favorite, Export, Show in Folder, Delete.  All existing actions preserved.
+
+**Card states**: Default (surface), hover (surfaceHover), selected (accentSoft + accent border), focused (M17 focus ring).  Playing recording shows accent play icon overlay on waveform.
