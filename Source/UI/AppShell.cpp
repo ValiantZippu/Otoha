@@ -77,6 +77,7 @@ AppShell::AppShell (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl, Lib
     }
 }void AppShell::showHome()
 {
+    if (gallery != nullptr) gallery->setVisible (false);
     studioButton.setToggleState (true, juce::dontSendNotification);
     recordView->setVisible (false);
     libraryView->setVisible (false);
@@ -84,6 +85,29 @@ AppShell::AppShell (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl, Lib
     soundView->setVisible (false);
     homeView->refreshRecents();
     homeView->setVisible (true);
+}
+
+bool AppShell::keyPressed (const juce::KeyPress& key)
+{
+    // Dev-only design-system gallery (M18): Ctrl+Shift+D.
+    if (key.isKeyCode ('d') && key.getModifiers().isCtrlDown()
+        && key.getModifiers().isShiftDown())
+    {
+        if (gallery == nullptr)
+        {
+            gallery = std::make_unique<otoha::ComponentsGallery>();
+            addAndMakeVisible (*gallery);
+            gallery->setBounds (getLocalBounds());
+        }
+        gallery->setVisible (! gallery->isVisible());
+        return true;
+    }
+    if (gallery != nullptr && gallery->isVisible() && key.isKeyCode (juce::KeyPress::escapeKey))
+    {
+        gallery->setVisible (false);
+        return true;
+    }
+    return Component::keyPressed (key);
 }
 
 void AppShell::resized()
@@ -109,12 +133,16 @@ void AppShell::resized()
     editorView->setBounds (bounds);
     soundView->setBounds   (bounds);
 
+    if (gallery != nullptr)
+        gallery->setBounds (bounds);
+
     if (onboarding != nullptr)
         onboarding->setBounds (getLocalBounds());   // full-screen overlay while visible
 }
 
 void AppShell::showLibrary()
 {
+    if (gallery != nullptr) gallery->setVisible (false);
     libraryButton.setToggleState (true, juce::dontSendNotification);
     homeView->setVisible (false);
     recordView->setVisible (false);
@@ -127,6 +155,7 @@ void AppShell::showLibrary()
 
 void AppShell::showRecording()
 {
+    if (gallery != nullptr) gallery->setVisible (false);
     recordButton.setToggleState (true, juce::dontSendNotification);
     homeView->setVisible (false);
     libraryView->setVisible (false);
@@ -138,6 +167,7 @@ void AppShell::showRecording()
 
 void AppShell::showEditor()
 {
+    if (gallery != nullptr) gallery->setVisible (false);
     homeView->setVisible (false);
     libraryView->setVisible (false);
     recordView->setVisible (false);
@@ -148,6 +178,7 @@ void AppShell::showEditor()
 
 void AppShell::showSound()
 {
+    if (gallery != nullptr) gallery->setVisible (false);
     soundButton.setToggleState (true, juce::dontSendNotification);
     homeView->setVisible (false);
     libraryView->setVisible (false);

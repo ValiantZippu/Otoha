@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Dsp/ProcessingState.h"
+#include "OtohaTheme.h"
 
 #include <juce_gui_basics/juce_gui_basics.h>
 
@@ -31,8 +32,8 @@ public:
         {
             s.setRange (-12.0, 12.0, 0.5);
             s.setTextValueSuffix (" dB");
-            s.setColour (juce::Slider::textBoxTextColourId, juce::Colours::white);
-            s.setColour (juce::Label::textColourId, juce::Colours::white);
+            s.setColour (juce::Slider::textBoxTextColourId, otoha::theme::colors::textPrimary());
+            s.setColour (juce::Label::textColourId, otoha::theme::colors::textPrimary());
         };
 
         labels[0].setText ("EQ Low", juce::dontSendNotification);
@@ -52,7 +53,7 @@ public:
         }
 
         compressorLabel.setText ("Compressor", juce::dontSendNotification);
-        compressorLabel.setColour (juce::Label::textColourId, juce::Colours::white);
+        compressorLabel.setColour (juce::Label::textColourId, otoha::theme::colors::textPrimary());
         addAndMakeVisible (compressorLabel);
 
         compressorAmount.setRange (0.0, 1.0, 0.01);   // 0 == off (#9)
@@ -61,7 +62,7 @@ public:
                                                        (state.compressor.ratio - 1.0f) / 5.0f)
                                        : 0.0f,
                                    juce::dontSendNotification);
-        compressorAmount.setColour (juce::Slider::textBoxTextColourId, juce::Colours::white);
+        compressorAmount.setColour (juce::Slider::textBoxTextColourId, otoha::theme::colors::textPrimary());
         compressorAmount.onValueChange = [this]
         {
             const float amount = (float) compressorAmount.getValue();
@@ -74,7 +75,7 @@ public:
 
         limiterToggle.setButtonText ("Limiter (output protection)");
         limiterToggle.setToggleState (state.limiter.enabled, juce::dontSendNotification);
-        limiterToggle.setColour (juce::ToggleButton::textColourId, juce::Colours::white);
+        limiterToggle.setColour (juce::ToggleButton::textColourId, otoha::theme::colors::textPrimary());
         limiterToggle.onClick = [this]
         {
             const bool enableIt = limiterToggle.getToggleState();
@@ -150,7 +151,7 @@ inline void showAdvancedPanel (const otoha::ProcessingState& initialState,
 
     juce::DialogWindow::LaunchOptions options;
     options.dialogTitle            = "Advanced";
-    options.dialogBackgroundColour = juce::Colour (0xff0a0a0a);
+    options.dialogBackgroundColour = otoha::theme::colors::background();
     options.content.setOwned (panel);
     options.useNativeTitleBar      = true;
     options.resizable              = false;

@@ -1,11 +1,12 @@
 #include "MainWindow.h"
 
+#include "../UI/OtohaTheme.h"
+
 MainWindow::MainWindow (juce::String name, juce::AudioDeviceManager& deviceManager,
                         Recorder& recorder, Player& player, LibraryService& library,
                         otoha::AppSettings* appSettings)
     : DocumentWindow (name,
-                      juce::Desktop::getInstance().getDefaultLookAndFeel()
-                          .findColour (juce::ResizableWindow::backgroundColourId),
+                      otoha::theme::colors::background(),
                       DocumentWindow::allButtons)
 {
     setUsingNativeTitleBar (true);
