@@ -84,6 +84,8 @@ private:
     juce::Slider claritySlider { juce::Slider::LinearHorizontal, juce::Slider::NoTextBox };
     juce::Slider spaceSlider   { juce::Slider::LinearHorizontal, juce::Slider::NoTextBox };
 
+    juce::Label enhanceLabel { {}, "Enhance" }, bassLabel { {}, "Bass" },
+                clarityLabel { {}, "Clarity" }, spaceLabel { {}, "Space" };
     juce::Label presetLabel { {}, "Preset" }, outputLabel { {}, "Output" },
                 statusLabel, latencyLabel, meterLabel { {}, "Output" };
 

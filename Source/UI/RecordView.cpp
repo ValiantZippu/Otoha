@@ -270,8 +270,8 @@ void RecordView::resized()
         inputLabel.setBounds (config.removeFromLeft (82));
         inputCombo->setBounds (config.removeFromLeft (150).withHeight (rowH));
         config.removeFromLeft (gap);
-        countdownLabel.setBounds (config.removeFromLeft (74));
-        countdownCombo->setBounds (config.removeFromLeft (72).withHeight (rowH));
+        countdownLabel.setBounds (config.removeFromLeft (80));
+        countdownCombo->setBounds (config.removeFromLeft (90).withHeight (rowH));
         config.removeFromLeft (gap);
         monitorToggle->setBounds (config.removeFromLeft (80).withHeight (rowH));
     }

@@ -170,6 +170,7 @@ public:
     {
         theme::themeChangedBroadcaster().addChangeListener (this);
         setWantsKeyboardFocus (false);
+        setOpaque (true);
         setName ("Otoha Navigation");
     }
 
@@ -281,6 +282,8 @@ public:
             g.drawText ("O", brandBounds, juce::Justification::centred, false);
         }
     }
+
+
 
     // --- keyboard --------------------------------------------------------------
 
