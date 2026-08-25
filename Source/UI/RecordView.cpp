@@ -1,14 +1,17 @@
 #include "RecordView.h"
 
 #include "OtohaTheme.h"
+#include "Components/DsNavigation.h"
 
 #include "../Core/RecordingSupport.h"
 
 #include <cmath>
 
-// =============================================================================
-// WaveformPanel — live thumbnail, playhead, click-to-seek.
-// =============================================================================
+using namespace otoha::theme;
+
+/* ======================================================================
+   WaveformPanel — live thumbnail, playhead, click-to-seek.
+   ====================================================================== */
 class RecordView::WaveformPanel : public juce::Component
 {
 public:
@@ -18,18 +21,18 @@ public:
     {
         auto area = getLocalBounds().toFloat().reduced (12.0f);
 
-        g.setColour (otoha::theme::colors::surfaceElevated());
-        g.fillRoundedRectangle (area, 10.0f);
-        g.setColour (otoha::theme::colors::border());
-        g.drawRoundedRectangle (area, 10.0f, 1.0f);
+        g.setColour (colors::surfaceElevated());
+        g.fillRoundedRectangle (area, (float) Radius::medium);
+        g.setColour (colors::borderSubtle());
+        g.drawRoundedRectangle (area, (float) Radius::medium, 1.0f);
 
-        // Friendly empty state when no input exists — never a crash or blank box.
         if (! recorder.hasInput())
         {
-            g.setColour (otoha::theme::colors::textMuted());
-            g.setFont (otoha::theme::font (otoha::theme::TextSize::heading));
-            g.drawText ("No microphone available.", area.withTrimmedBottom (22), juce::Justification::centred);
-            g.setFont (otoha::theme::font (otoha::theme::TextSize::bodySmall));
+            g.setColour (colors::textMuted());
+            g.setFont (font (TextSize::heading));
+            g.drawText ("No microphone available.", area.withTrimmedBottom (22),
+                        juce::Justification::centred);
+            g.setFont (font (TextSize::caption));
             g.drawText ("Connect a microphone and try again.",
                         area.withTrimmedTop (22), juce::Justification::centred);
             return;
@@ -41,30 +44,30 @@ public:
 
         if (totalSeconds <= 0.0)
         {
-            g.setColour (otoha::theme::colors::textMuted());
-            g.setFont (otoha::theme::font (otoha::theme::TextSize::body));
-            g.drawText ("Press the red button (or R) to start recording",
+            g.setColour (colors::textMuted());
+            g.setFont (font (TextSize::body));
+            g.drawText ("Press Record to begin",
                         area, juce::Justification::centred);
             return;
         }
 
-        // AudioThumbnail is an efficient peak-aggregated representation; it never
-        // stores raw samples, so long recordings stay cheap to draw.
-        g.setColour (otoha::theme::colors::waveform());
+        g.setColour (colors::waveform());
         if (thumb.getTotalLength() > 0.0)
             thumb.drawChannels (g, area.toNearestInt(), 0.0, thumb.getTotalLength(), 1.0f);
 
-        // Playhead: during playback over the file length; while recording it rides at the end.
+        // Playhead
         double fraction = -1.0;
         if (player.hasFile())
             fraction = player.getPositionSeconds() / totalSeconds;
-        else if (recorder.getState() != otoha::TransportState::idle && recorder.getSampleRate() > 0.0)
+        else if (recorder.getState() != otoha::TransportState::idle
+                 && recorder.getSampleRate() > 0.0)
             fraction = (double) recorder.getTotalSamples()
-                       / (recorder.getSampleRate() * (double) juce::jmax (1, recorder.getNumInputChannels()));
+                       / (recorder.getSampleRate()
+                          * (double) juce::jmax (1, recorder.getNumInputChannels()));
 
         if (fraction >= 0.0 && fraction <= 1.0)
         {
-            g.setColour (otoha::theme::colors::playhead().withAlpha (0.85f));
+            g.setColour (colors::playhead().withAlpha (0.85f));
             g.drawVerticalLine ((int) (area.getX() + fraction * area.getWidth()),
                                 area.getY(), area.getBottom());
         }
@@ -72,14 +75,10 @@ public:
 
     void mouseDown (const juce::MouseEvent& e) override
     {
-        // Seek during playback only; never while a take is open.
         if (! player.hasFile() || recorder.getState() != otoha::TransportState::idle)
             return;
-
         const auto area = getLocalBounds().toFloat().reduced (12.0f);
-        if (! area.contains (e.position))
-            return;
-
+        if (! area.contains (e.position)) return;
         const double fraction = juce::jlimit (0.0, 1.0,
             (double) ((e.position.x - area.getX()) / area.getWidth()));
         player.setPositionSeconds (fraction * player.getLengthSeconds());
@@ -90,9 +89,9 @@ private:
     Player& player;
 };
 
-// =============================================================================
-// LevelMeter — real audio-driven bar: RMS fill + peak marker + clip latch.
-// =============================================================================
+/* ======================================================================
+   LevelMeter — real audio-driven bar with theme tokens.
+   ====================================================================== */
 class RecordView::LevelMeter : public juce::Component
 {
 public:
@@ -100,139 +99,148 @@ public:
 
     void paint (juce::Graphics& g) override
     {
-        auto area = getLocalBounds().toFloat().reduced (2.0f);
+        auto area = getLocalBounds().toFloat();
 
-        g.setColour (otoha::theme::colors::surfacePressed());
-        g.fillRoundedRectangle (area, area.getHeight());
+        g.setColour (colors::surfacePressed());
+        g.fillRoundedRectangle (area, area.getHeight() * 0.5f);
 
         const float rms  = recorder.getLevelRms();
         const float peak = recorder.getLevelPeak();
 
         auto db = [] (float v) { return juce::Decibels::gainToDecibels (v, -60.0f); };
-        const auto xForDb = [&] (float dbValue)
+        auto xForDb = [&] (float dbVal)
         {
-            return area.getX() + (dbValue + 60.0f) / 60.0f * area.getWidth();
+            return area.getX() + (dbVal + 60.0f) / 60.0f * area.getWidth();
         };
 
-        const auto rmsWidth = juce::jlimit (0.0f, area.getWidth(), xForDb (db (rms)) - area.getX());
-        g.setColour (recorder.hasClipped() ? otoha::theme::colors::meterClip()
-                                           : otoha::theme::colors::meterSafe());
-        g.fillRoundedRectangle (area.getX(), area.getY(), rmsWidth, area.getHeight(), area.getHeight());
+        const bool clipped = recorder.hasClipped();
+        const auto rmsW = juce::jlimit (0.0f, area.getWidth(),
+                                         xForDb (db (rms)) - area.getX());
+        g.setColour (clipped ? colors::meterClip() : colors::meterSafe());
+        g.fillRoundedRectangle (area.getX(), area.getY(), rmsW, area.getHeight(),
+                                area.getHeight() * 0.5f);
 
         const auto peakX = juce::jlimit (area.getX(), area.getRight(), xForDb (db (peak)));
-        g.setColour (otoha::theme::colors::playhead());
+        g.setColour (colors::playhead());
         g.fillRect (peakX - 1.5f, area.getY(), 3.0f, area.getHeight());
-
-        if (recorder.hasClipped())
-        {
-            g.setColour (otoha::theme::colors::meterClip());
-            g.fillEllipse (area.getRight() - area.getHeight(), area.getY(),
-                           area.getHeight(), area.getHeight());
-        }
     }
 
 private:
     Recorder& recorder;
 };
 
-// =============================================================================
-// RecordView
-// =============================================================================
-RecordView::RecordView (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl, LibraryService& lib,
-                        std::function<void()> editorCallback)
+/* ======================================================================
+   RecordView — M21 polished recording screen.
+   ====================================================================== */
+RecordView::RecordView (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl,
+                        LibraryService& lib, std::function<void()> editorCallback)
     : deviceManager (dm), recorder (rec), player (pl), libraryService (lib),
       goToEditor (std::move (editorCallback))
 {
     setOpaque (true);
 
-    addAndMakeVisible (inputLabel);   addAndMakeVisible (inputCombo);
-    addAndMakeVisible (outputLabel);  addAndMakeVisible (outputCombo);
-    addAndMakeVisible (qualityLabel); addAndMakeVisible (bitDepthCombo);
-    addAndMakeVisible (countdownLabel); addAndMakeVisible (countdownCombo);
-    addAndMakeVisible (monitorToggle);
-    addAndMakeVisible (formatLabel);
+    // --- Configuration row ---
+    inputLabel.setText ("Microphone", juce::dontSendNotification);
+    inputLabel.setFont (font (TextSize::caption));
+    inputLabel.setColour (juce::Label::textColourId, colors::textSecondary());
+    addAndMakeVisible (inputLabel);
 
-    inputCombo.setTextWhenNothingSelected ("< no microphone >");
-    for (auto* combo : { &inputCombo, &outputCombo })
-        combo->onChange = [this] { applyDeviceSelection(); };
+    inputCombo = std::make_unique<otoha::ds::ComboBox> ("Microphone", "< no microphone >");
+    inputCombo->onChange = [this] { applyDeviceSelection(); };
+    addAndMakeVisible (*inputCombo);
 
-    bitDepthCombo.addItem ("16-bit", 1);
-    bitDepthCombo.addItem ("24-bit", 2);
-    bitDepthCombo.setSelectedItemIndex (1, juce::dontSendNotification); // 24-bit default
+    countdownLabel.setText ("Countdown", juce::dontSendNotification);
+    countdownLabel.setFont (font (TextSize::caption));
+    countdownLabel.setColour (juce::Label::textColourId, colors::textSecondary());
+    addAndMakeVisible (countdownLabel);
 
-    countdownCombo.addItem ("Off", 1);
-    countdownCombo.addItem ("3 seconds", 2);
-    countdownCombo.addItem ("5 seconds", 3);
-    countdownCombo.addItem ("10 seconds", 4);
-    countdownCombo.setSelectedItemIndex (2, juce::dontSendNotification); // 5 s default
+    countdownCombo = std::make_unique<otoha::ds::ComboBox> ("Countdown");
+    countdownCombo->addItem ("Off", 1);
+    countdownCombo->addItem ("3 sec", 2);
+    countdownCombo->addItem ("5 sec", 3);
+    countdownCombo->addItem ("10 sec", 4);
+    countdownCombo->setSelectedItemIndex (2, juce::dontSendNotification);
+    addAndMakeVisible (*countdownCombo);
 
-    monitorToggle.onClick = [this]
+    monitorToggle = std::make_unique<otoha::ds::Toggle> ("Monitor");
+    monitorToggle->onClick = [this]
     {
-        recorder.setMonitoring (monitorToggle.getToggleState());
+        recorder.setMonitoring (monitorToggle->getToggleState());
         grabKeyboardFocus();
     };
+    addAndMakeVisible (*monitorToggle);
 
+    // --- Visualization ---
     waveform   = std::make_unique<WaveformPanel> (recorder, player);
     levelMeter = std::make_unique<LevelMeter> (recorder);
     addAndMakeVisible (*waveform);
     addAndMakeVisible (*levelMeter);
 
-    clipLabel.setFont (otoha::theme::font (otoha::theme::TextSize::caption, true));
-    clipLabel.setColour (juce::Label::textColourId, otoha::theme::colors::danger());
+    clipLabel.setFont (font (TextSize::caption, true));
+    clipLabel.setColour (juce::Label::textColourId, colors::danger());
+    clipLabel.setText ("CLIP", juce::dontSendNotification);
+    clipLabel.setJustificationType (juce::Justification::centredRight);
     clipLabel.setVisible (false);
     addAndMakeVisible (clipLabel);
 
-    // Big round record button (shape matched to its final size in resized()).
-    recordButton.setOnColours (otoha::theme::colors::recording(),
-                               otoha::theme::colors::recording().darker (0.12f),
-                               otoha::theme::colors::recording().darker (0.25f));
-    recordButton.setColours (otoha::theme::colors::recording(),
-                             otoha::theme::colors::recording().brighter (0.08f),
-                             otoha::theme::colors::recording().darker (0.12f));
-    // M14 #5/#56: the dominant action must be reachable by name, not just sight.
-    recordButton.setName ("Record");
-    recordButton.setDescription ("Start recording");
-    recordButton.setHelpText ("Starts a new recording with the selected microphone");
-    recordButton.onClick = [this] { recordButtonClicked(); };
-    addAndMakeVisible (recordButton);
-
-    playButton.onClick = [this] { playPauseClicked(); };
-    stopButton.onClick = [this] { stopClicked(); };
-    for (auto* b : { &playButton, &stopButton })
-        addAndMakeVisible (*b);
-
-    editButton.onClick = [this]
-    {
-        if (goToEditor && player.hasFile())
-            goToEditor();
-        grabKeyboardFocus();
-    };
-    // M14: the old "Enhance placeholder" button is gone (#78) — enhancing
-    // happens in the editor, one ✨ tap away via Edit.
-    exportButton.onClick = [this] { exportClicked(); };
-    deleteButton.onClick = [this] { deleteClicked(); };
-    for (auto* b : { &editButton, &exportButton, &deleteButton })
-        addAndMakeVisible (*b);
-
-    timeLabel.setFont (juce::FontOptions (26.0f, juce::Font::bold));   // intentional: big timer readout (M18 will tokenize)
-    timeLabel.setJustificationType (juce::Justification::centredRight);
+    // --- Timer ---
+    timeLabel.setFont (juce::FontOptions ((float) Metrics::titleStripHeight * 0.55f,
+                                          juce::Font::bold));
+    timeLabel.setColour (juce::Label::textColourId, colors::textPrimary());
+    timeLabel.setJustificationType (juce::Justification::centred);
     addAndMakeVisible (timeLabel);
 
-    statusLabel.setFont (otoha::theme::font (otoha::theme::TextSize::caption));
-    statusLabel.setColour (juce::Label::textColourId, otoha::theme::colors::textMuted());
+    // --- Record button (circle, semantic recording tokens) ---
+    recordButton = std::make_unique<juce::ShapeButton> ("Record",
+        colors::recording(), colors::recording().brighter (0.08f),
+        colors::recording().darker (0.12f));
+    recordButton->setOnColours (colors::recording(),
+                                colors::recording().darker (0.12f),
+                                colors::recording().darker (0.25f));
+    recordButton->setName ("Record");
+    recordButton->setDescription ("Start recording");
+    recordButton->setHelpText ("Starts a new recording with the selected microphone");
+    recordButton->onClick = [this] { recordButtonClicked(); };
+    addAndMakeVisible (*recordButton);
+
+    // --- Transport actions ---
+    playButton.onClick = [this] { playPauseClicked(); };
+    stopButton.onClick = [this] { stopClicked(); };
+    addAndMakeVisible (playButton);
+    addAndMakeVisible (stopButton);
+
+    // --- Post-recording actions ---
+    editButton   = std::make_unique<otoha::ds::Button> ("Edit", otoha::ds::ButtonVariant::secondary);
+    exportButton = std::make_unique<otoha::ds::Button> ("Export", otoha::ds::ButtonVariant::secondary);
+    deleteButton = std::make_unique<otoha::ds::Button> ("Delete", otoha::ds::ButtonVariant::danger);
+    editButton->onClick = [this]
+    {
+        if (goToEditor && player.hasFile()) goToEditor();
+        grabKeyboardFocus();
+    };
+    exportButton->onClick = [this] { exportClicked(); };
+    deleteButton->onClick = [this] { deleteClicked(); };
+    addAndMakeVisible (*editButton);
+    addAndMakeVisible (*exportButton);
+    addAndMakeVisible (*deleteButton);
+
+    formatLabel.setFont (font (TextSize::caption));
+    formatLabel.setColour (juce::Label::textColourId, colors::textMuted());
+    addAndMakeVisible (formatLabel);
+
+    statusLabel.setFont (font (TextSize::caption));
+    statusLabel.setColour (juce::Label::textColourId, colors::textSecondary());
     statusLabel.setText ("Ready", juce::dontSendNotification);
     addAndMakeVisible (statusLabel);
 
-    errorLabel.setFont (otoha::theme::font (otoha::theme::TextSize::caption));
-    errorLabel.setColour (juce::Label::textColourId, otoha::theme::colors::danger().brighter (0.2f));
+    errorLabel.setFont (font (TextSize::caption));
+    errorLabel.setColour (juce::Label::textColourId, colors::danger().brighter (0.2f));
     addAndMakeVisible (errorLabel);
 
     populateDeviceCombos();
     deviceManager.addChangeListener (this);
     updateTransportState();
     startTimerHz (30);
-    setSize (900, 660);
-    grabKeyboardFocus();
 }
 
 RecordView::~RecordView()
@@ -243,131 +251,134 @@ RecordView::~RecordView()
 
 void RecordView::paint (juce::Graphics& g)
 {
-    g.fillAll (otoha::theme::colors::background());
-
-    g.setColour (otoha::theme::colors::textPrimary());
-    g.setFont (otoha::theme::font (otoha::theme::TextSize::title));
-    g.drawText ("Otoha", 20, 14, 200, 34, juce::Justification::centredLeft);
-
-    g.setColour (otoha::theme::colors::textMuted());
-    g.setFont (otoha::theme::font (otoha::theme::TextSize::caption));
-    g.drawText ("Record", 220, 24, 300, 20, juce::Justification::centredLeft);
+    g.fillAll (colors::background());
 }
 
 void RecordView::resized()
 {
-    auto bounds = getLocalBounds();
+    auto bounds = getLocalBounds().reduced (Spacing::xl);
+    const int maxW = 720;
+    auto content = bounds.withSizeKeepingCentre (juce::jmin (maxW, bounds.getWidth()),
+                                                 bounds.getHeight());
 
-    bounds.removeFromTop (54); // title strip
+    const int rowH = 32;
+    const int gap  = Spacing::sm;
 
-    auto settingsRow = bounds.removeFromTop (40).reduced (16, 4);
-    auto placeControl = [&settingsRow] (juce::Label& label, juce::Component& control, int labelW, int controlW)
+    // Config row: mic selector + countdown + monitor
     {
-        label.setBounds (settingsRow.removeFromLeft (labelW));
-        control.setBounds (settingsRow.removeFromLeft (controlW).withHeight (28));
-        settingsRow.removeFromLeft (12);
-    };
-    placeControl (inputLabel,     inputCombo,     82, 150);
-    placeControl (outputLabel,    outputCombo,    50, 130);
-    placeControl (qualityLabel,   bitDepthCombo,  54, 72);
-    placeControl (countdownLabel, countdownCombo, 76, 88);
-    monitorToggle.setBounds (settingsRow.removeFromLeft (96).withHeight (28));
+        auto config = content.removeFromTop (rowH);
+        inputLabel.setBounds (config.removeFromLeft (82));
+        inputCombo->setBounds (config.removeFromLeft (150).withHeight (rowH));
+        config.removeFromLeft (gap);
+        countdownLabel.setBounds (config.removeFromLeft (74));
+        countdownCombo->setBounds (config.removeFromLeft (72).withHeight (rowH));
+        config.removeFromLeft (gap);
+        monitorToggle->setBounds (config.removeFromLeft (80).withHeight (rowH));
+    }
+    content.removeFromTop (gap);
 
-    auto labelRow = bounds.removeFromBottom (44);
-    errorLabel.setBounds  (labelRow.removeFromBottom (20).reduced (16, 0));
-    statusLabel.setBounds (labelRow.removeFromBottom (20).reduced (16, 0));
+    // Timer (big centered readout)
+    timeLabel.setBounds (content.removeFromTop (Metrics::titleStripHeight));
+    content.removeFromTop (gap);
 
-    bounds.reduce (16, 0);
+    // Waveform / visualizer (fills available space)
+    {
+        const int vizH = juce::jmax (120, content.getHeight() - 160);
+        waveform->setBounds (content.removeFromTop (vizH));
+    }
+    content.removeFromTop (gap);
 
-    auto actionsRow = bounds.removeFromBottom (34);
-    formatLabel.setBounds (actionsRow.removeFromLeft (260));
-    auto actionButtons = actionsRow.withSizeKeepingCentre (240, 26).removeFromRight (240);
-    deleteButton.setBounds  (actionButtons.removeFromRight (76).reduced (2, 1));
-    exportButton.setBounds  (actionButtons.removeFromRight (76).reduced (2, 1));
-    editButton.setBounds    (actionButtons.removeFromRight (66).reduced (2, 1));
+    // Meter + clip indicator
+    {
+        auto meterRow = content.removeFromTop (30);
+        clipLabel.setBounds (meterRow.removeFromRight (60));
+        levelMeter->setBounds (meterRow);
+    }
+    content.removeFromTop (Spacing::md);
 
-    auto meterArea = bounds.removeFromBottom (46);
-    clipLabel.setBounds (meterArea.removeFromRight (78));
-    levelMeter->setBounds (meterArea.reduced (0, 8));
+    // Record/Stop button (centered circle, large touch target)
+    {
+        const int btnR = Metrics::touchTargetMin;
+        recordButton->setBounds (content.removeFromTop (btnR)
+                                    .withSizeKeepingCentre (btnR, btnR));
+    }
+    content.removeFromTop (gap);
 
-    auto transportRow = bounds.removeFromBottom (76);
-    auto centreButtons = transportRow.withSizeKeepingCentre (280, 56);
-    recordButton.setBounds (centreButtons.removeFromLeft (56).withSizeKeepingCentre (56, 56));
-    centreButtons.removeFromLeft (28);
-    playButton.setBounds (centreButtons.removeFromLeft (88).reduced (4, 10));
-    stopButton.setBounds (centreButtons.removeFromLeft (88).reduced (4, 10));
-    timeLabel.setBounds (transportRow.removeFromRight (140).reduced (6, 10));
+    // Actions row
+    {
+        auto actions = content.removeFromTop (rowH);
+        const int btnW = 72;
+        actions = actions.withSizeKeepingCentre (btnW * 5 + gap * 4, rowH);
+        playButton.setBounds   (actions.removeFromLeft (btnW).withHeight (rowH));
+        actions.removeFromLeft (gap);
+        editButton->setBounds   (actions.removeFromLeft (btnW).withHeight (rowH));
+        actions.removeFromLeft (gap);
+        exportButton->setBounds (actions.removeFromLeft (btnW).withHeight (rowH));
+        actions.removeFromLeft (gap);
+        stopButton.setBounds   (actions.removeFromLeft (btnW).withHeight (rowH));
+        actions.removeFromLeft (gap);
+        deleteButton->setBounds (actions.removeFromLeft (btnW).withHeight (rowH));
+    }
+    content.removeFromTop (gap);
 
-    waveform->setBounds (bounds.reduced (0, 8));
+    // Format label (full width, subtle)
+    formatLabel.setBounds (content.removeFromTop (18));
+    content.removeFromTop (2);
 
-    // Keep the round record-button shape matched to its final size.
-    juce::Path p;
-    p.addEllipse (recordButton.getLocalBounds().toFloat());
-    recordButton.setShape (p, false, false, false);
+    // Status / error
+    errorLabel.setBounds (content.removeFromBottom (20));
+    statusLabel.setBounds (content.removeFromBottom (20));
+
+    // Record button shape (circle)
+    juce::Path circle;
+    circle.addEllipse (recordButton->getLocalBounds().toFloat());
+    recordButton->setShape (circle, false, false, false);
 }
 
 bool RecordView::keyPressed (const juce::KeyPress& key)
 {
-    if (key.isKeyCode (juce::KeyPress::spaceKey))  { playPauseClicked();      return true; }
+    if (key.isKeyCode (juce::KeyPress::spaceKey)) { playPauseClicked();      return true; }
     if (key == juce::KeyPress ('r'))              { recordButtonClicked();   return true; }
     if (key.isKeyCode (juce::KeyPress::escapeKey) && counting) { cancelCountdown(); return true; }
     return false;
 }
 
-// -----------------------------------------------------------------------------
-// Device management
-// -----------------------------------------------------------------------------
+/* ===== Device management ================================================= */
+
 void RecordView::populateDeviceCombos()
 {
     auto* type = deviceManager.getCurrentDeviceTypeObject();
-    if (type == nullptr)
-        return;
+    if (type == nullptr) return;
 
-    inputCombo.clear (juce::dontSendNotification);
-    outputCombo.clear (juce::dontSendNotification);
-
-    inputCombo.addItem ("(default)", 1);
-    outputCombo.addItem ("(default)", 1);
-    for (const auto& name : type->getDeviceNames (true))   // capture devices only
-        inputCombo.addItem (name, inputCombo.getNumItems() + 1);
-    for (const auto& name : type->getDeviceNames (false))  // playback devices only
-        outputCombo.addItem (name, outputCombo.getNumItems() + 1);
+    inputCombo->clear (juce::dontSendNotification);
+    inputCombo->addItem ("(default)", 1);
+    for (const auto& name : type->getDeviceNames (true))
+        inputCombo->addItem (name, inputCombo->getNumItems() + 1);
 
     const auto setup = deviceManager.getAudioDeviceSetup();
-    auto select = [] (juce::ComboBox& box, const juce::String& deviceName)
-    {
-        int id = 1;
-        if (deviceName.isNotEmpty())
-            for (int i = 1; i <= box.getNumItems(); ++i)
-                if (box.getItemText (i - 1) == deviceName) { id = i; break; }
-        box.setSelectedItemIndex (id - 1, juce::dontSendNotification);
-    };
-    select (inputCombo, setup.inputDeviceName);
-    select (outputCombo, setup.outputDeviceName);
+    int id = 1;
+    if (setup.inputDeviceName.isNotEmpty())
+        for (int i = 1; i <= inputCombo->getNumItems(); ++i)
+            if (inputCombo->getItemText (i - 1) == setup.inputDeviceName) { id = i; break; }
+    inputCombo->setSelectedItemIndex (id - 1, juce::dontSendNotification);
 
     refreshFormatLabel();
 }
 
 void RecordView::applyDeviceSelection()
 {
-    // Changing devices mid-take would corrupt it — the selector is disabled while busy anyway.
     if (recorder.getState() != otoha::TransportState::idle || counting)
         return;
 
     auto setup = deviceManager.getAudioDeviceSetup();
-    setup.inputDeviceName  = inputCombo.getSelectedItemIndex() <= 0 ? juce::String() : inputCombo.getText();
-    setup.outputDeviceName = outputCombo.getSelectedItemIndex() <= 0 ? juce::String() : outputCombo.getText();
-
-    // setAudioDeviceSetup closes, reconfigures and reopens the stream atomically;
-    // Recorder::audioDeviceAboutToStart re-reads rate/channels afterwards.
+    setup.inputDeviceName = inputCombo->getSelectedItemIndex() <= 0
+                                ? juce::String() : inputCombo->getText();
     const juce::String error = deviceManager.setAudioDeviceSetup (setup, true);
-    errorLabel.setText (error.isEmpty()
-                            ? juce::String()
-                            : "Audio device problem: " + error,
+    errorLabel.setText (error.isEmpty() ? juce::String()
+                                        : "Audio device problem: " + error,
                         juce::dontSendNotification);
-
-    populateDeviceCombos();   // also refreshes the format label from the new device
-    updateTransportState();   // may need to show/hide the "no microphone" state
+    populateDeviceCombos();
+    updateTransportState();
     grabKeyboardFocus();
 }
 
@@ -385,17 +396,14 @@ void RecordView::refreshFormatLabel()
         formatLabel.setText ("No audio device", juce::dontSendNotification);
         return;
     }
-
-    const int channels = juce::jmax (0, recorder.getNumInputChannels());
+    const int ch = juce::jmax (0, recorder.getNumInputChannels());
     formatLabel.setText (juce::String (rate / 1000.0, 1) + " kHz · "
-                             + juce::String (bitDepthCombo.getText()) + " · "
-                             + (channels >= 2 ? "Stereo" : channels == 1 ? "Mono" : "no input"),
+                             + (ch >= 2 ? "Stereo" : ch == 1 ? "Mono" : "no input"),
                          juce::dontSendNotification);
 }
 
-// -----------------------------------------------------------------------------
-// Transport
-// -----------------------------------------------------------------------------
+/* ===== Transport ========================================================= */
+
 void RecordView::recordButtonClicked()
 {
     if (counting) { cancelCountdown(); grabKeyboardFocus(); return; }
@@ -411,20 +419,12 @@ void RecordView::recordButtonClicked()
 
 void RecordView::playPauseClicked()
 {
-    if (counting)
-        return;
-
+    if (counting) return;
     switch (recorder.getState())
     {
-        case otoha::TransportState::recording:
-            recorder.pauseRecording();
-            break;
-        case otoha::TransportState::paused:
-            recorder.resumeRecording();
-            break;
-        case otoha::TransportState::idle:
-            player.togglePlayPause();
-            break;
+        case otoha::TransportState::recording: recorder.pauseRecording();  break;
+        case otoha::TransportState::paused:    recorder.resumeRecording(); break;
+        case otoha::TransportState::idle:      player.togglePlayPause();   break;
     }
     updateTransportState();
     grabKeyboardFocus();
@@ -433,11 +433,8 @@ void RecordView::playPauseClicked()
 void RecordView::stopClicked()
 {
     if (counting) { cancelCountdown(); return; }
-
     if (recorder.getState() != otoha::TransportState::idle)
-    {
         finishRecording();
-    }
     else
     {
         player.stop();
@@ -447,27 +444,20 @@ void RecordView::stopClicked()
     grabKeyboardFocus();
 }
 
-// -----------------------------------------------------------------------------
-// Countdown -> recording -> finish
-// -----------------------------------------------------------------------------
+/* ===== Countdown → recording → finish ==================================== */
+
 void RecordView::beginCountdown()
 {
     if (! recorder.hasInput())
     {
-        errorLabel.setText ("No microphone available.\n"
-                            "Connect a microphone and try again, or pick another input.",
+        errorLabel.setText ("No microphone available.\nConnect a microphone and try again.",
                             juce::dontSendNotification);
         return;
     }
 
     static constexpr int secondsChoices[] = { 0, 3, 5, 10 };
-    const int seconds = secondsChoices[countdownCombo.getSelectedItemIndex()];
-
-    if (seconds == 0)
-    {
-        beginRecording();
-        return;
-    }
+    const int seconds = secondsChoices[countdownCombo->getSelectedItemIndex()];
+    if (seconds == 0) { beginRecording(); return; }
 
     counting = true;
     countdownDeadlineMs = juce::Time::getMillisecondCounterHiRes() + seconds * 1000.0;
@@ -479,13 +469,12 @@ void RecordView::cancelCountdown()
     counting = false;
     countdownDeadlineMs = 0.0;
     timeLabel.setText (otoha::formatDuration (0.0), juce::dontSendNotification);
-    updateTransportState();   // no file was created — nothing to clean up
+    updateTransportState();
 }
 
 void RecordView::beginRecording()
 {
 #if JUCE_ANDROID
-    // Request mic permission only when the user actually tries to record.
     if (! juce::RuntimePermissions::isPermissionGranted (juce::RuntimePermissions::recordAudio))
     {
         juce::RuntimePermissions::request (juce::RuntimePermissions::recordAudio,
@@ -504,7 +493,7 @@ void RecordView::beginRecording()
     recorder.clearClipIndicator();
 
     juce::String error;
-    const int bitDepth = bitDepthCombo.getSelectedItemIndex() == 0 ? 16 : 24;
+    const int bitDepth = 24;  // always high quality
 
     if (! recorder.startRecording (otoha::uniqueRecordingFile (otoha::recordingsDirectory(),
                                                                juce::Time::getCurrentTime()),
@@ -514,7 +503,6 @@ void RecordView::beginRecording()
         updateTransportState();
         return;
     }
-
     updateTransportState();
 }
 
@@ -524,15 +512,12 @@ void RecordView::finishRecording()
     recorder.stopRecording();
 
     const auto file = recorder.getCurrentFile();
-    if (file.existsAsFile() && file.getSize() > 44)   // more than an empty RIFF header
+    if (file.existsAsFile() && file.getSize() > 44)
     {
         if (player.loadFile (file))
             player.setPositionSeconds (0.0);
 
-        // Register in the library. If this fails the file stays on disk and the
-        // next startup scan recovers it — the recording is never lost.
         const juce::int64 libraryId = libraryService.registerAudioFile (file);
-
         statusLabel.setText ((libraryId != 0 ? "Saved to Library · " : "Saved ")
                                  + file.getFileName()
                                  + "  ·  " + otoha::formatDuration (
@@ -547,13 +532,11 @@ void RecordView::finishRecording()
                             "There may not be enough storage space.",
                             juce::dontSendNotification);
     }
-
     updateTransportState();
 }
 
-// -----------------------------------------------------------------------------
-// Post-recording actions
-// -----------------------------------------------------------------------------
+/* ===== Post-recording actions ============================================ */
+
 void RecordView::exportClicked()
 {
     if (! player.hasFile() || recorder.getState() != otoha::TransportState::idle)
@@ -561,19 +544,15 @@ void RecordView::exportClicked()
 
     auto defaultFile = juce::File::getSpecialLocation (juce::File::userDocumentsDirectory)
                            .getChildFile (player.getFile().getFileName());
-
     chooser = std::make_unique<juce::FileChooser> ("Export recording as WAV",
                                                    defaultFile, "*.wav");
-    chooser->launchAsync (juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::canSelectFiles,
+    chooser->launchAsync (juce::FileBrowserComponent::saveMode
+                              | juce::FileBrowserComponent::canSelectFiles,
                           [this] (const juce::FileChooser& fc)
                           {
                               const auto target = fc.getResult();
-                              if (target == juce::File{})
-                                  return;
-
-                              if (target.existsAsFile())
-                                  target.deleteFile();
-
+                              if (target == juce::File{}) return;
+                              if (target.existsAsFile()) target.deleteFile();
                               if (player.getFile().copyFileTo (target))
                                   statusLabel.setText ("Exported to " + target.getFullPathName(),
                                                        juce::dontSendNotification);
@@ -590,7 +569,6 @@ void RecordView::deleteClicked()
         return;
 
     const auto fileToDelete = player.getFile();
-
     juce::AlertWindow::showOkCancelBox (juce::MessageBoxIconType::QuestionIcon,
                                         "Delete recording",
                                         "Move \"" + fileToDelete.getFileName() + "\" to the trash?\n"
@@ -599,36 +577,29 @@ void RecordView::deleteClicked()
                                         juce::ModalCallbackFunction::create (
                                             [this, fileToDelete] (int result)
                                             {
-                                                if (result != 1)  // cancelled
-                                                    return;
-
+                                                if (result != 1) return;
                                                 player.unload();
                                                 if (! fileToDelete.moveToTrash())
                                                     fileToDelete.deleteFile();
-
                                                 statusLabel.setText ("Deleted " + fileToDelete.getFileName(),
                                                                      juce::dontSendNotification);
                                                 updateTransportState();
                                             }));
 }
 
-// -----------------------------------------------------------------------------
-// Failures surfaced by the engine
-// -----------------------------------------------------------------------------
+/* ===== Failure handling ================================================== */
+
 void RecordView::handleFailure (otoha::FailureReason reason)
 {
     switch (reason)
     {
-        case otoha::FailureReason::none:
-            return;
-
+        case otoha::FailureReason::none: return;
         case otoha::FailureReason::deviceLost:
             finishRecording();
             errorLabel.setText ("Recording stopped: the audio device was disconnected.",
                                 juce::dontSendNotification);
             populateDeviceCombos();
             break;
-
         case otoha::FailureReason::diskFull:
             finishRecording();
             errorLabel.setText ("Otoha couldn't finish saving the recording.\n"
@@ -638,9 +609,8 @@ void RecordView::handleFailure (otoha::FailureReason reason)
     }
 }
 
-// -----------------------------------------------------------------------------
-// Timer / state
-// -----------------------------------------------------------------------------
+/* ===== Timer + state update ============================================== */
+
 juce::File RecordView::getCurrentRecordingFile() const
 {
     if (recorder.getCurrentFile().existsAsFile())
@@ -654,7 +624,7 @@ void RecordView::timerCallback()
 
     if (clipLabel.isVisible() != recorder.hasClipped())
     {
-        clipLabel.setVisible (recorder.hasClipped());   // latches until the next take starts
+        clipLabel.setVisible (recorder.hasClipped());
         resized();
     }
 
@@ -680,13 +650,11 @@ void RecordView::timerCallback()
         {
             case otoha::TransportState::recording:
             case otoha::TransportState::paused:
-                // Duration from the sample counter: exact regardless of UI frame rate.
                 timeLabel.setText (otoha::formatDuration (
                                        otoha::samplesToSeconds (recorder.getTotalSamples(),
                                                                 recorder.getSampleRate())),
                                    juce::dontSendNotification);
                 break;
-
             case otoha::TransportState::idle:
                 if (player.hasFile())
                     timeLabel.setText (otoha::formatDuration (player.getPositionSeconds()),
@@ -703,31 +671,24 @@ void RecordView::updateTransportState()
     const auto st = recorder.getState();
     const bool busy = st != otoha::TransportState::idle;
 
-    // Never yank the device out from under an active take.
-    inputCombo.setEnabled (! busy && ! counting);
-    outputCombo.setEnabled (! busy && ! counting);
-    bitDepthCombo.setEnabled (! busy && ! counting);
-    countdownCombo.setEnabled (! busy && ! counting);
-    monitorToggle.setEnabled (true);   // monitoring is safe at any time
+    inputCombo->setEnabled (! busy && ! counting);
+    countdownCombo->setEnabled (! busy && ! counting);
+    monitorToggle->setEnabled (true);
 
+    const bool hasRecording = player.hasFile() && ! busy;
+
+    playButton.setEnabled (busy || hasRecording);
     playButton.setButtonText (busy ? (st == otoha::TransportState::paused ? "Resume" : "Pause")
                                    : "Play");
-    stopButton.setEnabled (busy || player.hasFile());
+    stopButton.setEnabled (busy);
 
-    const bool actionsEnabled = player.hasFile() && ! busy;
-    exportButton.setEnabled (actionsEnabled);
-    deleteButton.setEnabled (actionsEnabled);
-    editButton.setEnabled (player.hasFile());   // opens the editor via the shell
+    editButton->setEnabled (hasRecording);
+    exportButton->setEnabled (hasRecording);
+    deleteButton->setEnabled (hasRecording);
 
     if (busy)
-    {
         statusLabel.setText (st == otoha::TransportState::paused ? "PAUSED" : "RECORDING",
                              juce::dontSendNotification);
-    }
-    else if (! counting)
-    {
-        // keep the last message ("Ready"/"Saved ...") when idle
-    }
 
     repaint();
 }

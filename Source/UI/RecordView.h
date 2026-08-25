@@ -5,24 +5,28 @@
 #include "../Audio/Player.h"
 #include "../Audio/Recorder.h"
 #include "../Library/LibraryService.h"
+#include "Components/DsButton.h"
+#include "Components/DsCore.h"
+#include "Components/DsControls.h"
 
-/*
-    RecordView — the Milestone 2 recording screen:
+/*    RecordView — the polished Otoha recording screen (M21).
 
-        Otoha
-        [input] [output] [quality] [countdown] [monitor]
-        +--------------------------------------------------+
-        |                waveform / playhead               |
-        +--------------------------------------------------+
-        [ meter ]                                  CLIP
-              (o)      Play    Stop       00:00.0
-                          Edit Enhance Export Delete
+        Microphone selector
+        Countdown selector
+        Monitor toggle
+            ┌───────────────────────────────┐
+            │      live waveform/vis        │
+            └───────────────────────────────┘
+        Level meter                CLIP
+            00:00
+              ● Record / ■ Stop
+         [ Play ]  [ Edit ]  [ Export ]  [ Delete ]
 
-    - The Recorder owns the transport state; this view only observes it and
-      requests transitions.
-    - The countdown runs on a monotonic clock; no file is created until it ends
-      (cancelling leaves nothing behind).
-    - The displayed duration comes from the sample counter, not UI frames.
+    The Recorder owns the transport state; this view only observes it and
+    requests transitions. Countdown runs on a monotonic clock; no file is
+    created until it finishes.
+
+    All visuals consume OtohaTheme tokens (M17/M18).
 */
 class RecordView : public juce::Component,
                    private juce::Timer,
@@ -34,7 +38,6 @@ public:
                 std::function<void()> goToEditor = {});
     ~RecordView() override;
 
-    /** The file most recently recorded or loaded for playback, if any. */
     juce::File getCurrentRecordingFile() const;
 
     void paint (juce::Graphics&) override;
@@ -45,57 +48,65 @@ private:
     void timerCallback() override;
     void changeListenerCallback (juce::ChangeBroadcaster* source) override;
 
+    // Device management
     void populateDeviceCombos();
     void applyDeviceSelection();
-    void updateTransportState();
     void refreshFormatLabel();
 
+    // Transport
     void recordButtonClicked();
     void playPauseClicked();
     void stopClicked();
-
     void beginCountdown();
     void cancelCountdown();
     void beginRecording();
     void finishRecording();
-
-    void exportClicked();
-    void deleteClicked();
     void handleFailure (otoha::FailureReason reason);
 
+    // Post-recording actions
+    void exportClicked();
+    void deleteClicked();
+
+    void updateTransportState();
+
+    // --- References (owned by AppShell) ---
     juce::AudioDeviceManager& deviceManager;
     Recorder& recorder;
     Player& player;
     LibraryService& libraryService;
     std::function<void()> goToEditor;
 
-    // Device settings
-    juce::ComboBox inputCombo, outputCombo;
-    juce::Label    inputLabel { {}, "Microphone" }, outputLabel { {}, "Output" };
-    juce::ComboBox bitDepthCombo, countdownCombo;
-    juce::Label    qualityLabel { {}, "Quality" }, countdownLabel { {}, "Countdown" };
-    juce::ToggleButton monitorToggle { "Monitor" };
-    juce::Label formatLabel;   // e.g. "48.0 kHz · 24-bit · Stereo"
+    // --- Configuration row ---
+    juce::Label inputLabel;
+    std::unique_ptr<otoha::ds::ComboBox> inputCombo;
+    juce::Label countdownLabel;
+    std::unique_ptr<otoha::ds::ComboBox> countdownCombo;
+    std::unique_ptr<otoha::ds::Toggle> monitorToggle;
 
-    // Visualization
+    // --- Visualization ---
     class WaveformPanel;
     std::unique_ptr<WaveformPanel> waveform;
     class LevelMeter;
     std::unique_ptr<LevelMeter> levelMeter;
-    juce::Label clipLabel { {}, "CLIPPING" };
+    juce::Label clipLabel;
 
-    // Transport + actions
-    juce::ShapeButton recordButton { "record", juce::Colours::transparentBlack,
-                                     juce::Colours::transparentBlack, juce::Colours::transparentBlack };
-    juce::TextButton playButton { "Play" }, stopButton { "Stop" };
-    juce::TextButton editButton { "Edit" };
-    juce::TextButton exportButton { "Export" }, deleteButton { "Delete" };
+    // --- Timer ---
     juce::Label timeLabel;
 
-    // Status
-    juce::Label statusLabel, errorLabel;
+    // --- Transport ---
+    std::unique_ptr<juce::ShapeButton> recordButton;
+    otoha::ds::Button playButton { "Play", otoha::ds::ButtonVariant::secondary };
+    otoha::ds::Button stopButton { "Stop", otoha::ds::ButtonVariant::secondary };
 
-    // Countdown (monotonic clock; the engine stays idle until it finishes)
+    // --- Post-recording actions ---
+    std::unique_ptr<otoha::ds::Button> editButton;
+    std::unique_ptr<otoha::ds::Button> exportButton;
+    std::unique_ptr<otoha::ds::Button> deleteButton;
+    juce::Label formatLabel;
+    juce::Label statusLabel;
+    juce::Label errorLabel;
+
+    // --- State ---
     bool counting = false;
     double countdownDeadlineMs = 0.0;
 
