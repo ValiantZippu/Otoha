@@ -15,22 +15,27 @@
 #include "LibraryView.h"
 #include "RecordView.h"
 #include "SoundView.h"
+#include "Components/DsNavigation.h"
 
 /*
-    AppShell — desktop navigation:  Library | Record | Camera | Settings
+    AppShell — Otoha application shell (M19):
 
-    Milestone 3 implements Library and Record; Camera and Settings are visible
-    but disabled placeholders so the architecture is already four-area shaped
-    (per the product spec) without implementing future milestones.
+    Floating sidebar navigation with vector icons, wrapping the existing
+    page/view architecture.  The sidebar is the sole navigation mechanism;
+    pages remain as before.
 */
-class AppShell : public juce::Component
+class AppShell : public juce::Component,
+                 private juce::ChangeListener
 {
 public:
     AppShell (juce::AudioDeviceManager& deviceManager,
               Recorder& recorder, Player& player, LibraryService& library,
               otoha::AppSettings* appSettings = nullptr);
 
+    ~AppShell() override;
+
     void resized() override;
+    void paint (juce::Graphics& g) override;
 
     /** Dev-only: Ctrl+Shift+D toggles the M18 design-system gallery. */
     bool keyPressed (const juce::KeyPress& key) override;
@@ -42,11 +47,23 @@ public:
     otoha::ExportSettingsStore exportStore;
 
 private:
+    // Navigation ids match sidebar item ids
+    static constexpr int idStudio  = 1;
+    static constexpr int idLibrary = 2;
+    static constexpr int idRecord  = 3;
+    static constexpr int idSound   = 4;
+    static constexpr int idSettings = 5;
+
     void showHome();
     void showLibrary();
     void showRecording();
     void showEditor();
     void showSound();
+    void showPage (int pageId);
+    void navigateTo (int id);
+
+    // ChangeListener for theme updates
+    void changeListenerCallback (juce::ChangeBroadcaster*) override;
 
     LibraryService& library;
     Recorder& recorder;
@@ -54,8 +71,10 @@ private:
     otoha::AppSettings* settings = nullptr;
     otoha::ExportManager exportManager;
 
-    juce::TextButton studioButton { "Studio" }, libraryButton { "Library" }, recordButton { "Record" },
-                     soundButton { "Sound" }, cameraButton { "Camera" }, settingsButton { "Settings" };
+    // M19: floating sidebar replaces the old button row
+    otoha::ds::Sidebar sidebar;
+    juce::Component contentArea;  // backdrop behind the sidebar
+    int currentPageId = idStudio;
 
     std::unique_ptr<HomeView> homeView;
     std::unique_ptr<RecordView> recordView;

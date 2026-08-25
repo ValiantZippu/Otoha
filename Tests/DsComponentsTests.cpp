@@ -9,6 +9,8 @@
 #include "../Source/UI/Components/DsControls.h"
 #include "../Source/UI/Components/DsSurfaces.h"
 #include "../Source/UI/Components/DsToast.h"
+#include "../Source/UI/Components/DsNavigation.h"
+#include "../Source/UI/Components/OtohaIcons.h"
 
 #include <cstdio>
 
@@ -175,6 +177,91 @@ int main()
         ds::EmptyState empty ({ ds::icons::play(), "No recordings yet.",
                                 "Record something to see it here.", &action });
         ok &= expect (smokePaint (empty, 320, 160), "empty state paints");
+    }
+
+    // --- Vector icon registry (M19) ---------------------------------------------------------------
+    {
+        // Every icon path should be non-empty and paintable
+        auto testIcon = [] (const juce::Path& p, const char* name)
+        {
+            return expect (! p.isEmpty(), std::string ("icon ").append (name).append (" is non-empty").c_str());
+        };
+        testIcon (otoha::icons::home(), "home");
+        testIcon (otoha::icons::record(), "record");
+        testIcon (otoha::icons::library(), "library");
+        testIcon (otoha::icons::sound(), "sound");
+        testIcon (otoha::icons::settings(), "settings");
+        testIcon (otoha::icons::play(), "play");
+        testIcon (otoha::icons::pause(), "pause");
+        testIcon (otoha::icons::stop(), "stop");
+        testIcon (otoha::icons::back(), "back");
+        testIcon (otoha::icons::forward(), "forward");
+        testIcon (otoha::icons::search(), "search");
+        testIcon (otoha::icons::more(), "more");
+        testIcon (otoha::icons::plus(), "plus");
+        testIcon (otoha::icons::close(), "close");
+        testIcon (otoha::icons::trash(), "trash");
+        testIcon (otoha::icons::undo(), "undo");
+        testIcon (otoha::icons::redo(), "redo");
+        testIcon (otoha::icons::check(), "check");
+        testIcon (otoha::icons::waveform(), "waveform");
+        testIcon (otoha::icons::microphone(), "microphone");
+        testIcon (otoha::icons::musicNote(), "musicNote");
+        testIcon (otoha::icons::folder(), "folder");
+        testIcon (otoha::icons::info(), "info");
+        testIcon (otoha::icons::warning(), "warning");
+        testIcon (otoha::icons::chevronDown(), "chevronDown");
+    }
+
+    // --- NavItem (M19) -------------------------------------------------------------------
+    {
+        otoha::ds::NavItem navItem ("Studio", otoha::icons::home(), "Studio");
+        ok &= expect (navItem.getName() == "Studio", "navItem carries accessible name");
+        ok &= expect (smokePaint (navItem, 200, 44), "navItem paints");
+
+        navItem.setActive (true);
+        ok &= expect (navItem.isActive(), "navItem active state stored");
+        ok &= expect (smokePaint (navItem, 200, 44), "active navItem paints");
+
+        navItem.setActive (false);
+        ok &= expect (! navItem.isActive(), "navItem inactive state stored");
+
+        navItem.setEnabled (false);
+        ok &= expect (smokePaint (navItem, 200, 44), "disabled navItem paints");
+
+        // Compact mode (icon-only)
+        navItem.setEnabled (true);
+        navItem.setLabelVisible (false);
+        ok &= expect (smokePaint (navItem, 56, 44), "compact navItem paints");
+    }
+
+    // --- Sidebar (M19) --------------------------------------------------------------------
+    {
+        otoha::ds::Sidebar sb;
+        int lastNavId = 0;
+        sb.onNavigate = [&] (int id) { lastNavId = id; };
+
+        enum { ID_HOME = 1, ID_RECORD = 2, ID_LIBRARY = 3 };
+        sb.addItem (ID_HOME,    "Studio",  otoha::icons::home(),    "Studio",  false);
+        sb.addItem (ID_RECORD,  "Record",  otoha::icons::record(),  "Record",  false);
+        sb.addItem (ID_LIBRARY, "Library", otoha::icons::library(), "Library", false);
+
+        sb.setBounds (0, 0, 200, 600);
+        sb.setActiveItem (ID_HOME);
+        ok &= expect (sb.getActiveItem() == ID_HOME, "sidebar sets active item");
+
+        // Test paint
+        ok &= expect (smokePaint (sb, 200, 600), "sidebar paints");
+
+        // Test navigation callback (simulating a click)
+        lastNavId = 0;
+        sb.setActiveItem (ID_RECORD);
+        ok &= expect (sb.getActiveItem() == ID_RECORD, "sidebar changes active");
+
+        // Compact width test
+        sb.setBounds (0, 0, otoha::ds::NavItem::compactWidth(), 600);
+        ok &= expect (smokePaint (sb, otoha::ds::NavItem::compactWidth(), 600),
+                      "sidebar paints in compact mode");
     }
 
     // --- Runtime theme swap (M24 prep) ------------------------------------------------------------

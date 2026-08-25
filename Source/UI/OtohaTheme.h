@@ -318,7 +318,9 @@ namespace Metrics
     inline constexpr int cardPadding      = 16;
     inline constexpr int controlGap       = 12;
     inline constexpr int touchTargetMin   = 44;
-    inline constexpr int sidebarWidth     = 240;  // reserved for M19
+    inline constexpr int sidebarWidth     = 200;  // M19: full floating sidebar
+    inline constexpr int sidebarCollapsed = 56;   // M19: icon-only mode
+    inline constexpr int sidebarPadding   = 8;    // M19: inner padding
 }
 
 // Back-compat aliases (legacy M14 names) — prefer the namespaces above.
