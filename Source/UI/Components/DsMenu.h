@@ -1,10 +1,18 @@
 #pragma once
 
-/*    DsMenu — context menu primitives (M26).
+/*    DsMenu — context menu primitives (M26, M34 upgrade).
 
     DsMenuItem    : single menu entry (label, icon, shortcut, checked, danger)
     DsMenuPanel   : keyboard-navigable popup menu (↑/↓/Enter/Esc)
-    DsContextMenu : right-click context menu wrapper
+    DsContextMenu : right-click context menu wrapper (M34: proper popup lifecycle)
+    DsMenuOverlay : transient overlay that shows a MenuPanel at a given position
+                    with viewport clamping and outside-click/Escape dismiss
+
+    M34 additions:
+      - MenuPanel properly fires onDismiss on Escape
+      - ContextMenu properly cleans up previous panels (no leak)
+      - DsMenuOverlay: positions a MenuPanel at screen coordinates with
+        viewport clamping so menus never appear off-screen
 */
 
 #include "DsCore.h"
@@ -45,6 +53,7 @@ public:
         addKeyListener (this);
         setWantsKeyboardFocus (true);
         grabKeyboardFocus();
+        setName ("Menu");
     }
 
     void paint (juce::Graphics& g) override
@@ -66,7 +75,6 @@ public:
             auto row = juce::Rectangle<float> (0.0f, (float) (pad + i * itemH),
                                                 bounds.getWidth(), (float) itemH);
 
-            // selected highlight
             if (i == selectedIndex)
             {
                 g.setColour (theme::colors::accent().withAlpha (0.14f));
@@ -75,7 +83,6 @@ public:
 
             auto content = row.reduced ((float) theme::Spacing::sm, 0.0f);
 
-            // icon
             if (! item.icon.isEmpty())
             {
                 const float iconBox = 16.0f;
@@ -88,7 +95,6 @@ public:
                 content = content.withTrimmedLeft ((int) iconBox + theme::Spacing::sm);
             }
 
-            // label
             g.setColour (item.danger ? theme::colors::danger()
                          : (item.enabled ? theme::colors::textPrimary()
                                          : theme::colors::textDisabled()));
@@ -98,16 +104,14 @@ public:
                 labelArea = labelArea.withTrimmedRight (60);
             g.drawText (item.label, labelArea, juce::Justification::centredLeft);
 
-            // checkmark
             if (item.hasCheck && item.checked)
             {
                 g.setColour (theme::colors::accent());
                 g.setFont (theme::font (theme::TextSize::bodySmall));
-                g.drawText ("✓", content.getRight() - 50, (int) row.getY(), 20, (int) row.getHeight(),
+                g.drawText (L"\u2713", content.getRight() - 50, (int) row.getY(), 20, (int) row.getHeight(),
                             juce::Justification::centredRight);
             }
 
-            // shortcut label
             if (item.shortcutLabel.isNotEmpty())
             {
                 g.setColour (theme::colors::textMuted());
@@ -171,6 +175,18 @@ public:
         return (int) menuItems.size() * 32 + theme::Spacing::xs * 2;
     }
 
+    int getPreferredWidth() const
+    {
+        int maxW = 120;
+        for (const auto& item : menuItems)
+        {
+            int w = (int) item.label.length() * 8 + 40;
+            if (item.shortcutLabel.isNotEmpty()) w += 60;
+            maxW = juce::jmax (maxW, w);
+        }
+        return juce::jmin (maxW, 300);
+    }
+
 private:
     int indexAt (const juce::Point<int>& pos) const
     {
@@ -210,10 +226,91 @@ private:
 };
 
 // ---------------------------------------------------------------------------
-// ContextMenu (right-click wrapper)
+// DsMenuOverlay (M34) — transient overlay for showing menus as popups
 // ---------------------------------------------------------------------------
 
-/** Shows a popup menu at the mouse position on right-click. */
+/** A full-window transparent overlay that shows a MenuPanel at a viewport-clamped
+    position. Clicking outside the menu or pressing Escape dismisses it.
+
+    Usage: auto* overlay = new DsMenuOverlay(parent, items, screenPos);
+           parent->addAndMakeVisible(overlay);
+           // overlay self-destructs on dismiss
+*/
+class DsMenuOverlay : public juce::Component
+{
+public:
+    DsMenuOverlay (const juce::Array<MenuItem>& items,
+                   juce::Point<int> positionInParent)
+        : panel (items, [this] { dismiss(); })
+    {
+        setInterceptsMouseClicks (true, false);  // catch clicks on the background only
+
+        // Viewport clamp the position
+        const int prefW = panel.getPreferredWidth();
+        const int prefH = panel.getPreferredHeight();
+
+        int x = positionInParent.x;
+        int y = positionInParent.y;
+
+        // Clamp to our bounds (set by parent in resized())
+        x = juce::jmax (0, x);
+        y = juce::jmax (0, y);
+
+        addAndMakeVisible (panel);
+        panel.setBounds (x, y, prefW, prefH);
+        panel.toFront (true);
+        panel.grabKeyboardFocus();
+    }
+
+    void resized() override
+    {
+        // Re-clamp panel position when overlay resizes (e.g. window resize)
+        auto pb = panel.getBounds();
+        const int maxX = juce::jmax (0, getWidth() - pb.getWidth());
+        const int maxY = juce::jmax (0, getHeight() - pb.getHeight());
+        panel.setBounds (juce::jlimit (0, maxX, pb.getX()),
+                         juce::jlimit (0, maxY, pb.getY()),
+                         pb.getWidth(), pb.getHeight());
+    }
+
+    void mouseUp (const juce::MouseEvent&) override { dismiss(); }
+
+private:
+    void dismiss()
+    {
+        if (auto* p = getParentComponent())
+            p->removeChildComponent (this);
+        delete this;
+    }
+
+    MenuPanel panel;
+};
+
+// ---------------------------------------------------------------------------
+// showMenuPopup (M34) — convenience: show a menu at a screen position
+// ---------------------------------------------------------------------------
+
+/** Show a menu as a popup overlay on `parent` at the given position.
+    The popup is viewport-clamped and self-destructs on dismiss. */
+inline void showMenuPopup (
+    juce::Component* parent,
+    const juce::Array<MenuItem>& items,
+    juce::Point<int> positionInParent)
+{
+    if (items.isEmpty() || parent == nullptr) return;
+
+    auto* overlay = new DsMenuOverlay (items, positionInParent);
+    parent->addAndMakeVisible (overlay);
+    overlay->setBounds (parent->getLocalBounds());
+    overlay->toFront (true);
+}
+
+// ---------------------------------------------------------------------------
+// ContextMenu (right-click wrapper, M34: proper popup lifecycle)
+// ---------------------------------------------------------------------------
+
+/** Shows a popup menu at the mouse position on right-click.
+    M34: uses DsMenuOverlay for proper lifecycle management. */
 class ContextMenu : public juce::Component
 {
 public:
@@ -226,12 +323,7 @@ public:
         if (! e.mods.isPopupMenu()) return;
         if (menuItems.isEmpty()) return;
 
-        auto* panel = new MenuPanel (menuItems, [] {});
-
-        // Show as a simple overlay for now — context menus can be enhanced later.
-        addAndMakeVisible (panel);
-        panel->setBounds (getLocalBounds());
-        panel->toFront (true);
+        showMenuPopup (getParentComponent(), menuItems, e.getPosition());
     }
 
 private:

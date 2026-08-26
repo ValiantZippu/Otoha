@@ -12,8 +12,11 @@
 #include "../Library/LibraryService.h"
 #include "EnhancePanel.h"
 #include "Components/DsButton.h"
-#include "Components/DsSurfaces.h"
 #include "Components/DsControls.h"
+#include "Components/DsDialog.h"
+#include "Components/DsMenu.h"
+#include "Components/DsSurfaces.h"
+#include "Components/DsToast.h"
 
 /*
     EditorView — M32 Kaiteyo-aligned editor.
@@ -156,6 +159,9 @@ private:
     void showFeedback (const juce::String& message);
 
     std::unique_ptr<juce::FileChooser> chooser;
+
+    // --- M34: canonical toast system ---
+    otoha::ds::ToastHost toastHost;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EditorView)
 };
