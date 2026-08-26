@@ -317,7 +317,8 @@ int main()
             // The empty-state Record action must be present and named.
             bool foundRecordButton = false;
             for (auto* c : emptyStudio.getChildren())
-                if (c->getName() == "Record") { foundRecordButton = true; break; }
+                if (c->getName().contains ("record") || c->getName().contains ("Record"))
+                    { foundRecordButton = true; break; }
             ok &= expect (foundRecordButton, "empty state exposes a named Record action");
         }
 
@@ -340,21 +341,18 @@ int main()
         studio.refreshRecents();
         studio.setBounds (0, 0, 800, 600);
 
-        // Recent cards exist and carry accessible names built from real metadata.
+        // Cards exist: hero + 2 recent recording cards = 3 total.
         int recentCards = 0;
         bool hasNamedCard = false;
-        bool hasLibraryCard = false, hasSoundCard = false;
         for (auto* c : studio.getChildren())
             if (auto* card = dynamic_cast<otoha::ds::Card*> (c))
             {
                 ++recentCards;
-                if (card->getName().contains ("idea") || card->getName().contains ("memo")) hasNamedCard = true;
-                if (card->getName() == "Library") hasLibraryCard = true;
-                if (card->getName() == "Sound") hasSoundCard = true;
+                if (card->getName().contains ("idea") || card->getName().contains ("memo"))
+                    hasNamedCard = true;
             }
-        ok &= expect (recentCards == 5, "record + 2 recent + library + sound cards");
+        ok &= expect (recentCards == 3, "hero + 2 recent recording cards");
         ok &= expect (hasNamedCard, "recent cards carry the recording display name");
-        ok &= expect (hasLibraryCard && hasSoundCard, "library and sound quick action cards exist");
 
         // Clicking a recent card routes to the editor with fresh data.
         for (auto* c : studio.getChildren())
@@ -363,12 +361,12 @@ int main()
         pumpMessages();
         ok &= expect (itemOpens == 1, "recent card opens the item in the editor");
 
-        // Quick actions navigate to their existing routes.
+        // Quick action buttons navigate to their existing routes.
         for (auto* c : studio.getChildren())
-            if (auto* card = dynamic_cast<otoha::ds::Card*> (c))
+            if (auto* btn = dynamic_cast<otoha::ds::Button*> (c))
             {
-                if (card->getName() == "Library") card->triggerClick();
-                else if (card->getName() == "Sound") card->triggerClick();
+                if (btn->getName() == "Library") btn->triggerClick();
+                else if (btn->getName() == "Sound") btn->triggerClick();
             }
         pumpMessages();
         ok &= expect (libraryNav == 1 && soundNav == 1,

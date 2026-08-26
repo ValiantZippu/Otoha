@@ -181,6 +181,15 @@ public:
         watcher = std::make_unique<ThemeWatcher> (*this);
     }
 
+    void setValues (const juce::String& newValue,
+                    const juce::String& newDelta = {}, bool newDeltaPositive = true)
+    {
+        value_ = newValue;
+        deltaText_ = newDelta;
+        deltaPositive_ = newDeltaPositive;
+        repaint();
+    }
+
     void paint (juce::Graphics& g) override
     {
         const auto bounds = getLocalBounds().toFloat();
