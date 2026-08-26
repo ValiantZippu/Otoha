@@ -36,6 +36,16 @@ AppShell::AppShell (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl, Lib
         addChildComponent (*settingsView);
     }
 
+    // --- M28: top bar + divider + search -----------------------------------------
+    addAndMakeVisible (toolbar);
+    addAndMakeVisible (toolbarDivider);
+    toolbar.setSearchTrigger (&searchTrigger);
+
+    searchTrigger.onClicked ([this]
+    {
+        // Placeholder for command palette (M34)
+    });
+
     // --- M19: floating sidebar navigation ----------------------------------------
     addAndMakeVisible (sidebar);
 
@@ -59,7 +69,9 @@ AppShell::AppShell (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl, Lib
             if (result == 1 && settingsView != nullptr)
                 navigateTo (idSettings);
             else if (result == 2)
-                otoha::ui::showAboutWindow();
+                juce::AlertWindow::showMessageBoxAsync (juce::MessageBoxIconType::InfoIcon,
+                                                        "About Otoha",
+                                                        "Otoha — simple, open-source audio studio.\nVersion " OTOHA_VERSION);
         });
     };
 
@@ -79,6 +91,7 @@ AppShell::AppShell (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl, Lib
 
     // Studio Home is the landing screen (M11 #2/#3)
     showHome();
+    updateToolbarTitle();
 
     // --- first launch (#3): one short screen before anything else ---------------
     if (settings != nullptr && ! settings->firstLaunchComplete)
@@ -115,6 +128,7 @@ void AppShell::navigateTo (int id)
 {
     sidebar.setActiveItem (id);
     currentPageId = id;
+    updateToolbarTitle();
 
     switch (id)
     {
@@ -190,8 +204,13 @@ void AppShell::resized()
     sidebar.setBounds (bounds.removeFromLeft (sidebarW)
                           .reduced (otoha::theme::Spacing::md));
 
-    // content fills the remainder
-    auto content = bounds.reduced (otoha::theme::Spacing::sm);
+    // M28: top bar at full width of the remaining content area
+    const int toolbarH = otoha::ds::Toolbar::preferredHeight();
+    toolbar.setBounds (bounds.removeFromTop (toolbarH));
+    toolbarDivider.setBounds (bounds.removeFromTop (otoha::ds::ToolbarDivider::preferredHeight()));
+
+    // content fills the remainder with comfortable padding
+    auto content = bounds.reduced (otoha::theme::Spacing::lg);
 
     homeView->setBounds    (content);
     recordView->setBounds  (content);
@@ -305,6 +324,38 @@ void AppShell::openCurrentRecordingInEditor()
     item.file = file;
     item.displayName = file.getFileNameWithoutExtension();
     openInEditor (item);
+}
+
+juce::String AppShell::pageTitleFor (int pageId) const
+{
+    switch (pageId)
+    {
+        case idStudio:   return "Studio";
+        case idRecord:   return "Record";
+        case idLibrary:  return "Library";
+        case idSound:    return "Sound";
+        case idSettings: return "Settings";
+    }
+    return "Studio";
+}
+
+juce::String AppShell::pageSubtitleFor (int pageId) const
+{
+    switch (pageId)
+    {
+        case idStudio:   return "Otoha Audio Studio";
+        case idRecord:   return "Capture";
+        case idLibrary:  return "Your recordings";
+        case idSound:    return "Real-time audio";
+        case idSettings: return "Appearance & preferences";
+    }
+    return {};
+}
+
+void AppShell::updateToolbarTitle()
+{
+    toolbar.setTitle (pageTitleFor (currentPageId));
+    toolbar.setSubtitle (pageSubtitleFor (currentPageId));
 }
 
 void AppShell::changeListenerCallback (juce::ChangeBroadcaster*)

@@ -16,6 +16,7 @@
 #include "RecordView.h"
 #include "SoundView.h"
 #include "Components/DsNavigation.h"
+#include "Components/DsToolbar.h"
 #include "SettingsView.h"
 
 /*
@@ -73,8 +74,12 @@ private:
     otoha::AppSettings* settings = nullptr;
     otoha::ExportManager exportManager;
 
-    // M19: floating sidebar replaces the old button row
+    // M27: floating sidebar replaces the old button row
     otoha::ds::Sidebar sidebar;
+    // M28: top bar + divider
+    otoha::ds::Toolbar toolbar;
+    otoha::ds::ToolbarDivider toolbarDivider;
+    otoha::ds::SearchTrigger searchTrigger;
     int currentPageId = idStudio;
 
     std::unique_ptr<HomeView> homeView;
@@ -85,6 +90,10 @@ private:
     std::unique_ptr<SettingsView> settingsView;
     std::unique_ptr<otoha::ComponentsGallery> gallery;   // dev-only (Ctrl+Shift+D)
     std::unique_ptr<OnboardingView> onboarding;   // first launch only (#3)
+
+    void updateToolbarTitle();
+    juce::String pageTitleFor (int pageId) const;
+    juce::String pageSubtitleFor (int pageId) const;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AppShell)
 };
