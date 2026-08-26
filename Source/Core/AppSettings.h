@@ -36,6 +36,9 @@ struct AppSettings
     bool         startWithSystem      = false;   // explicit opt-in only (#38)
     juce::String lastRunVersion;                     // informational only
 
+    // M33 recording defaults
+    int countdownSeconds         = 3;          // 0=off, 3, 5, 10
+
     // M24 appearance
     juce::String appearanceMode  = "system";   // "system" / "light" / "dark"
     juce::String accentName      = "Sakura";   // key into accentPalette()
@@ -76,6 +79,7 @@ inline juce::var settingsToVar (const AppSettings& s)
     root->setProperty ("firstLaunchComplete", s.firstLaunchComplete);
     root->setProperty ("startWithSystem", s.startWithSystem);
     root->setProperty ("lastRunVersion", s.lastRunVersion);
+    root->setProperty ("countdownSeconds", s.countdownSeconds);
     root->setProperty ("appearanceMode", s.appearanceMode);
     root->setProperty ("accentName", s.accentName);
 
@@ -118,6 +122,7 @@ inline AppSettings settingsFromVar (const juce::var& v)
     s.firstLaunchComplete = (bool) (int) propOr (*obj, "firstLaunchComplete", 0);
     s.startWithSystem     = (bool) (int) propOr (*obj, "startWithSystem", 0);
     s.lastRunVersion      = propOr (*obj, "lastRunVersion").toString();
+    s.countdownSeconds    = (int) propOr (*obj, "countdownSeconds", 3);
     s.appearanceMode      = propOr (*obj, "appearanceMode", "system").toString();
     s.accentName          = propOr (*obj, "accentName", "Sakura").toString();
 
