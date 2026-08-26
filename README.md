@@ -50,10 +50,99 @@ device, always: [docs/privacy.md](docs/privacy.md).
 
 ## Development milestone log
 
-> **UI redesign (M17–M25) complete.** Otoha now has a cohesive design system,
+> **UI redesign (M17–M36) complete.** Otoha now has a cohesive design system,
 > floating sidebar, vector icons, polished screens, and light/dark themes with
-> accent picker. Next work should be driven by actual validation and product
-> needs — not an endless milestone queue.
+> accent picker, unified dialogs/menus/toasts, responsive adaptive layout,
+> and a comprehensive final audit.
+
+## Status — Milestone 36: final audit & release readiness (complete)
+
+- **Full audit** — architecture, audio pipeline, DS compliance, responsive, accessibility, threading, data safety, licensing, build.
+- **13/13 test suites pass**, zero build errors, zero hardcoded colors remaining.
+- **Remaining raw AlertWindows** in ExportUi, SoundView, RecordView identified (P2 — non-blocking).
+- **Release decision: RELEASE READY** — no P0/P1 issues blocking the intended workflow.
+
+## Status — Milestone 35: responsive + motion (complete)
+
+- **DsResponsive.h** — compact/medium/expanded breakpoint helpers, responsive grid columns, padding calculators, sidebar collapse, dialog sizing, settings rail adaptation, touch-target helpers, reduced-motion-aware animation utilities.
+- **AppShell** — sidebar collapses on compact (<720px), labels toggle, content padding adapts.
+- **HomeView** — stat tiles stack on narrow screens, hero card shrinks.
+- **RecordView** — settings row stacks vertically on compact, action buttons use tighter sizing.
+- **LibraryView** — compact: search full-width, filters on second row, details panel hidden.
+- **EditorView** — compact: essential actions only in strip, sound panel stacks below timeline.
+- **SettingsView** — compact: category rail becomes horizontal tab bar.
+- **30+ responsive helper tests** added.
+
+## Status — Milestone 34: dialogs + menus + toasts (complete)
+
+- **DsDialog** — Escape key, outside-click dismiss, close button, onDismiss callback, setDismissable.
+- **DsMenu** — DsMenuOverlay lifecycle, viewport clamping, showMenuPopup convenience.
+- **DsToast** — deduplication, info-kind accent color fix.
+- **LibraryView** — context menu, rename/delete dialogs migrated to canonical DS.
+- **EditorView** — feedback toasts migrated to ds::ToastHost.
+
+## Status — Milestone 33: settings (complete)
+
+- **Category rail** with vector icons, search, selected state.
+- **General** — recording countdown persisted.
+- **Appearance** — System/Light/Dark, 10 accent swatches, live preview.
+- **About** — version, license, description.
+
+## Status — Milestone 32: editor + sound (complete)
+
+- **Header bar** — Back, title, menu.
+- **Action strip** — Play, Undo/Redo, Cut/Copy/Paste/Delete, Keep Selection, zoom.
+- **Split layout** — timeline left, Sound panel right.
+- **Sound panel** — Enhance toggle + EnhancePanel.
+
+## Status — Milestone 31: library (complete)
+
+- **Virtualised list** — search, sort, filter chips.
+- **Context menu** — Play, Open in Editor, Rename, Duplicate, Favorite, Export, Delete.
+- **Details panel** — selection metadata.
+- **Empty states** — no recordings, no search results.
+
+## Status — Milestone 30: record screen (complete)
+
+- **Microphone selector** — real device list.
+- **Countdown** — Off/3/5/10 with visual overlay.
+- **Live meter** — RMS + peak + CLIP.
+- **Record/Stop** circle with recording tokens.
+- **Post-recording** — Play, Edit, Export.
+
+## Status — Milestone 29: studio home (complete)
+
+- **Hero card** — primary Start Recording action.
+- **Quick actions** — Record, Library, Sound.
+- **Stat tiles** — Recordings, Total Time, Last Recording.
+- **Recent recordings** — card grid with View All.
+- **Empty state** — ds::EmptyState with Record CTA.
+
+## Status — Milestone 28: topbar + workspace shell (complete)
+
+- **Toolbar** — title, subtitle, search trigger.
+- **ToolbarDivider** — subtle border.
+- **Workspace shell** — sidebar + toolbar + content area.
+
+## Status — Milestone 27: floating sidebar (complete)
+
+- **Vector logo mark** — waveform icon.
+- **"Audio Studio" subtitle** in expanded mode.
+- **Compact/expanded toggle**.
+- **Overflow menu** at bottom.
+- **Keyboard navigation** — arrow keys, Enter, Space.
+
+## Status — Milestone 26: DS component audit & upgrade (complete)
+
+- **DsButton** — primary/secondary/tertiary variants, hover/pressed/focus/disabled states.
+- **DsCard** — elevated surface with border and radius.
+- **DsInput/DsComboBox/DsSlider/DsToggle/DsTag** — consistent token usage.
+- **DsSearchField** — dedicated search component.
+- **DsSectionHeader** — section labeling.
+- **DsEmptyState** — centered empty state with CTA.
+- **DsSkeleton** — loading placeholder.
+- **DsProgressBar** — fraction-based progress.
+- **DsResponsive** — breakpoint helpers and responsive utilities.
 
 ## Status — Milestone 25: final polish / motion / accessibility pass (complete)
 
