@@ -11,12 +11,27 @@
 #include "../Library/LibraryModel.h"
 #include "../Library/LibraryService.h"
 #include "EnhancePanel.h"
+#include "Components/DsButton.h"
+#include "Components/DsSurfaces.h"
+#include "Components/DsControls.h"
 
 /*
-    EditorView — select part of a recording → make a small edit → preview → save.
+    EditorView — M32 Kaiteyo-aligned editor.
 
-    One timeline, no track headers. Waveform peaks are computed once from the
-    decoded document and reused at every zoom level; repaints never touch disk.
+    ┌───────────────────────────────────────────────────────┐
+    │ ◀ Back    Recording Name              Save  Export   │  ← header bar
+    ├───────────────────────────────────────────────────────┤
+    │ [Undo] [Redo] [Cut] [Copy] [Delete] [Keep] ▶ Zoom  │  ← action strip
+    ├───────────────────────────────────────────────────────┤
+    │                                                       │
+    │              Timeline / Waveform                      │  ← primary
+    │                                                       │
+    ├──────────────────────────────┬────────────────────────┤
+    │       00:00 → 02:31         │     Sound / Enhance    │  ← info + DSP
+    └──────────────────────────────┴────────────────────────┘
+
+    Preserves: source → timeline → DSP chain → renderer → export.
+    Does NOT introduce multitrack, plugin rack, or DAW complexity.
 */
 class TimelineSource;
 
@@ -31,19 +46,19 @@ public:
     bool openItem (const otoha::MediaItem& item, juce::String& errorOut);
 
     bool isOpen() const;
-    bool isEditingFile (const juce::File& file) const;   // delete-safety guard for the Library
+    bool isEditingFile (const juce::File& file) const;
 
     void paint (juce::Graphics&) override;
     void resized() override;
     bool keyPressed (const juce::KeyPress& key) override;
-    ~EditorView() override;   // defined in the .cpp where WaveformDisplay is complete
+    ~EditorView() override;
 
 private:
     void timerCallback() override;
 
-    // Hooks used by WaveformDisplay (nested classes may access these)
+    // Hooks used by WaveformDisplay
     int64_t playbackPositionSamples() const;
-    void onWaveformClick (juce::int64 sample);   // juce::int64, NOT int64_t (differs on Linux)
+    void onWaveformClick (juce::int64 sample);
     void selectionChanged();
 
     // Edit commands
@@ -57,27 +72,30 @@ private:
     void afterEditRebuild();
 
     // Transport
-    void playPause();          // selection if any, else whole take
+    void playPause();
     void stopPlayback();
     void seek (double seconds);
     void ensurePlaybackSource();
 
     // Save / export / close
-    void saveChanges();        // renders an "(edited)" item into the Library
-    void exportAs();           // user-chosen destination
+    void saveChanges();
+    void exportAs();
     bool confirmDiscardOrSave (const std::function<void(bool /*proceed*/)>& onDecided);
     void closeEditor();
 
     void refreshButtonsAndTitle();
+    void layoutHeader (juce::Rectangle<int> area);
+    void layoutActionStrip (juce::Rectangle<int> area);
+    void layoutMainContent (juce::Rectangle<int> area);
 
-    /** The state actually audible right now: processing with the A/B switch
-        applied ("Original" previews a bypassed chain). Export never uses this. */
     otoha::ProcessingState effectiveProcessing() const;
     void dspChanged();
 
+    // --- Nested waveform display (unchanged from M22) ---
     class WaveformDisplay;
     std::unique_ptr<WaveformDisplay> wave;
 
+    // --- Core references ---
     Player& player;
     LibraryService& library;
     std::function<void()> backToLibrary;
@@ -89,27 +107,53 @@ private:
     otoha::MediaItem item;
     bool playingSelection = false;
     bool editorActive = false;
-    juce::uint32 loadedSourceVersion = 0xFFFFFFFF;   // document version behind the transport
-    DspPreviewSource* activePreview = nullptr;       // owned by the Player's unique_ptr
+    juce::uint32 loadedSourceVersion = 0xFFFFFFFF;
+    DspPreviewSource* activePreview = nullptr;
     bool enhancePanelBuilt = false;
 
-    juce::TextButton backButton { "<-" }, menuButton { "..." };
+    // --- Header bar ---
+    otoha::ds::Card headerCard { "Editor header", false };
+    otoha::ds::Button backButton { "Back", otoha::ds::ButtonVariant::tertiary };
     juce::Label titleLabel;
+    otoha::ds::Button menuButton { "⋯", otoha::ds::ButtonVariant::tertiary };
 
-    juce::TextButton cutButton { "Cut" }, copyButton { "Copy" }, pasteButton { "Paste" },
-        rippleDeleteButton { "Delete" }, trimButton { "Keep Selection" },
-        undoButton { "Undo" }, redoButton { "Redo" },
-        playButton { "Play" },
-        zoomInButton { "+" }, zoomOutButton { "-" }, zoomFitButton { "Fit" },
-        enhanceButton { "✨ Enhance" }, exportButton { "Export" }, saveButton { "Save" };
+    // --- Action strip (editing actions) ---
+    otoha::ds::Card actionStrip { "Editing actions", false };
+    otoha::ds::Button undoButton { "Undo", otoha::ds::ButtonVariant::secondary };
+    otoha::ds::Button redoButton { "Redo", otoha::ds::ButtonVariant::secondary };
+    otoha::ds::Button cutButton { "Cut", otoha::ds::ButtonVariant::secondary };
+    otoha::ds::Button copyButton { "Copy", otoha::ds::ButtonVariant::secondary };
+    otoha::ds::Button pasteButton { "Paste", otoha::ds::ButtonVariant::secondary };
+    otoha::ds::Button deleteButton { "Delete", otoha::ds::ButtonVariant::secondary };
+    otoha::ds::Button trimButton { "Keep Selection", otoha::ds::ButtonVariant::secondary };
+    otoha::ds::Button playButton { "Play", otoha::ds::ButtonVariant::primary };
 
-    juce::Label timeLabel;   // cursor / selection readout
+    // Zoom controls (compact, right side of strip)
+    otoha::ds::Button zoomInButton { "+", otoha::ds::ButtonVariant::tertiary };
+    otoha::ds::Button zoomOutButton { "-", otoha::ds::ButtonVariant::tertiary };
+    otoha::ds::Button zoomFitButton { "Fit", otoha::ds::ButtonVariant::tertiary };
 
-    // M14 #28: transient human feedback ("Deleted 12 s") — auto-clears.
+    // --- Main content: timeline + sound panel ---
+    otoha::ds::Card timelineCard { "Audio timeline", false };
+
+    // Bottom info row
+    juce::Label timeLabel;
+
+    // Sound panel (right side)
+    otoha::ds::Card soundPanelCard { "Sound", false };
+    juce::Label soundSectionLabel;
+    juce::Label soundSectionDesc;
+    otoha::ds::Button enhanceToggleButton { "Enhance", otoha::ds::ButtonVariant::primary };
+    std::unique_ptr<EnhancePanel> enhancePanel;
+
+    // Action buttons in the bottom strip
+    otoha::ds::Button saveButton { "Save", otoha::ds::ButtonVariant::primary };
+    otoha::ds::Button exportButton { "Export", otoha::ds::ButtonVariant::secondary };
+
+    // Feedback
     juce::Label feedbackLabel;
     int feedbackTicksLeft = 0;
     void showFeedback (const juce::String& message);
-    std::unique_ptr<EnhancePanel> enhancePanel;
 
     std::unique_ptr<juce::FileChooser> chooser;
 
