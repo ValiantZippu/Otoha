@@ -19,12 +19,7 @@ public:
 
     void paint (juce::Graphics& g) override
     {
-        auto area = getLocalBounds().toFloat().reduced (12.0f);
-
-        g.setColour (colors::surfaceElevated());
-        g.fillRoundedRectangle (area, (float) Radius::medium);
-        g.setColour (colors::borderSubtle());
-        g.drawRoundedRectangle (area, (float) Radius::medium, 1.0f);
+        auto area = getLocalBounds().toFloat();
 
         if (! recorder.hasInput())
         {
@@ -77,7 +72,7 @@ public:
     {
         if (! player.hasFile() || recorder.getState() != otoha::TransportState::idle)
             return;
-        const auto area = getLocalBounds().toFloat().reduced (12.0f);
+        const auto area = getLocalBounds().toFloat();
         if (! area.contains (e.position)) return;
         const double fraction = juce::jlimit (0.0, 1.0,
             (double) ((e.position.x - area.getX()) / area.getWidth()));
@@ -130,7 +125,7 @@ private:
 };
 
 /* ======================================================================
-   RecordView — M21 polished recording screen.
+   RecordView — M30 Kaiteyo-aligned recording screen.
    ====================================================================== */
 RecordView::RecordView (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl,
                         LibraryService& lib, std::function<void()> editorCallback)
@@ -139,7 +134,48 @@ RecordView::RecordView (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl,
 {
     setOpaque (true);
 
-    // --- Configuration row ---
+    // --- Main recording card ---
+    addAndMakeVisible (recordingCard);
+
+    // --- Visualization (inside card) ---
+    waveform   = std::make_unique<WaveformPanel> (recorder, player);
+    levelMeter = std::make_unique<LevelMeter> (recorder);
+    recordingCard.addAndMakeVisible (*waveform);
+    recordingCard.addAndMakeVisible (*levelMeter);
+
+    clipLabel.setFont (font (TextSize::caption, true));
+    clipLabel.setColour (juce::Label::textColourId, colors::danger());
+    clipLabel.setText ("CLIP", juce::dontSendNotification);
+    clipLabel.setJustificationType (juce::Justification::centredRight);
+    clipLabel.setVisible (false);
+    recordingCard.addAndMakeVisible (clipLabel);
+
+    // --- Timer (big centered readout) ---
+    timeLabel.setFont (juce::FontOptions ((float) Metrics::titleStripHeight * 0.6f,
+                                          juce::Font::bold));
+    timeLabel.setColour (juce::Label::textColourId, colors::textPrimary());
+    timeLabel.setJustificationType (juce::Justification::centred);
+    recordingCard.addAndMakeVisible (timeLabel);
+
+    // --- Record button (circle, semantic recording tokens) ---
+    recordButton = std::make_unique<juce::ShapeButton> ("Record",
+        colors::recording(), colors::recording().brighter (0.08f),
+        colors::recording().darker (0.12f));
+    recordButton->setOnColours (colors::recording(),
+                                colors::recording().darker (0.12f),
+                                colors::recording().darker (0.25f));
+    recordButton->setName ("Record");
+    recordButton->setDescription ("Start recording");
+    recordButton->setHelpText ("Starts a new recording with the selected microphone");
+    recordButton->onClick = [this] { recordButtonClicked(); };
+    recordingCard.addAndMakeVisible (*recordButton);
+
+    // --- Format label (inside card, bottom) ---
+    formatLabel.setFont (font (TextSize::caption));
+    formatLabel.setColour (juce::Label::textColourId, colors::textMuted());
+    recordingCard.addAndMakeVisible (formatLabel);
+
+    // --- Settings row (below card) ---
     inputLabel.setText ("Microphone", juce::dontSendNotification);
     inputLabel.setFont (font (TextSize::caption));
     inputLabel.setColour (juce::Label::textColourId, colors::textSecondary());
@@ -170,46 +206,12 @@ RecordView::RecordView (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl,
     };
     addAndMakeVisible (*monitorToggle);
 
-    // --- Visualization ---
-    waveform   = std::make_unique<WaveformPanel> (recorder, player);
-    levelMeter = std::make_unique<LevelMeter> (recorder);
-    addAndMakeVisible (*waveform);
-    addAndMakeVisible (*levelMeter);
-
-    clipLabel.setFont (font (TextSize::caption, true));
-    clipLabel.setColour (juce::Label::textColourId, colors::danger());
-    clipLabel.setText ("CLIP", juce::dontSendNotification);
-    clipLabel.setJustificationType (juce::Justification::centredRight);
-    clipLabel.setVisible (false);
-    addAndMakeVisible (clipLabel);
-
-    // --- Timer ---
-    timeLabel.setFont (juce::FontOptions ((float) Metrics::titleStripHeight * 0.55f,
-                                          juce::Font::bold));
-    timeLabel.setColour (juce::Label::textColourId, colors::textPrimary());
-    timeLabel.setJustificationType (juce::Justification::centred);
-    addAndMakeVisible (timeLabel);
-
-    // --- Record button (circle, semantic recording tokens) ---
-    recordButton = std::make_unique<juce::ShapeButton> ("Record",
-        colors::recording(), colors::recording().brighter (0.08f),
-        colors::recording().darker (0.12f));
-    recordButton->setOnColours (colors::recording(),
-                                colors::recording().darker (0.12f),
-                                colors::recording().darker (0.25f));
-    recordButton->setName ("Record");
-    recordButton->setDescription ("Start recording");
-    recordButton->setHelpText ("Starts a new recording with the selected microphone");
-    recordButton->onClick = [this] { recordButtonClicked(); };
-    addAndMakeVisible (*recordButton);
-
-    // --- Transport actions ---
+    // --- Post-recording actions ---
     playButton.onClick = [this] { playPauseClicked(); };
     stopButton.onClick = [this] { stopClicked(); };
     addAndMakeVisible (playButton);
     addAndMakeVisible (stopButton);
 
-    // --- Post-recording actions ---
     editButton   = std::make_unique<otoha::ds::Button> ("Edit", otoha::ds::ButtonVariant::secondary);
     exportButton = std::make_unique<otoha::ds::Button> ("Export", otoha::ds::ButtonVariant::secondary);
     deleteButton = std::make_unique<otoha::ds::Button> ("Delete", otoha::ds::ButtonVariant::danger);
@@ -224,10 +226,7 @@ RecordView::RecordView (juce::AudioDeviceManager& dm, Recorder& rec, Player& pl,
     addAndMakeVisible (*exportButton);
     addAndMakeVisible (*deleteButton);
 
-    formatLabel.setFont (font (TextSize::caption));
-    formatLabel.setColour (juce::Label::textColourId, colors::textMuted());
-    addAndMakeVisible (formatLabel);
-
+    // --- Status / error ---
     statusLabel.setFont (font (TextSize::caption));
     statusLabel.setColour (juce::Label::textColourId, colors::textSecondary());
     statusLabel.setText ("Ready", juce::dontSendNotification);
@@ -264,47 +263,57 @@ void RecordView::resized()
     const int rowH = 32;
     const int gap  = Spacing::sm;
 
-    // Config row: mic selector + countdown + monitor
+    // --- Main recording card (dominant element) ---
     {
-        auto config = content.removeFromTop (rowH);
-        inputLabel.setBounds (config.removeFromLeft (82));
-        inputCombo->setBounds (config.removeFromLeft (150).withHeight (rowH));
-        config.removeFromLeft (gap);
-        countdownLabel.setBounds (config.removeFromLeft (90));
-        countdownCombo->setBounds (config.removeFromLeft (100).withHeight (rowH));
-        config.removeFromLeft (gap);
-        monitorToggle->setBounds (config.removeFromLeft (80).withHeight (rowH));
+        const int cardH = juce::jmax (280, content.getHeight() - 200);
+        recordingCard.setBounds (content.removeFromTop (cardH));
+        auto card = recordingCard.getLocalBounds().reduced (Metrics::cardPadding);
+
+        // Waveform fills top portion
+        const int vizH = juce::jmax (80, card.getHeight() - 160);
+        waveform->setBounds (card.removeFromTop (vizH));
+        card.removeFromTop (gap);
+
+        // Timer (centered)
+        timeLabel.setBounds (card.removeFromTop (Metrics::titleStripHeight));
+        card.removeFromTop (gap);
+
+        // Record button (centered circle)
+        {
+            const int btnR = Metrics::touchTargetMin;
+            recordButton->setBounds (card.removeFromTop (btnR)
+                                        .withSizeKeepingCentre (btnR, btnR));
+            // Set circle shape
+            juce::Path circle;
+            circle.addEllipse (recordButton->getLocalBounds().toFloat());
+            recordButton->setShape (circle, false, false, false);
+        }
+        card.removeFromTop (gap);
+
+        // Meter + clip + format (bottom of card)
+        {
+            auto meterRow = card.removeFromTop (24);
+            formatLabel.setBounds (meterRow.removeFromLeft (100));
+            clipLabel.setBounds (meterRow.removeFromRight (50));
+            levelMeter->setBounds (meterRow.reduced (4, 0));
+        }
     }
     content.removeFromTop (gap);
 
-    // Timer (big centered readout)
-    timeLabel.setBounds (content.removeFromTop (Metrics::titleStripHeight));
-    content.removeFromTop (gap);
-
-    // Waveform / visualizer (fills available space)
+    // --- Settings row ---
     {
-        const int vizH = juce::jmax (120, content.getHeight() - 160);
-        waveform->setBounds (content.removeFromTop (vizH));
+        auto settings = content.removeFromTop (rowH);
+        inputLabel.setBounds (settings.removeFromLeft (82));
+        inputCombo->setBounds (settings.removeFromLeft (150).withHeight (rowH));
+        settings.removeFromLeft (gap);
+        countdownLabel.setBounds (settings.removeFromLeft (70));
+        countdownCombo->setBounds (settings.removeFromLeft (90).withHeight (rowH));
+        settings.removeFromLeft (gap);
+        monitorToggle->setBounds (settings.removeFromLeft (80).withHeight (rowH));
     }
     content.removeFromTop (gap);
 
-    // Meter + clip indicator
-    {
-        auto meterRow = content.removeFromTop (30);
-        clipLabel.setBounds (meterRow.removeFromRight (60));
-        levelMeter->setBounds (meterRow);
-    }
-    content.removeFromTop (Spacing::md);
-
-    // Record/Stop button (centered circle, large touch target)
-    {
-        const int btnR = Metrics::touchTargetMin;
-        recordButton->setBounds (content.removeFromTop (btnR)
-                                    .withSizeKeepingCentre (btnR, btnR));
-    }
-    content.removeFromTop (gap);
-
-    // Actions row
+    // --- Post-recording actions ---
     {
         auto actions = content.removeFromTop (rowH);
         const int btnW = 72;
@@ -321,18 +330,9 @@ void RecordView::resized()
     }
     content.removeFromTop (gap);
 
-    // Format label (full width, subtle)
-    formatLabel.setBounds (content.removeFromTop (18));
-    content.removeFromTop (2);
-
-    // Status / error
+    // --- Status / error ---
     errorLabel.setBounds (content.removeFromBottom (20));
     statusLabel.setBounds (content.removeFromBottom (20));
-
-    // Record button shape (circle)
-    juce::Path circle;
-    circle.addEllipse (recordButton->getLocalBounds().toFloat());
-    recordButton->setShape (circle, false, false, false);
 }
 
 bool RecordView::keyPressed (const juce::KeyPress& key)
@@ -493,7 +493,7 @@ void RecordView::beginRecording()
     recorder.clearClipIndicator();
 
     juce::String error;
-    const int bitDepth = 24;  // always high quality
+    const int bitDepth = 24;
 
     if (! recorder.startRecording (otoha::uniqueRecordingFile (otoha::recordingsDirectory(),
                                                                juce::Time::getCurrentTime()),
