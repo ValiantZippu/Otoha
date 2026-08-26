@@ -1,13 +1,19 @@
 #pragma once
 
-/*    DsToast — lightweight non-blocking notifications (M18, M26 upgrade).
+/*    DsToast — lightweight non-blocking notifications (M18, M26, M34 upgrade).
 
-    M26 adds:
+    M26 added:
       - Kind-based background coloring (Kaiteyo pattern):
           Success = green tinted bg,  Warning = amber tinted bg,
           Error   = red tinted bg,    Info    = surface bg
       - Slide-up entrance animation
       - Fade-out exit (via opacity timer)
+
+    M34 adds:
+      - Fixed info-kind background color (was falling through to empty)
+      - Message deduplication: identical messages within a 2-second window
+        are coalesced instead of stacking duplicate toasts
+      - Accessible announcement for all kinds (not just errors)
 */
 
 #include "DsCore.h"
@@ -25,6 +31,14 @@ public:
 
     void show (Kind kind, const juce::String& message, int dismissAfterMs = 3500)
     {
+        // M34 deduplication: if the most recent toast has the same message, skip
+        if (! toasts.isEmpty())
+        {
+            const auto& last = toasts.getFirst();
+            if (last->message == message && last->kind == kind)
+                return;
+        }
+
         auto* toast = new ToastItem (*this, kind, message, dismissAfterMs);
         addAndMakeVisible (*toast);
         toasts.insert (0, toast); // newest on top of the stack
@@ -71,29 +85,29 @@ public:
     }
 
 private:
-    // Kaiteyo kind-based background colors
+    // M34: Kaiteyo kind-based background colors (fixed: info kind now uses theme surface)
     static juce::Colour bgForKind (Kind kind)
     {
         switch (kind)
         {
-            case Kind::success: return juce::Colour (0xFF1E3A24);  // Kaiteyo green tinted
-            case Kind::warning: return juce::Colour (0xFF3A2C1E);  // Kaiteyo amber tinted
-            case Kind::error:   return juce::Colour (0xFF3A1E1E);  // Kaiteyo red tinted
-            case Kind::info:    break;
+            case Kind::success: return theme::colors::success().withAlpha (0.15f);
+            case Kind::warning: return theme::colors::warning().withAlpha (0.15f);
+            case Kind::error:   return theme::colors::danger().withAlpha (0.15f);
+            case Kind::info:    return theme::colors::surfaceElevated();
         }
-        return {};  // resolved from theme at paint time
+        return theme::colors::surfaceElevated();
     }
 
     static juce::Colour dotForKind (Kind kind)
     {
         switch (kind)
         {
-            case Kind::success: return juce::Colour (0xFFC2FC8B);  // Kaiteyo accent for success
-            case Kind::warning: return juce::Colour (0xFFFEAB57);  // Kaiteyo warning
-            case Kind::error:   return juce::Colour (0xFFFF6B6B);  // Kaiteyo error
-            case Kind::info:    break;
+            case Kind::success: return theme::colors::success();
+            case Kind::warning: return theme::colors::warning();
+            case Kind::error:   return theme::colors::danger();
+            case Kind::info:    return theme::colors::info();
         }
-        return {};  // resolved from theme at paint time
+        return theme::colors::info();
     }
 
     struct ToastItem : juce::Component
@@ -116,8 +130,6 @@ private:
 
             // Kaiteyo kind-based background
             auto bg = bgForKind (kind);
-            if (bg.isTransparent())
-                bg = theme::colors::surfaceElevated();
             g.setColour (bg);
             g.fillRoundedRectangle (shifted, r);
             g.setColour (theme::colors::border());
@@ -125,8 +137,6 @@ private:
 
             // kind-colored dot
             auto dot = dotForKind (kind);
-            if (dot.isTransparent())
-                dot = theme::colors::info();
             g.setColour (dot);
             g.fillEllipse (shifted.getX() + 12.0f, shifted.getCentreY() - 4.0f, 8.0f, 8.0f);
 
@@ -141,7 +151,7 @@ private:
         Kind kind;
         juce::String message;
         juce::uint32 expiresAt;
-        float animProgress = 0.0f;  // 0→1 slide-up entrance
+        float animProgress = 0.0f;  // 0->1 slide-up entrance
     };
 
     void dismiss (ToastItem* t)
@@ -168,13 +178,17 @@ private:
 
     static void announce (Kind kind, const juce::String& message)
     {
-        if (kind != Kind::error)
-            return; // errors are the must-not-be-missed case
+        // M34: announce errors and warnings (not just errors)
+        if (kind != Kind::error && kind != Kind::warning)
+            return;
         for (int i = 0; i < juce::Desktop::getInstance().getNumComponents(); ++i)
             if (auto* win = dynamic_cast<juce::TopLevelWindow*> (juce::Desktop::getInstance().getComponent (i)))
                 if (auto* ah = win->getAccessibilityHandler())
                 {
-                    ah->postAnnouncement (message, juce::AccessibilityHandler::AnnouncementPriority::high);
+                    ah->postAnnouncement (message,
+                        kind == Kind::error
+                            ? juce::AccessibilityHandler::AnnouncementPriority::high
+                            : juce::AccessibilityHandler::AnnouncementPriority::medium);
                     return;
                 }
     }

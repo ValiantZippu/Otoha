@@ -363,6 +363,9 @@ LibraryView::LibraryView (LibraryService& lib, Player& pl, std::function<void()>
 
     emptyRecordBtn.onClick = [this] { if (goToRecording) goToRecording(); };
 
+    // M34: toast overlay (must be added last so it covers everything)
+    addAndMakeVisible (toastHost);
+
     refreshItems();
     startTimerHz (2);
 }
@@ -432,6 +435,8 @@ void LibraryView::resized()
     auto listArea = listBox.getBounds().withSizeKeepingCentre (320, 140);
     emptyState->setBounds (listArea);
     searchEmptyState->setBounds (listArea);
+
+    toastHost.setBounds (getLocalBounds());
 }
 
 void LibraryView::grabDefaultFocus()
@@ -546,52 +551,31 @@ void LibraryView::showContextMenuFor (int row)
     const auto* item = itemForRow (row);
     if (item == nullptr) return;
 
-    juce::PopupMenu menu;
-    menu.addItem (1, "Play");
-    menu.addItem (7, "Open in Editor");
-    menu.addSeparator();
-    menu.addItem (2, "Rename...");
-    menu.addItem (8, "Duplicate");
-    menu.addItem (3, item->favorite ? "Unfavorite" : "Favorite");
-    menu.addItem (4, "Export...");
-    menu.addItem (5, "Show in Folder");
-    menu.addSeparator();
-    menu.addItem (6, "Delete");
-
-    auto selectOnlyId = [this] (juce::int64 id)
-    {
+    juce::Array<otoha::ds::MenuItem> menuItems;
+    menuItems.add ({ "Play",        {}, {}, false, false, false, true, [this, path = item->file] { if (player.loadFile (path)) player.play(); } });
+    menuItems.add ({ "Open in Editor", {}, {}, false, false, false, true, [this, id = item->id] { openInEditor (library.get (id)); } });
+    menuItems.add ({ {}, {}, {}, false, false, false, true, {} });  // separator
+    menuItems.add ({ "Rename...",   {}, {}, false, false, false, true, [this, id = item->id] { renameDialogForId (id); } });
+    menuItems.add ({ "Duplicate",   {}, {}, false, false, false, true, [this, id = item->id] { duplicateForRow (id); } });
+    menuItems.add ({ item->favorite ? "Unfavorite" : "Favorite", {}, {}, false, false, false, true,
+                     [this, id = item->id] { library.setFavorite (id, ! library.get (id).favorite); refreshItems(); } });
+    menuItems.add ({ "Export...",   {}, {}, false, false, false, true, [this, id = item->id] {
         listBox.deselectAllRows();
         for (int i = 0; i < (int) items.size(); ++i)
-            if (items[(size_t) i].id == id)
-                listBox.selectRow (i, true);
-    };
+            if (items[(size_t) i].id == id) listBox.selectRow (i, true);
+        updateBulkBar(); exportSelected(); } });
+    menuItems.add ({ "Show in Folder", {}, {}, false, false, false, true, [path = item->file] { path.revealToUser(); } });
+    menuItems.add ({ {}, {}, {}, false, false, false, true, {} });  // separator
+    menuItems.add ({ "Delete",      {}, {}, false, false, true,  true, [this, id = item->id] {
+        listBox.deselectAllRows();
+        for (int i = 0; i < (int) items.size(); ++i)
+            if (items[(size_t) i].id == id) listBox.selectRow (i, true);
+        deleteSelected(); } });
 
-    menu.showMenuAsync (juce::PopupMenu::Options(),
-                        [this, id = item->id, path = item->file, selectOnlyId] (int result)
-                        {
-                            switch (result)
-                            {
-                                case 1: if (player.loadFile (path)) player.play(); break;
-                                case 2: renameDialogForId (id); break;
-                                case 7: openInEditor (library.get (id)); break;
-                                case 8: duplicateForRow (id); break;
-                                case 3:
-                                    library.setFavorite (id, ! library.get (id).favorite);
-                                    refreshItems();
-                                    break;
-                                case 4:
-                                    selectOnlyId (id);
-                                    updateBulkBar();
-                                    exportSelected();
-                                    break;
-                                case 5: path.revealToUser(); break;
-                                case 6:
-                                    selectOnlyId (id);
-                                    deleteSelected();
-                                    break;
-                                default: break;
-                            }
-                        });
+    // Position at current mouse cursor
+    const auto mouseScreen = juce::Desktop::getInstance().getMainMouseSource().getScreenPosition().toInt();
+    const auto localPos = getTopLevelComponent()->getScreenPosition();
+    otoha::ds::showMenuPopup (this, menuItems, mouseScreen - localPos);
 }
 
 void LibraryView::duplicateForRow (juce::int64 id)
@@ -599,9 +583,8 @@ void LibraryView::duplicateForRow (juce::int64 id)
     const auto newId = library.duplicateMedia (id);
     if (newId == 0)
     {
-        juce::AlertWindow::showMessageBoxAsync (
-            juce::MessageBoxIconType::WarningIcon, "Couldn't duplicate recording",
-            "The copy could not be created.\nCheck free disk space and try again.");
+        toastHost.show (otoha::ds::ToastHost::Kind::error,
+                         "Couldn't duplicate recording. Check free disk space and try again.");
         return;
     }
     refreshItems();
@@ -627,9 +610,8 @@ void LibraryView::filesDropped (const juce::StringArray& files, int, int)
     }
     refreshItems();
     if (! unsupported.isEmpty())
-        juce::AlertWindow::showMessageBoxAsync (
-            juce::MessageBoxIconType::InfoIcon, "Some files weren't imported",
-            "Otoha can't open this audio format:\n" + unsupported.joinIntoString ("\n"));
+        toastHost.show (otoha::ds::ToastHost::Kind::info,
+                         "Some files weren't imported — unsupported audio format.");
 }
 
 void LibraryView::renameDialogForId (juce::int64 id)
@@ -637,22 +619,19 @@ void LibraryView::renameDialogForId (juce::int64 id)
     const auto item = library.get (id);
     if (item.id == 0) return;
 
-    auto* window = new juce::AlertWindow ("Rename recording",
-                                          "The file itself keeps its name \u2014 this changes how "
-                                          "it appears in your library.",
-                                          juce::MessageBoxIconType::NoIcon);
-    window->addTextEditor ("name", item.displayName, "New name:");
-    window->addButton ("Rename", 1, juce::KeyPress (juce::KeyPress::returnKey));
-    window->addButton ("Cancel", 0, juce::KeyPress (juce::KeyPress::escapeKey));
-
-    window->enterModalState (true,
-        juce::ModalCallbackFunction::create ([this, id, window] (int result)
-        {
-            if (result == 1)
-                library.rename (id, window->getTextEditorContents ("name"));
-            refreshItems();
-        }),
-        true);
+    auto* dlg = new otoha::ds::PromptDialog ("Rename recording",
+                                               "New name:",
+                                               item.displayName);
+    dlg->onSave = [this, id] (const juce::String& newName)
+    {
+        library.rename (id, newName);
+        refreshItems();
+    };
+    dlg->onDismiss = [dlg] { dlg->removeFromDesktop(); };
+    addAndMakeVisible (dlg);
+    dlg->setBounds (getLocalBounds());
+    dlg->toFront (true);
+    dlg->grabKeyboardFocus();
 }
 
 void LibraryView::deleteSelected()
@@ -668,31 +647,26 @@ void LibraryView::deleteSelected()
     {
         if (isFileOpenInEditor && isFileOpenInEditor (s.file))
         {
-            juce::AlertWindow::showMessageBoxAsync (
-                juce::MessageBoxIconType::WarningIcon,
-                "Recording is open",
-                "\"" + s.displayName + "\" is currently open in the editor.\n"
-                "Close the editor first, then delete it.");
+            toastHost.show (otoha::ds::ToastHost::Kind::warning,
+                             "\"" + s.displayName + "\" is open in the editor. Close it first.");
             return;
         }
     }
 
     const bool multiple = selected.size() > 1;
-    juce::AlertWindow::showOkCancelBox (
-        juce::MessageBoxIconType::QuestionIcon,
-        multiple ? "Delete recordings" : "Delete recording",
-        multiple
-            ? "Move " + juce::String ((int) selected.size()) + " recordings to the trash?\nThis cannot be undone."
-            : "Move \"" + selected[0].displayName + "\" to the trash?\nThis cannot be undone.",
-        "Delete", "Cancel", this,
-        juce::ModalCallbackFunction::create ([this, ids = selected] (int result)
+    const auto title = multiple ? "Delete recordings" : "Delete recording";
+    const auto message = multiple
+        ? "Move " + juce::String ((int) selected.size()) + " recordings to the trash?\nThis cannot be undone."
+        : "Move \"" + selected[0].displayName + "\" to the trash?\nThis cannot be undone.";
+    otoha::ds::showConfirmDialog (this, title, message, "Delete",
+        [this, ids = selected]
         {
-            if (result != 1) return;
             player.unload();
             for (const auto& item : ids)
                 library.deleteMedia (item.id);
             refreshItems();
-        }));
+            toastHost.show (otoha::ds::ToastHost::Kind::success, "Recording deleted.");
+        }, true);
 }
 
 void LibraryView::favoriteSelected()

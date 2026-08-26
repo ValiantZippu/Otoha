@@ -270,26 +270,26 @@ EditorView::EditorView (Player& pl, LibraryService& lib, std::function<void()> b
 
     menuButton.onClick = [this]
     {
-        juce::PopupMenu m;
-        m.addItem (1, "Save");
-        m.addItem (2, "Export...");
-        m.addSeparator();
-        m.addItem (3, "Discard changes");
-        m.showMenuAsync (juce::PopupMenu::Options().withTargetComponent (&menuButton),
-                         [this] (int r)
-                         {
-                             if (r == 1)      saveChanges();
-                             else if (r == 2) exportAs();
-                             else if (r == 3)
-                                 confirmDiscardOrSave ([this] (bool proceed)
-                                 {
-                                     if (proceed)
-                                     {
-                                         doc->clearSavedState();
-                                         closeEditor();
-                                     }
-                                 });
-                         });
+        juce::Array<otoha::ds::MenuItem> items;
+        items.add ({ "Save", {}, {}, false, false, false, true, [this] { saveChanges(); } });
+        items.add ({ "Export...", {}, {}, false, false, false, true, [this] { exportAs(); } });
+        items.add ({ {}, {}, {}, false, false, false, true, {} });  // separator
+        items.add ({ "Discard changes", {}, {}, false, false, true, true, [this]
+        {
+            confirmDiscardOrSave ([this] (bool proceed)
+            {
+                if (proceed)
+                {
+                    doc->clearSavedState();
+                    closeEditor();
+                }
+            });
+        } });
+
+        auto btnBounds = menuButton.getBounds();
+        auto localPos = getTopLevelComponent()->getScreenPosition();
+        otoha::ds::showMenuPopup (this, items,
+            juce::Point<int> (btnBounds.getX(), btnBounds.getBottom()) + localPos - getScreenPosition());
     };
     addAndMakeVisible (menuButton);
 
@@ -399,6 +399,9 @@ EditorView::EditorView (Player& pl, LibraryService& lib, std::function<void()> b
     feedbackLabel.setJustificationType (juce::Justification::centred);
     feedbackLabel.setInterceptsMouseClicks (false, false);
     addChildComponent (feedbackLabel);
+
+    // M34: toast overlay (must be added last so it covers everything)
+    addAndMakeVisible (toastHost);
 
     refreshButtonsAndTitle();
     startTimerHz (30);
@@ -560,6 +563,8 @@ void EditorView::layoutMainContent (juce::Rectangle<int> area)
     // Feedback floats over the waveform
     feedbackLabel.setBounds (wave->getBounds().removeFromTop (24)
                                  .withSizeKeepingCentre (juce::jmin (280, wave->getWidth()), 22));
+
+    toastHost.setBounds (getLocalBounds());
 }
 
 // =============================================================================
@@ -710,7 +715,7 @@ void EditorView::pasteAtCursor()
 
     juce::String error;
     if (! doc->pasteAt (doc->getSelection().start, clipboard, error))
-        juce::AlertWindow::showMessageBoxAsync (juce::MessageBoxIconType::WarningIcon, "Paste", error);
+        toastHost.show (otoha::ds::ToastHost::Kind::error, error);
     else
     {
         afterEditRebuild();
@@ -781,8 +786,7 @@ void EditorView::saveChanges()
     juce::String error;
     if (! renderer.renderToWav (destination, error, &doc->processing))
     {
-        juce::AlertWindow::showMessageBoxAsync (juce::MessageBoxIconType::WarningIcon,
-                                                "Couldn't save your changes", error);
+        toastHost.show (otoha::ds::ToastHost::Kind::error, error);
         return;
     }
 
@@ -793,9 +797,8 @@ void EditorView::saveChanges()
     item.displayName = destination.getFileNameWithoutExtension();
 
     refreshButtonsAndTitle();
-    juce::AlertWindow::showMessageBoxAsync (juce::MessageBoxIconType::InfoIcon,
-                                            "Saved",
-                                            "Saved an edited copy to your Library:\n" + destName);
+    toastHost.show (otoha::ds::ToastHost::Kind::success,
+                     "Saved edited copy: " + destName);
 }
 
 void EditorView::exportAs()

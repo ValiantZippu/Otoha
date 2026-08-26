@@ -324,8 +324,8 @@ private:
         auto* dialog = new ds::ConfirmDialog ("Delete recording",
                                                "Are you sure you want to delete this recording? This cannot be undone.",
                                                "Delete", true);
-        dialog->onConfirm = [dialog] { delete dialog; };
-        dialog->onCancel = [dialog] { delete dialog; };
+        dialog->onConfirm = [dialog] { dialog->removeFromDesktop(); };
+        dialog->onDismiss = [dialog] { dialog->removeFromDesktop(); };
         addAndMakeVisible (dialog);
         dialog->setBounds (getLocalBounds());
         dialog->toFront (true);
@@ -334,8 +334,8 @@ private:
     void showPromptDialog()
     {
         auto* dialog = new ds::PromptDialog ("Rename recording", "Enter new name…", "My take");
-        dialog->onSave = [dialog] (const juce::String&) { delete dialog; };
-        dialog->onCancel = [dialog] { delete dialog; };
+        dialog->onSave = [dialog] (const juce::String&) { dialog->removeFromDesktop(); };
+        dialog->onDismiss = [dialog] { dialog->removeFromDesktop(); };
         addAndMakeVisible (dialog);
         dialog->setBounds (getLocalBounds());
         dialog->toFront (true);
