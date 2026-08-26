@@ -11,14 +11,14 @@
 #include "Components/DsCore.h"
 #include "Components/DsSurfaces.h"
 
-/*    LibraryView — Otoha's recording library (M22).
+/*    LibraryView — Otoha's recording library (M22/M31).
 
-      Responsive card-grid browsing with search, sort, selection, bulk actions,
-      playback preview, rename, and delete. All visuals consume OtohaTheme tokens.
+      Kaiteyo-aligned responsive card-grid browsing with SearchField,
+      sort/filter, selection mode, bulk actions, playback preview,
+      rename, and delete.
 
-      Preserves all existing M7–M14 business logic (ListBox virtualisation,
-      drag-drop import, context menu, duplicate, export pipeline integration)
-      while restyling through the M18 design-system component kit.
+      Preserves all existing M7–M14 business logic while using the
+      M26 design-system component kit for consistent visual language.
 */
 class LibraryView : public juce::Component,
                     private juce::Timer,
@@ -84,29 +84,33 @@ private:
 
     std::vector<otoha::MediaItem> items;
 
-    // M18 DS components for toolbar
+    // --- Header: title + subtitle labels ---
     juce::Label headerTitle { {}, "Library" };
-    juce::Label countLabel;
-    std::unique_ptr<otoha::ds::Input> searchInput;
+    juce::Label headerSubtitle { {}, "Your recordings" };
+
+    // --- Toolbar: search + sort + filter + select ---
+    std::unique_ptr<otoha::ds::SearchField> searchField;
     std::unique_ptr<otoha::ds::ComboBox> sortCombo;
 
-    // Filter chips (M18 buttons acting as toggles)
     otoha::ds::Button filterAllBtn     { "All",     otoha::ds::ButtonVariant::secondary, otoha::ds::ButtonSize::small };
     otoha::ds::Button filterAudioBtn   { "Audio",   otoha::ds::ButtonVariant::secondary, otoha::ds::ButtonSize::small };
     otoha::ds::Button filterFavBtn     { "Favorites", otoha::ds::ButtonVariant::secondary, otoha::ds::ButtonSize::small };
 
-    // Card grid (virtualised ListBox)
+    otoha::ds::Button selectToggleBtn  { "Select", otoha::ds::ButtonVariant::secondary, otoha::ds::ButtonSize::small };
+    bool selectMode = false;
+
+    // --- Card grid (virtualised ListBox) ---
     juce::ListBox listBox;
 
-    // Bulk actions bar
+    // --- Bulk actions bar (shown in select mode) ---
     juce::Label selectionLabel;
     otoha::ds::Button bulkExportBtn { "Export", otoha::ds::ButtonVariant::secondary, otoha::ds::ButtonSize::small };
     otoha::ds::Button bulkDeleteBtn { "Delete", otoha::ds::ButtonVariant::danger,    otoha::ds::ButtonSize::small };
 
     std::unique_ptr<DetailsPanel> details;
 
-    // Empty state
-    otoha::ds::Button emptyRecordBtn { "Record", otoha::ds::ButtonVariant::primary };
+    // --- Empty states ---
+    otoha::ds::Button emptyRecordBtn { "Start recording", otoha::ds::ButtonVariant::primary };
     std::unique_ptr<otoha::ds::EmptyState> emptyState;
     std::unique_ptr<otoha::ds::EmptyState> searchEmptyState;
 

@@ -11,7 +11,7 @@ using namespace otoha::theme;
 #include <algorithm>
 
 /* ======================================================================
-   RowComponent — card-style row: waveform + name + duration + date.
+   RowComponent — Kaiteyo-aligned card: waveform + name + meta + actions.
    ====================================================================== */
 class LibraryView::RowComponent : public juce::Component
 {
@@ -27,19 +27,30 @@ public:
 
     void paint (juce::Graphics& g) override
     {
-        auto bounds = getLocalBounds().toFloat().reduced (4.0f, 3.0f);
+        auto bounds = getLocalBounds().toFloat().reduced (3.0f, 2.0f);
 
-        // Card background: selection → accentSoft; hover → surfaceHover; default → surface
+        // Card background
         juce::Colour bg = colors::surface();
-        if (selected)                bg = colors::accentSoft();
-        else if (isMouseOver())      bg = colors::surfaceHover();
+        if (selected && view.selectMode)
+            bg = colors::accentSoft();
+        else if (isMouseOver())
+            bg = colors::surfaceHover();
 
         g.setColour (bg);
         g.fillRoundedRectangle (bounds, (float) Radius::medium);
 
-        // Subtle border: selected → accent; default → borderSubtle
-        g.setColour (selected ? colors::accent() : colors::borderSubtle());
-        g.drawRoundedRectangle (bounds.reduced (0.5f), (float) Radius::medium, selected ? 1.5f : 1.0f);
+        // Border
+        const bool showBorder = selected && view.selectMode;
+        g.setColour (showBorder ? colors::accent() : colors::borderSubtle());
+        g.drawRoundedRectangle (bounds.reduced (0.5f), (float) Radius::medium,
+                                showBorder ? 1.5f : 1.0f);
+
+        // Accent top-line on hover (Kaiteyo pattern)
+        if (isMouseOver() && ! isMouseButtonDown())
+        {
+            g.setColour (colors::accent().withAlpha (0.6f));
+            g.fillRect (bounds.getX(), bounds.getY(), bounds.getWidth(), 2.0f);
+        }
 
         // Focus ring
         if (hasKeyboardFocus (true))
@@ -48,8 +59,30 @@ public:
         const auto* item = view.itemForRow (row);
         if (item == nullptr) return;
 
-        // Waveform thumbnail (left side)
-        auto waveArea = bounds.removeFromLeft (120.0f).reduced (8.0f, 10.0f);
+        // --- Selection checkbox (when in select mode) ---
+        if (view.selectMode)
+        {
+            const float cbSize = 18.0f;
+            auto cbBounds = juce::Rectangle<float> (cbSize, cbSize)
+                .withCentre ({ bounds.getX() + 20.0f, bounds.getCentreY() });
+
+            g.setColour (selected ? colors::accent() : colors::border());
+            g.drawRoundedRectangle (cbBounds, 4.0f, 1.5f);
+
+            if (selected)
+            {
+                g.setColour (colors::accent());
+                auto check = otoha::icons::play(); // reuse as checkmark placeholder
+                g.fillRoundedRectangle (cbBounds.reduced (4.0f), 2.0f);
+            }
+        }
+
+        const float contentLeft = view.selectMode ? bounds.getX() + 38.0f : bounds.getX();
+
+        // --- Waveform thumbnail (left side) ---
+        const float waveW = juce::jmin (130.0f, bounds.getWidth() * 0.22f);
+        auto waveArea = juce::Rectangle<float> (waveW, bounds.getHeight() - 20.0f)
+            .withCentre ({ contentLeft + waveW * 0.5f + Spacing::md, bounds.getCentreY() });
 
         std::vector<float> peaks;
         if (view.library.getWaveformCache().getPeaks (*item, peaks) && ! peaks.empty())
@@ -59,45 +92,78 @@ public:
             const float step = waveArea.getWidth() / (float) peaks.size();
             for (size_t i = 0; i < peaks.size(); ++i)
             {
-                const float h = juce::jlimit (1.5f, waveArea.getHeight(), peaks[i] * waveArea.getHeight());
+                const float h = juce::jlimit (1.0f, waveArea.getHeight(), peaks[i] * waveArea.getHeight());
                 g.fillRect (waveArea.getX() + (float) i * step, midY - h * 0.5f,
-                            juce::jmax (1.0f, step - 1.0f), h);
+                            juce::jmax (1.0f, step - 0.8f), h);
             }
         }
         else
         {
-            // Fallback: muted icon
             g.setColour (colors::waveformMuted());
             auto icon = otoha::icons::musicNote();
             auto iconArea = waveArea.withSizeKeepingCentre (24.0f, 24.0f);
             g.fillPath (icon, icon.getTransformToScaleToFit (iconArea, true));
         }
 
-        // Text block
-        auto text = bounds.reduced (10.0f, 6.0f);
-
-        // Name
-        g.setColour (colors::textPrimary());
-        g.setFont (font (TextSize::bodySmall));
-        g.drawText (item->displayName, text.removeFromTop (20), juce::Justification::centredLeft, true);
-
-        // Duration + date
-        g.setColour (colors::textMuted());
-        g.setFont (font (TextSize::caption));
-        auto infoLine = text.removeFromTop (16);
-        g.drawText (otoha::formatDuration (item->durationSeconds),
-                    infoLine.removeFromLeft (64), juce::Justification::centredLeft);
-        g.drawText (otoha::friendlyRelativeDate (item->createdAt),
-                    infoLine, juce::Justification::centredLeft);
-
-        // Play icon overlay when playing
+        // --- Play overlay when playing ---
         if (view.player.hasFile() && view.player.getFile() == item->file && view.player.isPlaying())
         {
             g.setColour (colors::accent().withAlpha (0.85f));
             auto playIcon = otoha::icons::play();
-            auto playArea = juce::Rectangle<float> (16.0f, 16.0f).withCentre (
-                { waveArea.getCentreX(), waveArea.getCentreY() });
+            auto playArea = juce::Rectangle<float> (18.0f, 18.0f).withCentre (waveArea.getCentre());
             g.fillPath (playIcon, playIcon.getTransformToScaleToFit (playArea, true));
+        }
+
+        // --- Text block (right of waveform) ---
+        auto text = juce::Rectangle<float> (contentLeft + waveW + Spacing::lg * 2,
+                                            bounds.getY() + 12.0f,
+                                            bounds.getRight() - Spacing::xl * 2 - contentLeft - waveW - Spacing::lg * 2,
+                                            bounds.getHeight() - 24.0f);
+
+        // Name
+        g.setColour (colors::textPrimary());
+        g.setFont (font (TextSize::bodySmall));
+        auto nameArea = text.removeFromTop (20.0f);
+        g.drawText (item->displayName, nameArea, juce::Justification::centredLeft, true);
+
+        // Duration + format badge
+        auto metaLine = text.removeFromTop (18.0f);
+        g.setColour (colors::textMuted());
+        g.setFont (font (TextSize::caption));
+        g.drawText (otoha::formatDuration (item->durationSeconds),
+                    metaLine.removeFromLeft (80), juce::Justification::centredLeft);
+
+        // Format badge
+        if (item->format.isNotEmpty())
+        {
+            auto badgeText = item->format.toUpperCase();
+            g.setFont (font (TextSize::caption));
+            // Approximate width for short format labels (WAV, FLAC, M4A, etc.)
+            const float badgeW = (float) badgeText.length() * 7.0f + 12.0f;
+            auto badgeArea = juce::Rectangle<float> (badgeW, 14.0f)
+                .withCentre ({ metaLine.getX() + badgeW * 0.5f + 4.0f, metaLine.getCentreY() });
+            g.setColour (colors::accent().withAlpha (0.12f));
+            g.fillRoundedRectangle (badgeArea, 7.0f);
+            g.setColour (colors::accent());
+            g.drawText (badgeText, badgeArea, juce::Justification::centred);
+        }
+
+        // Date (right side)
+        g.setColour (colors::textMuted());
+        g.setFont (font (TextSize::caption));
+        auto dateArea = juce::Rectangle<float> (bounds.getRight() - Spacing::xl * 2 - 100.0f,
+                                                metaLine.getY(), 100.0f, metaLine.getHeight());
+        g.drawText (otoha::friendlyRelativeDate (item->createdAt),
+                    dateArea, juce::Justification::centredRight, true);
+
+        // Favorite star
+        if (item->favorite)
+        {
+            g.setColour (colors::accent());
+            auto starIcon = otoha::icons::musicNote(); // placeholder for star
+            auto starArea = juce::Rectangle<float> (12.0f, 12.0f)
+                .withCentre ({ bounds.getRight() - 16.0f, bounds.getY() + 16.0f });
+            g.fillEllipse (starArea);
         }
     }
 
@@ -115,7 +181,7 @@ public:
 
     void mouseDoubleClick (const juce::MouseEvent& e) override
     {
-        if (e.mods.isLeftButtonDown())
+        if (e.mods.isLeftButtonDown() && ! view.selectMode)
             view.handleRowActivated (row);
     }
 
@@ -154,9 +220,9 @@ public:
         body.setText (
             juce::String ("Duration     ") + otoha::formatDuration (item.durationSeconds)
             + "\nFormat       " + item.format
-            + "\nSample Rate  " + (item.sampleRate > 0 ? juce::String ((double) item.sampleRate / 1000.0, 1) + " kHz" : "—")
-            + "\nBit Depth    " + (item.bitDepth > 0 ? juce::String (item.bitDepth) + "-bit" : "—")
-            + "\nChannels     " + (item.channels >= 2 ? "Stereo" : item.channels == 1 ? "Mono" : "—")
+            + "\nSample Rate  " + (item.sampleRate > 0 ? juce::String ((double) item.sampleRate / 1000.0, 1) + " kHz" : "\u2014")
+            + "\nBit Depth    " + (item.bitDepth > 0 ? juce::String (item.bitDepth) + "-bit" : "\u2014")
+            + "\nChannels     " + (item.channels >= 2 ? "Stereo" : item.channels == 1 ? "Mono" : "\u2014")
             + "\nSize         " + sizeMb + " MB"
             + "\nCreated      " + item.createdAt.formatted ("%Y-%m-%d %H:%M"),
             juce::dontSendNotification);
@@ -191,7 +257,7 @@ private:
 };
 
 /* ======================================================================
-   LibraryView — M22 polished recording library.
+   LibraryView — M31 Kaiteyo-aligned recording library.
    ====================================================================== */
 LibraryView::LibraryView (LibraryService& lib, Player& pl, std::function<void()> goToRec,
                           OpenInEditorFn openInEditorFn, IsFileOpenFn fileOpenFn,
@@ -203,26 +269,26 @@ LibraryView::LibraryView (LibraryService& lib, Player& pl, std::function<void()>
 {
     setOpaque (true);
 
-    // --- Header ---
+    // --- Header: title + subtitle ---
     headerTitle.setFont (font (TextSize::title));
     headerTitle.setColour (juce::Label::textColourId, colors::textPrimary());
     addAndMakeVisible (headerTitle);
 
-    countLabel.setFont (font (TextSize::caption));
-    countLabel.setColour (juce::Label::textColourId, colors::textMuted());
-    addAndMakeVisible (countLabel);
+    headerSubtitle.setFont (font (TextSize::caption));
+    headerSubtitle.setColour (juce::Label::textColourId, colors::textMuted());
+    addAndMakeVisible (headerSubtitle);
 
-    // --- Search ---
-    searchInput = std::make_unique<otoha::ds::Input> ("Search recordings", "Search recordings...");
-    searchInput->onTextChange = [this] { refreshItems(); };
-    addAndMakeVisible (*searchInput);
+    // --- Search field (Kaiteyo DsSearchField) ---
+    searchField = std::make_unique<otoha::ds::SearchField> ("Search recordings...");
+    searchField->onTextChange = [this] { refreshItems(); };
+    addAndMakeVisible (*searchField);
 
     // --- Sort ---
     sortCombo = std::make_unique<otoha::ds::ComboBox> ("Sort recordings");
     sortCombo->addItem ("Newest", 1);
     sortCombo->addItem ("Oldest", 2);
-    sortCombo->addItem ("Name A–Z", 3);
-    sortCombo->addItem ("Name Z–A", 4);
+    sortCombo->addItem ("Name A\u2013Z", 3);
+    sortCombo->addItem ("Name Z\u2013A", 4);
     sortCombo->addItem ("Longest", 5);
     sortCombo->addItem ("Shortest", 6);
     sortCombo->setSelectedItemIndex (0, juce::dontSendNotification);
@@ -233,7 +299,7 @@ LibraryView::LibraryView (LibraryService& lib, Player& pl, std::function<void()>
     auto setupFilter = [this] (otoha::ds::Button& btn, otoha::LibraryFilter filter)
     {
         addAndMakeVisible (btn);
-        btn.onClick = [this, filter, &btn]
+        btn.onClick = [this, filter]
         {
             currentFilter = filter;
             refreshItems();
@@ -242,11 +308,22 @@ LibraryView::LibraryView (LibraryService& lib, Player& pl, std::function<void()>
     setupFilter (filterAllBtn,   otoha::LibraryFilter::all);
     setupFilter (filterAudioBtn, otoha::LibraryFilter::audio);
     setupFilter (filterFavBtn,   otoha::LibraryFilter::favorites);
-    filterAllBtn.setEnabled (false);  // "All" is the active/default
+    filterAllBtn.setEnabled (false);
+
+    // --- Select mode toggle ---
+    addAndMakeVisible (selectToggleBtn);
+    selectToggleBtn.onClick = [this]
+    {
+        selectMode = ! selectMode;
+        selectToggleBtn.setButtonText (selectMode ? "Cancel" : "Select");
+        if (! selectMode)
+            listBox.deselectAllRows();
+        updateBulkBar();
+    };
 
     // --- ListBox (virtualised card grid) ---
     listBox.setModel (this);
-    listBox.setRowHeight (80);
+    listBox.setRowHeight (88);   // taller cards for Kaiteyo-aligned layout
     listBox.setMultipleSelectionEnabled (true);
     listBox.setColour (juce::ListBox::backgroundColourId, juce::Colours::transparentBlack);
     addAndMakeVisible (listBox);
@@ -280,7 +357,7 @@ LibraryView::LibraryView (LibraryService& lib, Player& pl, std::function<void()>
     otoha::ds::EmptyState::Setup searchSetup;
     searchSetup.icon        = otoha::icons::search();
     searchSetup.title       = "No recordings found.";
-    searchSetup.description = "Try another search.";
+    searchSetup.description = "Try a different search or clear your filters.";
     searchEmptyState = std::make_unique<otoha::ds::EmptyState> (searchSetup);
     addAndMakeVisible (*searchEmptyState);
 
@@ -300,27 +377,30 @@ void LibraryView::paint (juce::Graphics& g)
 void LibraryView::resized()
 {
     auto bounds = getLocalBounds().reduced (Spacing::xl);
-    const int maxW = 900;
+    const int maxW = 960;
     auto content = bounds.withSizeKeepingCentre (juce::jmin (maxW, bounds.getWidth()),
                                                  bounds.getHeight());
 
-    // Header row: title + count
+    // Header: title + subtitle
     {
-        auto header = content.removeFromTop (32);
-        headerTitle.setBounds (header.removeFromLeft (120));
-        countLabel.setBounds (header.removeFromLeft (200));
+        auto header = content.removeFromTop (36);
+        headerTitle.setBounds (header.removeFromLeft (180));
+        headerSubtitle.setBounds (header);  // takes remaining width
     }
     content.removeFromTop (Spacing::xs);
 
-    // Toolbar: search + sort + filter chips
+    // Toolbar row: search + sort + filter chips + select toggle
     {
         auto toolbar = content.removeFromTop (36);
-        searchInput->setBounds (toolbar.removeFromLeft (juce::jmin (320, toolbar.getWidth() / 2))
-                                       .withHeight (28));
+        const int searchW = juce::jmin (300, toolbar.getWidth() / 3);
+        searchField->setBounds (toolbar.removeFromLeft (searchW).withHeight (30));
         toolbar.removeFromLeft (Spacing::sm);
-        sortCombo->setBounds (toolbar.removeFromRight (130).withHeight (28));
+        sortCombo->setBounds (toolbar.removeFromRight (120).withHeight (30));
         toolbar.removeFromRight (Spacing::sm);
-        // Filter chips (right-aligned in remaining space)
+        // Select toggle (far right before sort)
+        selectToggleBtn.setBounds (toolbar.removeFromRight (68).withHeight (26));
+        toolbar.removeFromRight (Spacing::sm);
+        // Filter chips
         auto chips = toolbar;
         const int chipW = 64;
         filterFavBtn.setBounds   (chips.removeFromRight (chipW).withHeight (26));
@@ -331,9 +411,9 @@ void LibraryView::resized()
     }
     content.removeFromTop (Spacing::xs);
 
-    // Bulk actions bar (shown when multiple selected)
+    // Bulk actions bar (shown when items selected in select mode)
     {
-        auto bulk = content.removeFromTop (28);
+        auto bulk = content.removeFromTop (selectMode ? 32 : 0);
         selectionLabel.setBounds (bulk.removeFromLeft (200));
         bulkDeleteBtn.setBounds (bulk.removeFromRight (72).withHeight (24));
         bulk.removeFromRight (4);
@@ -349,15 +429,15 @@ void LibraryView::resized()
     }
 
     // Empty states overlay on the list area
-    auto listArea = listBox.getBounds().withSizeKeepingCentre (320, 120);
+    auto listArea = listBox.getBounds().withSizeKeepingCentre (320, 140);
     emptyState->setBounds (listArea);
     searchEmptyState->setBounds (listArea);
 }
 
 void LibraryView::grabDefaultFocus()
 {
-    if (searchInput != nullptr)
-        searchInput->grabKeyboardFocus();
+    if (searchField != nullptr)
+        searchField->focusEditor();
 }
 
 bool LibraryView::keyPressed (const juce::KeyPress& key)
@@ -390,6 +470,14 @@ bool LibraryView::keyPressed (const juce::KeyPress& key)
     if (key.isKeyCode ('F') && key.getModifiers().isCommandDown())
     {
         grabDefaultFocus();
+        return true;
+    }
+    if (key.isKeyCode (juce::KeyPress::escapeKey) && selectMode)
+    {
+        selectMode = false;
+        selectToggleBtn.setButtonText ("Select");
+        listBox.deselectAllRows();
+        updateBulkBar();
         return true;
     }
     return false;
@@ -550,7 +638,7 @@ void LibraryView::renameDialogForId (juce::int64 id)
     if (item.id == 0) return;
 
     auto* window = new juce::AlertWindow ("Rename recording",
-                                          "The file itself keeps its name — this changes how "
+                                          "The file itself keeps its name \u2014 this changes how "
                                           "it appears in your library.",
                                           juce::MessageBoxIconType::NoIcon);
     window->addTextEditor ("name", item.displayName, "New name:");
@@ -665,20 +753,21 @@ void LibraryView::refreshItems()
                                             Sort::nameAscending, Sort::nameDescending,
                                             Sort::longestFirst, Sort::shortestFirst };
 
-    items = library.query (searchInput != nullptr ? searchInput->getText() : juce::String(),
+    items = library.query (searchField != nullptr ? searchField->getText() : juce::String(),
                            currentFilter,
                            sortsByItem[juce::jlimit (0, 5, sortCombo != nullptr ? sortCombo->getSelectedItemIndex() : 0)]);
 
     const bool hasItems = ! items.empty();
-    const bool searching = searchInput != nullptr && searchInput->getText().isNotEmpty();
+    const bool searching = searchField != nullptr && searchField->getText().isNotEmpty();
     const bool nothingAtAll = ! hasItems && ! searching;
 
     emptyState->setVisible (nothingAtAll);
     searchEmptyState->setVisible (hasItems == false && searching);
 
-    // Recording count
-    countLabel.setText (hasItems ? juce::String ((int) items.size()) + " recordings" : juce::String(),
-                        juce::dontSendNotification);
+    // Update subtitle with recording count
+    headerSubtitle.setText (hasItems ? juce::String ((int) items.size()) + " recordings"
+                                     : "Your recordings",
+                            juce::dontSendNotification);
 
     // Update filter button enabled states
     filterAllBtn.setEnabled (currentFilter != otoha::LibraryFilter::all);
@@ -705,7 +794,7 @@ void LibraryView::updateDetailsPanel()
 void LibraryView::updateBulkBar()
 {
     const int n = listBox.getNumSelectedRows();
-    const bool bulk = n > 1;
+    const bool bulk = n > 0 && selectMode;
     selectionLabel.setText (bulk ? juce::String (n) + " selected" : juce::String(),
                             juce::dontSendNotification);
     bulkExportBtn.setVisible (bulk);

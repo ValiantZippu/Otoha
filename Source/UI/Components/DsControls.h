@@ -317,6 +317,9 @@ public:
 
     void focusEditor() { editor.grabKeyboardFocus(); }
 
+    /** Called whenever the search text changes. */
+    std::function<void()> onTextChange;
+
     void paint (juce::Graphics& g) override
     {
         const auto bounds = getLocalBounds().toFloat();
@@ -347,6 +350,7 @@ private:
     {
         clearVisible = editor.getText().isNotEmpty();
         repaint();
+        if (onTextChange) onTextChange();
     }
 
     juce::TextEditor editor;
