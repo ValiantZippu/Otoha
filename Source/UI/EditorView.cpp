@@ -1,7 +1,6 @@
 #include "EditorView.h"
 
 #include "OtohaTheme.h"
-#include "Components/DsButton.h"
 #include "Components/OtohaIcons.h"
 #include "../Core/RecordingSupport.h"
 #include "../Editor/TimelineRenderer.h"
@@ -13,11 +12,7 @@
 #include <cmath>
 
 // =============================================================================
-// WaveformDisplay
-//
-// Peaks are cached per EDIT STATE, indexed by timeline position (rebuildPeaks
-// runs on open and after every edit). Drawing any zoom level is pure array
-// lookups — repaints never decode audio or touch disk.
+// WaveformDisplay  (unchanged — cached peaks, never touches disk during paint)
 // =============================================================================
 class EditorView::WaveformDisplay : public juce::Component
 {
@@ -27,7 +22,7 @@ public:
     void setDocument (std::shared_ptr<otoha::AudioDocument> newDoc)
     {
         doc = std::move (newDoc);
-        zoomSamplesPerPixel = 0.0;   // force fit-all on first layout/paint
+        zoomSamplesPerPixel = 0.0;
         viewStartSample = 0;
         rebuildPeaks();
     }
@@ -76,13 +71,8 @@ public:
 
     void fitAll()
     {
-        if (doc == nullptr || doc->getClips().empty())
-            return;
-        if (getWidth() <= 0)
-        {
-            pendingFit = true;
-            return;
-        }
+        if (doc == nullptr || doc->getClips().empty()) return;
+        if (getWidth() <= 0) { pendingFit = true; return; }
         zoomSamplesPerPixel = std::max (1.0, (double) doc->totalSamples() / (double) getWidth());
         viewStartSample = 0;
         pendingFit = false;
@@ -91,9 +81,7 @@ public:
 
     void setZoom (double samplesPerPixel)
     {
-        if (doc == nullptr || doc->getClips().empty())
-            return;
-
+        if (doc == nullptr || doc->getClips().empty()) return;
         const auto centre = viewStartSample
                           + (juce::int64) ((double) getWidth() * zoomSamplesPerPixel * 0.5);
         zoomSamplesPerPixel = juce::jlimit (1.0,
@@ -118,19 +106,17 @@ public:
 
     double getZoomSafe() const { return zoomSamplesPerPixel > 0.0 ? zoomSamplesPerPixel : 1.0; }
 
-    void resized() override
-    {
-        if (pendingFit)
-            fitAll();
-    }
+    void resized() override { if (pendingFit) fitAll(); }
 
     void paint (juce::Graphics& g) override
     {
         auto area = getLocalBounds().toFloat().reduced (8.0f);
+
+        // Card-like background
         g.setColour (otoha::theme::colors::surface());
-        g.fillRoundedRectangle (area, 10.0f);
+        g.fillRoundedRectangle (area, (float) otoha::theme::Radius::large);
         g.setColour (otoha::theme::colors::borderSubtle());
-        g.drawRoundedRectangle (area, 10.0f, 1.0f);
+        g.drawRoundedRectangle (area, (float) otoha::theme::Radius::large, 1.0f);
 
         if (doc == nullptr || doc->getClips().empty())
         {
@@ -146,7 +132,7 @@ public:
         const auto total = doc->totalSamples();
         const auto viewEnd = xToSample ((double) getWidth());
 
-        // --- selection highlight -------------------------------------------------
+        // Selection highlight
         const auto sel = doc->getSelection();
         if (! sel.isEmpty())
         {
@@ -159,7 +145,7 @@ public:
             g.drawVerticalLine ((int) ex, area.getY(), area.getBottom());
         }
 
-        // --- waveform bars ---------------------------------------------------------
+        // Waveform bars
         g.setColour (otoha::theme::colors::waveform());
         const int bucketCount = (int) peaks.size();
         const float midY = area.getCentreY();
@@ -174,8 +160,7 @@ public:
             {
                 const auto s0 = xToSample ((double) px);
                 const auto s1 = xToSample ((double) px + 1.0);
-                if (s1 <= 0 || s0 >= total)
-                    continue;
+                if (s1 <= 0 || s0 >= total) continue;
 
                 const int b0 = bucketIndex (juce::jlimit ((juce::int64) 0, total, s0), bucketCount);
                 const int b1 = juce::jlimit ((int) b0, (int) bucketCount - 1,
@@ -190,7 +175,7 @@ public:
             }
         }
 
-        // --- playback cursor ----------------------------------------------------------
+        // Playback cursor
         const auto playPos = view.playbackPositionSamples();
         if (playPos >= viewStartSample && playPos <= viewEnd)
         {
@@ -198,7 +183,7 @@ public:
             g.drawVerticalLine ((int) sampleToX (playPos), area.getY(), area.getBottom());
         }
 
-        // --- time ruler ------------------------------------------------------------------
+        // Time ruler
         g.setColour (otoha::theme::colors::textMuted());
         g.setFont (otoha::theme::font (otoha::theme::TextSize::caption));
         g.drawText (otoha::formatDuration ((double) viewStartSample / doc->getSampleRate()),
@@ -207,7 +192,6 @@ public:
                     area.withHeight (16), juce::Justification::centredRight);
     }
 
-    // --- mouse: click = seek cursor, drag = selection -------------------------------
     void mouseDown (const juce::MouseEvent& e) override
     {
         if (doc == nullptr) return;
@@ -218,14 +202,14 @@ public:
     void mouseDrag (const juce::MouseEvent& e) override
     {
         if (doc == nullptr) return;
-        doc->setSelection (dragAnchor, xToSample ((double) e.position.x));   // normalizes + clamps
+        doc->setSelection (dragAnchor, xToSample ((double) e.position.x));
         view.selectionChanged();
     }
 
     void mouseWheelMove (const juce::MouseEvent&, const juce::MouseWheelDetails& wheel) override
     {
         if (wheel.deltaY != 0.0f)
-            setZoom (zoomSamplesPerPixel * (wheel.deltaY > 0.0f ? 0.8 : 1.25));   // wheel = zoom
+            setZoom (zoomSamplesPerPixel * (wheel.deltaY > 0.0f ? 0.8 : 1.25));
     }
 
 private:
@@ -249,7 +233,7 @@ private:
     EditorView& view;
     std::shared_ptr<otoha::AudioDocument> doc;
     std::vector<float> peaks;
-    double zoomSamplesPerPixel = 0.0;     // <=0 means "fit on first layout"
+    double zoomSamplesPerPixel = 0.0;
     juce::int64 viewStartSample = 0;
     juce::int64 dragAnchor = 0;
     bool pendingFit = false;
@@ -260,10 +244,7 @@ private:
 // =============================================================================
 // EditorView
 // =============================================================================
-EditorView::~EditorView()
-{
-    // WaveformDisplay is complete here; unique_ptr members destroy safely.
-}
+EditorView::~EditorView() {}
 
 EditorView::EditorView (Player& pl, LibraryService& lib, std::function<void()> back,
                         otoha::ExportManager& exportManagerRef,
@@ -271,13 +252,14 @@ EditorView::EditorView (Player& pl, LibraryService& lib, std::function<void()> b
     : player (pl), library (lib), backToLibrary (std::move (back)),
       exportManager (exportManagerRef), exportStore (exportStoreRef)
 {
+    // --- Header bar ---
+    addAndMakeVisible (headerCard);
     addAndMakeVisible (backButton);
     backButton.onClick = [this]
     {
         confirmDiscardOrSave ([this] (bool proceed)
         {
-            if (proceed)
-                closeEditor();
+            if (proceed) closeEditor();
         });
     };
 
@@ -311,64 +293,77 @@ EditorView::EditorView (Player& pl, LibraryService& lib, std::function<void()> b
     };
     addAndMakeVisible (menuButton);
 
-    wave = std::make_unique<WaveformDisplay> (*this);
-    addAndMakeVisible (*wave);
+    // --- Action strip ---
+    addAndMakeVisible (actionStrip);
+    addAndMakeVisible (undoButton);
+    addAndMakeVisible (redoButton);
+    addAndMakeVisible (cutButton);
+    addAndMakeVisible (copyButton);
+    addAndMakeVisible (pasteButton);
+    addAndMakeVisible (deleteButton);
+    addAndMakeVisible (trimButton);
+    addAndMakeVisible (playButton);
+    addAndMakeVisible (zoomInButton);
+    addAndMakeVisible (zoomOutButton);
+    addAndMakeVisible (zoomFitButton);
 
-    timeLabel.setFont (otoha::theme::font (otoha::theme::TextSize::bodySmall));
-    timeLabel.setJustificationType (juce::Justification::centred);
-    timeLabel.setColour (juce::Label::textColourId, otoha::theme::colors::textMuted());
-    addAndMakeVisible (timeLabel);
-
-    // M23: apply DS styling to all editor buttons for visual consistency.
-    for (auto* b : { &cutButton, &copyButton, &pasteButton, &rippleDeleteButton,
-                     &trimButton, &undoButton, &redoButton, &playButton,
-                     &zoomInButton, &zoomOutButton, &zoomFitButton,
-                     &exportButton })
-    {
-        otoha::theme::styleCardButton (*b);
-        addAndMakeVisible (*b);
-    }
-    otoha::theme::stylePrimaryButton (saveButton);
-    addAndMakeVisible (saveButton);
-    otoha::theme::stylePrimaryButton (enhanceButton);
-    addAndMakeVisible (enhanceButton);
-
-    otoha::theme::styleCardButton (backButton);
-    otoha::theme::styleCardButton (menuButton);
-
+    undoButton.onClick         = [this] { undo(); };
+    redoButton.onClick         = [this] { redo(); };
     cutButton.onClick          = [this] { cutSelected(); };
     copyButton.onClick         = [this] { copySelected(); };
     pasteButton.onClick        = [this] { pasteAtCursor(); };
-    rippleDeleteButton.onClick = [this] { rippleDeleteSelection(); };
+    deleteButton.onClick       = [this] { rippleDeleteSelection(); };
     trimButton.onClick         = [this] { trimSelection(); };
-    undoButton.onClick         = [this] { undo(); };
-    redoButton.onClick         = [this] { redo(); };
-    playButton.onClick         = [this] { playPause(); };   // selection-aware
+    playButton.onClick         = [this] { playPause(); };
     zoomInButton.onClick       = [this] { wave->setZoom (wave->getZoomSafe() * 0.5); };
     zoomOutButton.onClick      = [this] { wave->setZoom (wave->getZoomSafe() * 2.0); };
     zoomFitButton.onClick      = [this] { wave->fitAll(); };
-    exportButton.onClick       = [this] { exportAs(); };
-    saveButton.onClick         = [this] { saveChanges(); };
 
-    // M14 #56: every icon-like control carries a semantic name + tooltip.
-    otoha::theme::label (backButton, "Back to Library", "Return to your recordings");
-    otoha::theme::label (menuButton, "More options", "Save, export or discard changes");
+    otoha::theme::label (undoButton, "Undo last edit", "Reverse the last editing operation");
+    otoha::theme::label (redoButton, "Redo", "Re-apply the last undone operation");
+    otoha::theme::label (cutButton, "Cut selection", "Copy and remove selected audio");
+    otoha::theme::label (copyButton, "Copy selection", "Copy selected audio to clipboard");
+    otoha::theme::label (pasteButton, "Paste", "Insert clipboard audio at cursor");
+    otoha::theme::label (deleteButton, "Delete selection",
+                         "Remove selected audio and close the gap");
+    otoha::theme::label (trimButton, "Keep selection",
+                         "Remove everything except the selected audio");
+    otoha::theme::label (playButton, "Play or pause");
     otoha::theme::label (zoomInButton, "Zoom in");
     otoha::theme::label (zoomOutButton, "Zoom out");
     otoha::theme::label (zoomFitButton, "Fit whole recording", "Zoom to show the entire timeline");
-    otoha::theme::label (rippleDeleteButton, "Delete",
-                         "Removes the selection and closes the gap (undoable)");
-    otoha::theme::label (trimButton, "Keep selection",
-                         "Keeps only the selected audio; the rest is removed (undoable)");
-    otoha::theme::label (playButton, "Play or pause");
 
-    // Enhance toggles the DSP panel; the panel drives ProcessingState only.
-    enhanceButton.setClickingTogglesState (true);
-    enhanceButton.onClick = [this]
+    // --- Timeline card ---
+    addAndMakeVisible (timelineCard);
+    wave = std::make_unique<WaveformDisplay> (*this);
+    addAndMakeVisible (*wave);
+
+    // --- Bottom info row ---
+    timeLabel.setFont (otoha::theme::font (otoha::theme::TextSize::bodySmall));
+    timeLabel.setJustificationType (juce::Justification::centredLeft);
+    timeLabel.setColour (juce::Label::textColourId, otoha::theme::colors::textMuted());
+    addAndMakeVisible (timeLabel);
+
+    // --- Sound panel ---
+    addAndMakeVisible (soundPanelCard);
+    soundSectionLabel.setText ("Sound", juce::dontSendNotification);
+    soundSectionLabel.setFont (otoha::theme::font (otoha::theme::TextSize::heading));
+    soundSectionLabel.setColour (juce::Label::textColourId, otoha::theme::colors::textPrimary());
+    soundSectionLabel.setJustificationType (juce::Justification::centredLeft);
+    addAndMakeVisible (soundSectionLabel);
+
+    soundSectionDesc.setText ("Audio enhancement", juce::dontSendNotification);
+    soundSectionDesc.setFont (otoha::theme::font (otoha::theme::TextSize::caption));
+    soundSectionDesc.setColour (juce::Label::textColourId, otoha::theme::colors::textMuted());
+    soundSectionDesc.setJustificationType (juce::Justification::centredLeft);
+    addAndMakeVisible (soundSectionDesc);
+
+    addAndMakeVisible (enhanceToggleButton);
+    enhanceToggleButton.onClick = [this]
     {
         if (! isOpen())
         {
-            enhanceButton.setToggleState (false, juce::dontSendNotification);
+            enhanceToggleButton.setToggleState (false, juce::dontSendNotification);
             return;
         }
 
@@ -379,29 +374,33 @@ EditorView::EditorView (Player& pl, LibraryService& lib, std::function<void()> b
             enhancePanelBuilt = true;
         }
 
-        const bool show = enhanceButton.getToggleState();
+        const bool show = ! enhanceToggleButton.getToggleState();
         if (show && ! doc->processing.enabled)
         {
-            // Sensible first Enhance so pressing the button does something musical.
             doc->processing = otoha::presetToState (otoha::DspPreset::natural);
             doc->autosaveState();
             enhancePanel->resized();
         }
         enhancePanel->setVisible (show);
         enhancePanel->resized();
-        // #29: the button itself confirms the state.
-        enhanceButton.setButtonText (show ? "✨ Enhanced" : "✨ Enhance");
+        enhanceToggleButton.setButtonText (show ? "Enhanced" : "Enhance");
         dspChanged();
     };
 
-    refreshButtonsAndTitle();
-    // M14 #28: transient edit feedback ("Deleted 12 s"), auto-clearing.
+    // --- Save / Export ---
+    addAndMakeVisible (saveButton);
+    addAndMakeVisible (exportButton);
+    saveButton.onClick   = [this] { saveChanges(); };
+    exportButton.onClick = [this] { exportAs(); };
+
+    // Feedback label
     feedbackLabel.setFont (otoha::theme::font (otoha::theme::TextSize::body));
     feedbackLabel.setColour (juce::Label::textColourId, otoha::theme::colors::accent());
     feedbackLabel.setJustificationType (juce::Justification::centred);
     feedbackLabel.setInterceptsMouseClicks (false, false);
     addChildComponent (feedbackLabel);
 
+    refreshButtonsAndTitle();
     startTimerHz (30);
 }
 
@@ -413,8 +412,7 @@ bool EditorView::openItem (const otoha::MediaItem& mediaItem, juce::String& erro
     if (! newDoc->loadFromFile (mediaItem.file, errorOut))
         return false;
 
-    // Autosave recovery: restore the previous edit state when one exists.
-    newDoc->restoreFromSidecar();   // corrupt sidecars simply fall back to full take
+    newDoc->restoreFromSidecar();
 
     item = mediaItem;
     doc = newDoc;
@@ -435,6 +433,9 @@ bool EditorView::isEditingFile (const juce::File& file) const
     return isOpen() && item.file == file;
 }
 
+// =============================================================================
+// Layout
+// =============================================================================
 void EditorView::paint (juce::Graphics& g)
 {
     g.fillAll (otoha::theme::colors::background());
@@ -443,57 +444,130 @@ void EditorView::paint (juce::Graphics& g)
 void EditorView::resized()
 {
     auto bounds = getLocalBounds();
-    bounds.removeFromTop (54);   // title strip handled by header row below
 
-    auto header = bounds.removeFromTop (40).reduced (16, 4);
-    backButton.setBounds (header.removeFromLeft (44).withHeight (30));
-    header.removeFromLeft (8);
-    titleLabel.setBounds (header.removeFromLeft (header.getWidth() - 48));
-    menuButton.setBounds (header.removeFromRight (44).withHeight (30));
+    // 1. Header bar (top)
+    layoutHeader (bounds.removeFromTop (50));
 
-    auto labelRow = bounds.removeFromTop (26).reduced (16, 0);
-    timeLabel.setBounds (labelRow);
+    // 2. Action strip
+    layoutActionStrip (bounds.removeFromTop (44));
 
-    // Bottom: Enhance (placeholder) | zoom controls | Export + Save.
-    auto bottomRow = bounds.removeFromBottom (38).reduced (16, 2);
-    enhanceButton.setBounds (bottomRow.removeFromLeft (90).reduced (2, 2));
-    saveButton.setBounds (bottomRow.removeFromRight (76).reduced (2, 2));
-    exportButton.setBounds (bottomRow.removeFromRight (84).reduced (2, 2));
-    zoomFitButton.setBounds (bottomRow.removeFromRight (52).reduced (2, 2));
-    zoomOutButton.setBounds (bottomRow.removeFromRight (36).reduced (2, 2));
-    zoomInButton.setBounds (bottomRow.removeFromRight (36).reduced (2, 2));
+    // 3. Bottom: info row + save/export
+    auto bottomArea = bounds.removeFromBottom (42);
+    {
+        auto row = bottomArea.reduced (16, 4);
+        timeLabel.setBounds (row.removeFromLeft (row.getWidth() / 2));
+        auto rightButtons = row;
+        exportButton.setBounds (rightButtons.removeFromRight (80).reduced (2, 4));
+        saveButton.setBounds (rightButtons.removeFromRight (72).reduced (2, 4));
+    }
 
-    // Edit buttons: two rows above the bottom strip.
-    auto buttonRows = bounds.removeFromBottom (88).reduced (16, 4);
-    auto row1 = buttonRows.removeFromTop (42);
-    rippleDeleteButton.setBounds (row1.removeFromRight (130).reduced (2, 3));
-    pasteButton.setBounds (row1.removeFromRight (78).reduced (2, 3));
-    copyButton.setBounds (row1.removeFromRight (72).reduced (2, 3));
-    cutButton.setBounds (row1.removeFromRight (66).reduced (2, 3));
-    playButton.setBounds (row1.withSizeKeepingCentre (110, 32));
-
-    auto row2 = buttonRows.removeFromTop (42);
-    trimButton.setBounds (row2.removeFromRight (80).reduced (2, 3));
-    redoButton.setBounds (row2.removeFromRight (72).reduced (2, 3));
-    undoButton.setBounds (row2.removeFromRight (72).reduced (2, 3));
-
-    wave->setBounds (bounds.reduced (16, 6));
-
-    // Feedback toast floats over the top of the waveform (#28).
-    feedbackLabel.setBounds (wave->getBounds().removeFromTop (24)
-                                 .withSizeKeepingCentre (juce::jmin (280, wave->getWidth()), 22));
-
-    // Enhance panel overlays the right side of the waveform when open.
-    if (enhancePanel != nullptr && enhancePanel->isVisible())
-        enhancePanel->setBounds (wave->getBounds()
-                                     .removeFromRight (340)
-                                     .withSizeKeepingCentre (320, wave->getHeight() - 20));
+    // 4. Main content: timeline (left) | sound panel (right)
+    layoutMainContent (bounds);
 }
 
+void EditorView::layoutHeader (juce::Rectangle<int> area)
+{
+    headerCard.setBounds (area);
+    auto row = area.reduced (12, 6);
+
+    backButton.setBounds (row.removeFromLeft (40).withHeight (28));
+    row.removeFromLeft (6);
+    menuButton.setBounds (row.removeFromRight (36).withHeight (28));
+    row.removeFromRight (6);
+    titleLabel.setBounds (row);
+}
+
+void EditorView::layoutActionStrip (juce::Rectangle<int> area)
+{
+    actionStrip.setBounds (area);
+    auto row = area.reduced (12, 6);
+
+    const int btnH = 28;
+    const int gap = 4;
+
+    // Primary: Play
+    playButton.setBounds (row.removeFromLeft (70).withHeight (btnH));
+    row.removeFromLeft (gap * 2);
+
+    // Editing actions
+    undoButton.setBounds (row.removeFromLeft (52).withHeight (btnH));
+    row.removeFromLeft (gap);
+    redoButton.setBounds (row.removeFromLeft (52).withHeight (btnH));
+    row.removeFromLeft (gap * 2);
+    cutButton.setBounds (row.removeFromLeft (48).withHeight (btnH));
+    row.removeFromLeft (gap);
+    copyButton.setBounds (row.removeFromLeft (56).withHeight (btnH));
+    row.removeFromLeft (gap);
+    pasteButton.setBounds (row.removeFromLeft (56).withHeight (btnH));
+    row.removeFromLeft (gap);
+    deleteButton.setBounds (row.removeFromLeft (58).withHeight (btnH));
+    row.removeFromLeft (gap);
+    trimButton.setBounds (row.removeFromLeft (100).withHeight (btnH));
+
+    // Right side: zoom
+    zoomFitButton.setBounds (row.removeFromRight (40).withHeight (btnH));
+    row.removeFromRight (gap);
+    zoomOutButton.setBounds (row.removeFromRight (28).withHeight (btnH));
+    row.removeFromRight (gap);
+    zoomInButton.setBounds (row.removeFromRight (28).withHeight (btnH));
+}
+
+void EditorView::layoutMainContent (juce::Rectangle<int> area)
+{
+    const int soundPanelWidth = juce::jmin (320, area.getWidth() / 3);
+    const int gap = 8;
+
+    if (area.getWidth() > 500 && isOpen())
+    {
+        // Split: timeline | sound panel
+        auto soundArea = area.removeFromRight (soundPanelWidth);
+        area.removeFromRight (gap);
+
+        soundPanelCard.setBounds (soundArea.reduced (2));
+        auto sp = soundArea.reduced (12, 10);
+        soundSectionLabel.setBounds (sp.removeFromTop (22));
+        sp.removeFromTop (2);
+        soundSectionDesc.setBounds (sp.removeFromTop (16));
+        sp.removeFromTop (8);
+        enhanceToggleButton.setBounds (sp.removeFromTop (32).reduced (0, 2));
+        sp.removeFromTop (8);
+
+        if (enhancePanel != nullptr && enhancePanel->isVisible())
+            enhancePanel->setBounds (sp);
+    }
+    else
+    {
+        // Compact: full-width timeline, sound panel below
+        auto soundArea = area.removeFromBottom (juce::jmax (200, area.getHeight() / 3));
+        area.removeFromBottom (gap);
+
+        soundPanelCard.setBounds (soundArea.reduced (2));
+        auto sp = soundArea.reduced (12, 10);
+        soundSectionLabel.setBounds (sp.removeFromTop (22));
+        sp.removeFromTop (2);
+        soundSectionDesc.setBounds (sp.removeFromTop (16));
+        sp.removeFromTop (8);
+        enhanceToggleButton.setBounds (sp.removeFromTop (32).reduced (0, 2));
+        sp.removeFromTop (8);
+
+        if (enhancePanel != nullptr && enhancePanel->isVisible())
+            enhancePanel->setBounds (sp);
+    }
+
+    timelineCard.setBounds (area.reduced (2));
+    wave->setBounds (area.reduced (8, 4));
+
+    // Feedback floats over the waveform
+    feedbackLabel.setBounds (wave->getBounds().removeFromTop (24)
+                                 .withSizeKeepingCentre (juce::jmin (280, wave->getWidth()), 22));
+}
+
+// =============================================================================
+// Keyboard
+// =============================================================================
 bool EditorView::keyPressed (const juce::KeyPress& key)
 {
-    if (! isOpen())
-        return false;
+    if (! isOpen()) return false;
 
     const auto cmd = key.getModifiers().isCommandDown();
 
@@ -501,14 +575,13 @@ bool EditorView::keyPressed (const juce::KeyPress& key)
     if (key.isKeyCode (juce::KeyPress::deleteKey))                       { rippleDeleteSelection(); return true; }
     if (cmd && key.isKeyCode ('Z') && key.getModifiers().isShiftDown())  { redo(); return true; }
     if (cmd && key.isKeyCode ('Z'))                                      { undo(); return true; }
-    if (cmd && key.isKeyCode ('Y'))                                      { redo(); return true; } // Windows convention
+    if (cmd && key.isKeyCode ('Y'))                                      { redo(); return true; }
     if (cmd && key.isKeyCode ('X'))                                      { cutSelected(); return true; }
     if (cmd && key.isKeyCode ('C'))                                      { copySelected(); return true; }
     if (cmd && key.isKeyCode ('V'))                                      { pasteAtCursor(); return true; }
     if (cmd && key.isKeyCode ('A'))                                      { doc->setSelection (0, doc->totalSamples()); selectionChanged(); return true; }
-    if (cmd && key.isKeyCode ('S'))                                      { saveChanges(); return true; }   // #68
+    if (cmd && key.isKeyCode ('S'))                                      { saveChanges(); return true; }
 
-    // Shift+Arrow selection nudging.
     if (key.getModifiers().isShiftDown())
     {
         const auto sel = doc->getSelection();
@@ -521,19 +594,17 @@ bool EditorView::keyPressed (const juce::KeyPress& key)
 }
 
 // =============================================================================
-// Playback hooks (used by WaveformDisplay)
+// Playback hooks
 // =============================================================================
 int64_t EditorView::playbackPositionSamples() const
 {
-    if (doc == nullptr || doc->getSampleRate() <= 0.0)
-        return 0;
+    if (doc == nullptr || doc->getSampleRate() <= 0.0) return 0;
     return (juce::int64) (player.getPositionSeconds() * doc->getSampleRate());
 }
 
 void EditorView::onWaveformClick (juce::int64 sample)
 {
     if (! isOpen()) return;
-
     playingSelection = false;
     ensurePlaybackSource();
     seek ((double) juce::jlimit ((juce::int64) 0, doc->totalSamples(), sample) / doc->getSampleRate());
@@ -547,35 +618,27 @@ void EditorView::selectionChanged()
 }
 
 // =============================================================================
-// Transport
+// DSP
 // =============================================================================
 otoha::ProcessingState EditorView::effectiveProcessing() const
 {
     auto state = doc != nullptr ? doc->processing : otoha::ProcessingState {};
-
-    // A/B: "Original" previews the bypassed chain without touching the saved state.
     if (enhancePanel != nullptr && ! enhancePanel->previewingEnhanced())
         state.enabled = false;
-
     return state;
 }
 
 void EditorView::dspChanged()
 {
-    // Live chain update: same source, no reload, no re-render. Smoothing in the
-    // chain keeps parameter moves click-free.
     if (activePreview != nullptr)
         activePreview->setParameters (effectiveProcessing());
-
-    doc->autosaveState();          // processing state persists with the edit state
+    doc->autosaveState();
     refreshButtonsAndTitle();
 }
 
 void EditorView::ensurePlaybackSource()
 {
-    if (doc == nullptr || loadedSourceVersion == doc->getVersion())
-        return;
-
+    if (doc == nullptr || loadedSourceVersion == doc->getVersion()) return;
     stopPlayback();
 
     auto preview = std::make_unique<DspPreviewSource> (
@@ -583,11 +646,14 @@ void EditorView::ensurePlaybackSource()
     preview->setUpstreamMono (doc->getNumChannels() == 1);
     preview->setParameters (effectiveProcessing());
 
-    activePreview = preview.get();   // Player owns it; editor holds a safe raw view
+    activePreview = preview.get();
     player.loadCustomSource (std::move (preview), doc->getSampleRate());
     loadedSourceVersion = doc->getVersion();
 }
 
+// =============================================================================
+// Transport
+// =============================================================================
 void EditorView::playPause()
 {
     if (! isOpen()) return;
@@ -661,7 +727,7 @@ void EditorView::rippleDeleteSelection()
     const double seconds = (double) sel.length() / doc->getSampleRate();
     doc->rippleDelete (sel.start, sel.length());
     afterEditRebuild();
-    showFeedback ("Deleted " + otoha::formatDuration (seconds));   // #28/#73: no jargon
+    showFeedback ("Deleted " + otoha::formatDuration (seconds));
 }
 
 void EditorView::trimSelection()
@@ -690,9 +756,9 @@ void EditorView::redo()
 
 void EditorView::afterEditRebuild()
 {
-    loadedSourceVersion = 0xFFFFFFFF;   // stale timeline — rebuilt on next Play
+    loadedSourceVersion = 0xFFFFFFFF;
     activePreview = nullptr;
-    doc->autosaveState();               // tiny JSON, never audio data
+    doc->autosaveState();
     wave->rebuildPeaks();
     wave->fitAll();
     refreshButtonsAndTitle();
@@ -703,9 +769,7 @@ void EditorView::afterEditRebuild()
 // =============================================================================
 void EditorView::saveChanges()
 {
-    if (! isOpen() || ! doc->isModified())
-        return;
-
+    if (! isOpen() || ! doc->isModified()) return;
     stopPlayback();
 
     const otoha::TimelineRenderer renderer (doc);
@@ -715,7 +779,6 @@ void EditorView::saveChanges()
                                  .getChildFile (destName);
 
     juce::String error;
-    // Export path = same pipeline as preview: timeline -> DSP -> renderer.
     if (! renderer.renderToWav (destination, error, &doc->processing))
     {
         juce::AlertWindow::showMessageBoxAsync (juce::MessageBoxIconType::WarningIcon,
@@ -723,10 +786,7 @@ void EditorView::saveChanges()
         return;
     }
 
-    // Register as its own library item: the original stays untouched and both
-    // remain recoverable. Library metadata for the new item is fresh by design.
     library.registerAudioFile (destination);
-
     doc->clearSavedState();
     doc->markUnmodified();
     item.file = destination;
@@ -742,7 +802,6 @@ void EditorView::exportAs()
 {
     if (! isOpen()) return;
 
-    // Export = current timeline + current DSP state through the shared service.
     otoha::FfmpegLocator locator;
     otoha::FfmpegInfo info;
     const bool ffmpegAvailable = locator.locate (info) == otoha::EncoderStatus::available;
@@ -762,7 +821,7 @@ void EditorView::exportAs()
 
                               otoha::ExportRequest request;
                               request.sourceFile = item.file;
-                              request.openDocument = doc;      // live timeline + live DSP
+                              request.openDocument = doc;
                               request.baseName = item.displayName;
                               request.destinationDirectory = dir;
                               request.format = choice.format;
@@ -800,7 +859,7 @@ bool EditorView::confirmDiscardOrSave (const std::function<void(bool)>& onDecide
 
             onDecided (result != 0);
         }),
-        true /* deleteWhenDismissed */);
+        true);
 
     return true;
 }
@@ -808,13 +867,13 @@ bool EditorView::confirmDiscardOrSave (const std::function<void(bool)>& onDecide
 void EditorView::closeEditor()
 {
     stopPlayback();
-    player.unload();               // release the timeline from the transport
+    player.unload();
     activePreview = nullptr;
     editorActive = false;
     doc = nullptr;
     if (enhancePanel) { enhancePanel->setVisible (false); }
-    enhanceButton.setToggleState (false, juce::dontSendNotification);
-    enhanceButton.setButtonText ("✨ Enhance");   // reset for the next recording
+    enhanceToggleButton.setToggleState (false, juce::dontSendNotification);
+    enhanceToggleButton.setButtonText ("Enhance");
     loadedSourceVersion = 0xFFFFFFFF;
     refreshButtonsAndTitle();
     wave->repaint();
@@ -828,14 +887,11 @@ void EditorView::closeEditor()
 // =============================================================================
 void EditorView::timerCallback()
 {
-    if (! isOpen())
-        return;
+    if (! isOpen()) return;
 
-    // Fade the edit-feedback toast out after ~2 seconds.
     if (feedbackTicksLeft > 0 && --feedbackTicksLeft == 0)
         feedbackLabel.setVisible (false);
 
-    // Auto-stop at the end of a selection preview.
     if (playingSelection && player.isPlaying())
     {
         const auto sel = doc->getSelection();
@@ -847,7 +903,6 @@ void EditorView::timerCallback()
         }
     }
 
-    // Time readout: cursor, or selection span while one exists.
     const auto sel = doc->getSelection();
     if (! sel.isEmpty())
     {
@@ -869,7 +924,7 @@ void EditorView::showFeedback (const juce::String& message)
 {
     feedbackLabel.setText (message, juce::dontSendNotification);
     feedbackLabel.setVisible (true);
-    feedbackTicksLeft = 60;   // ~2 s at 30 Hz
+    feedbackTicksLeft = 60;
 }
 
 void EditorView::refreshButtonsAndTitle()
@@ -885,7 +940,7 @@ void EditorView::refreshButtonsAndTitle()
 
     cutButton.setEnabled (hasSel);
     copyButton.setEnabled (hasSel);
-    rippleDeleteButton.setEnabled (hasSel);
+    deleteButton.setEnabled (hasSel);
     trimButton.setEnabled (hasSel);
     pasteButton.setEnabled (open && ! clipboard.isEmpty());
     undoButton.setEnabled (open && doc->canUndo());
