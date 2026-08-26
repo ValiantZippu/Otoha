@@ -8,25 +8,33 @@
 #include "Components/DsButton.h"
 #include "Components/DsCore.h"
 #include "Components/DsControls.h"
+#include "Components/DsSurfaces.h"
 
-/*    RecordView — the polished Otoha recording screen (M21).
+/*    RecordView — the polished Otoha recording screen (M21 → M30 Kaiteyo upgrade).
 
-        Microphone selector
-        Countdown selector
-        Monitor toggle
-            ┌───────────────────────────────┐
-            │      live waveform/vis        │
-            └───────────────────────────────┘
-        Level meter                CLIP
-            00:00
-              ● Record / ■ Stop
-         [ Play ]  [ Edit ]  [ Export ]  [ Delete ]
+        ┌───────────────────────────────────────────────┐
+        │              RECORDING CARD                   │
+        │                                               │
+        │              waveform / vis                   │
+        │                                               │
+        │                00:00                          │
+        │                                               │
+        │              ● RECORD                         │
+        │                                               │
+        │  Meter                    CLIP     Format     │
+        └───────────────────────────────────────────────┘
 
-    The Recorder owns the transport state; this view only observes it and
-    requests transitions. Countdown runs on a monotonic clock; no file is
-    created until it finishes.
+        Microphone       [ device ▾ ]
+        Countdown        [ 3 sec ▾ ]      Monitor [ ]
 
-    All visuals consume OtohaTheme tokens (M17/M18).
+        Post-recording:  [ Play ] [ Edit ] [ Export ] [ Delete ]
+
+    M30 upgrade: Kaiteyo-aligned layout with:
+      - Main recording card (DsCard) as dominant element
+      - Centered timer + record button inside card
+      - Settings row below the card (Microphone, Countdown, Monitor)
+      - Post-recording actions as a clean row
+      - Status/error below
 */
 class RecordView : public juce::Component,
                    private juce::Timer,
@@ -76,33 +84,40 @@ private:
     LibraryService& libraryService;
     std::function<void()> goToEditor;
 
-    // --- Configuration row ---
-    juce::Label inputLabel;
-    std::unique_ptr<otoha::ds::ComboBox> inputCombo;
-    juce::Label countdownLabel;
-    std::unique_ptr<otoha::ds::ComboBox> countdownCombo;
-    std::unique_ptr<otoha::ds::Toggle> monitorToggle;
+    // --- Main recording card (M30: dominant element) ---
+    otoha::ds::Card recordingCard { "Recording area" };
 
-    // --- Visualization ---
+    // --- Visualization (inside recording card) ---
     class WaveformPanel;
     std::unique_ptr<WaveformPanel> waveform;
     class LevelMeter;
     std::unique_ptr<LevelMeter> levelMeter;
     juce::Label clipLabel;
 
-    // --- Timer ---
+    // --- Timer (inside recording card) ---
     juce::Label timeLabel;
 
-    // --- Transport ---
+    // --- Record button (inside recording card, centered) ---
     std::unique_ptr<juce::ShapeButton> recordButton;
+
+    // --- Format label (inside recording card) ---
+    juce::Label formatLabel;
+
+    // --- Settings row (below card) ---
+    juce::Label inputLabel;
+    std::unique_ptr<otoha::ds::ComboBox> inputCombo;
+    juce::Label countdownLabel;
+    std::unique_ptr<otoha::ds::ComboBox> countdownCombo;
+    std::unique_ptr<otoha::ds::Toggle> monitorToggle;
+
+    // --- Post-recording actions (below settings) ---
     otoha::ds::Button playButton { "Play", otoha::ds::ButtonVariant::secondary };
     otoha::ds::Button stopButton { "Stop", otoha::ds::ButtonVariant::secondary };
-
-    // --- Post-recording actions ---
     std::unique_ptr<otoha::ds::Button> editButton;
     std::unique_ptr<otoha::ds::Button> exportButton;
     std::unique_ptr<otoha::ds::Button> deleteButton;
-    juce::Label formatLabel;
+
+    // --- Status / error (below actions) ---
     juce::Label statusLabel;
     juce::Label errorLabel;
 
