@@ -3,6 +3,7 @@
 #include "Components/DsButton.h"
 #include "Components/DsControls.h"
 #include "Components/DsSurfaces.h"
+#include "Components/DsResponsive.h"
 
 using namespace otoha::theme;
 
@@ -314,23 +315,40 @@ void SettingsView::paint (juce::Graphics& g)
 void SettingsView::resized()
 {
     auto bounds = getLocalBounds().reduced (Spacing::xl);
-    const int railW = 180;
-    const int contentW = juce::jmin (600, bounds.getWidth() - railW - Spacing::xl);
+    const int w = bounds.getWidth();
+    const bool compact = otoha::ds::responsive::isCompact (w);
+    const int railW = otoha::ds::responsive::settingsRailWidth (w);
+    const int contentW = compact ? bounds.getWidth() : juce::jmin (600, bounds.getWidth() - railW - Spacing::xl);
 
-    // --- Category rail ---
-    auto rail = bounds.removeFromLeft (railW);
-    rail.removeFromTop (Spacing::xl); // space for header
+    if (railW > 0)
+    {
+        // --- Category rail (medium/expanded) ---
+        auto rail = bounds.removeFromLeft (railW);
+        rail.removeFromTop (Spacing::xl); // space for header
 
-    // Search
-    searchField->setBounds (rail.removeFromTop (36));
-    rail.removeFromTop (Spacing::md);
+        // Search
+        searchField->setBounds (rail.removeFromTop (36));
+        rail.removeFromTop (Spacing::md);
 
-    // Category items
-    const int itemH = 36;
-    for (auto& cat : categories)
-        cat->setBounds (rail.removeFromTop (itemH).reduced (4, 2));
+        // Category items
+        const int itemH = 36;
+        for (auto& cat : categories)
+            cat->setBounds (rail.removeFromTop (itemH).reduced (4, 2));
 
-    bounds.removeFromLeft (Spacing::xl);
+        bounds.removeFromLeft (Spacing::xl);
+    }
+    else
+    {
+        // M35 Compact: horizontal category tabs at top
+        auto tabBar = bounds.removeFromTop (48);
+        searchField->setBounds (tabBar.removeFromTop (32));
+        tabBar.removeFromTop (Spacing::xs);
+        // Lay out category items horizontally
+        const int tabW = tabBar.getWidth() / juce::jmax (1, (int) categories.size());
+        for (int i = 0; i < (int) categories.size(); ++i)
+            categories[(size_t) i]->setBounds (tabBar.getX() + i * tabW, tabBar.getY(), tabW, tabBar.getHeight());
+        bounds.removeFromTop (Spacing::md);
+    }
 
     // --- Content area ---
     auto content = bounds.withWidth (contentW);

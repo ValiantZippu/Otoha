@@ -8,6 +8,7 @@
 #include "../Source/UI/Components/DsButton.h"
 #include "../Source/UI/Components/DsControls.h"
 #include "../Source/UI/Components/DsSurfaces.h"
+#include "../Source/UI/Components/DsResponsive.h"
 #include "../Source/UI/Components/DsToast.h"
 #include "../Source/UI/Components/DsNavigation.h"
 #include "../Source/UI/Components/OtohaIcons.h"
@@ -413,6 +414,59 @@ int main()
         ok &= expect (theme::current().colors.accent == theme::makeDefaultDarkTheme().colors.accent,
                       "default theme restored");
         theme::themeChangedBroadcaster().removeChangeListener (&listener);
+    }
+
+    // --- Responsive helpers (M35) ----------------------------------------------------------------
+    {
+        // Width tier queries
+        ok &= expect (ds::responsive::isCompact (600),  "600px is compact");
+        ok &= expect (! ds::responsive::isCompact (800), "800px is not compact");
+        ok &= expect (ds::responsive::isMedium (800),   "800px is medium");
+        ok &= expect (! ds::responsive::isMedium (600),  "600px is not medium");
+        ok &= expect (ds::responsive::isExpanded (1500),  "1500px is expanded");
+        ok &= expect (! ds::responsive::isExpanded (800), "800px is not expanded");
+
+        // Grid columns
+        ok &= expect (ds::responsive::gridColumns (300) == 1, "300px → 1 column");
+        ok &= expect (ds::responsive::gridColumns (500) == 2, "500px → 2 columns");
+        ok &= expect (ds::responsive::gridColumns (800) == 3, "800px → 3 columns");
+        ok &= expect (ds::responsive::gridColumns (1200) == 4, "1200px → 4 columns");
+
+        // Custom columns
+        ok &= expect (ds::responsive::columns (300, 200) == 1, "300px with min 200 → 1 col");
+        ok &= expect (ds::responsive::columns (500, 200) == 2, "500px with min 200 → 2 cols");
+        ok &= expect (ds::responsive::columns (500, 200, 1) == 1, "custom max 1");
+
+        // Sidebar
+        ok &= expect (ds::responsive::sidebarWidth (600) == 0,  "compact → no sidebar");
+        ok &= expect (ds::responsive::sidebarWidth (800) == theme::Metrics::sidebarWidth, "expanded → sidebar");
+        ok &= expect (! ds::responsive::sidebarLabelsVisible (600),  "compact → no labels");
+        ok &= expect (ds::responsive::sidebarLabelsVisible (800),   "expanded → labels");
+
+        // Padding
+        ok &= expect (ds::responsive::horizontalPadding (300) == theme::Spacing::md, "compact padding");
+        ok &= expect (ds::responsive::horizontalPadding (500) == theme::Spacing::lg, "medium padding");
+        ok &= expect (ds::responsive::horizontalPadding (900) == theme::Spacing::xl, "expanded padding");
+
+        // Dialog sizing
+        ok &= expect (ds::responsive::dialogWidth (300) == juce::jmax (280, 300 - 48), "compact dialog");
+        ok &= expect (ds::responsive::dialogWidth (1200) == juce::jmin (560, 1200 - 80), "expanded dialog");
+
+        // Settings rail
+        ok &= expect (ds::responsive::settingsRailWidth (400) == 0,   "very narrow → no rail");
+        ok &= expect (ds::responsive::settingsRailWidth (600) == 140, "medium → narrow rail");
+        ok &= expect (ds::responsive::settingsRailWidth (1000) == 180, "wide → full rail");
+
+        // Animation helpers
+        ok &= expect (ds::responsive::animDuration (200) >= 0, "animDuration returns non-negative");
+        ok &= expect (ds::responsive::lerp (0.0f, 1.0f, 0.5f) == 0.5f, "lerp midpoint");
+        ok &= expect (ds::responsive::lerp (10.0f, 20.0f, 0.0f) == 10.0f, "lerp start");
+        ok &= expect (ds::responsive::lerp (10.0f, 20.0f, 1.0f) == 20.0f, "lerp end");
+
+        // Touch
+        ok &= expect (ds::responsive::touchTarget() == theme::Metrics::touchTargetMin, "touch target uses DS token");
+        ok &= expect (ds::responsive::isTouchPrimary (600), "compact → touch primary");
+        ok &= expect (! ds::responsive::isTouchPrimary (900), "expanded → not touch primary");
     }
 
     std::printf (ok ? "ALL DS COMPONENT TESTS PASSED\n" : "DS COMPONENT TESTS FAILED\n");

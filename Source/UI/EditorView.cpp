@@ -2,6 +2,7 @@
 
 #include "OtohaTheme.h"
 #include "Components/OtohaIcons.h"
+#include "Components/DsResponsive.h"
 #include "../Core/RecordingSupport.h"
 #include "../Editor/TimelineRenderer.h"
 #include "../Editor/TimelineSource.h"
@@ -487,25 +488,48 @@ void EditorView::layoutActionStrip (juce::Rectangle<int> area)
 
     const int btnH = 28;
     const int gap = 4;
+    const bool compact = otoha::ds::responsive::isCompact (row.getWidth());
 
-    // Primary: Play
+    // Primary: Play — always visible
     playButton.setBounds (row.removeFromLeft (70).withHeight (btnH));
     row.removeFromLeft (gap * 2);
 
-    // Editing actions
-    undoButton.setBounds (row.removeFromLeft (52).withHeight (btnH));
-    row.removeFromLeft (gap);
-    redoButton.setBounds (row.removeFromLeft (52).withHeight (btnH));
-    row.removeFromLeft (gap * 2);
-    cutButton.setBounds (row.removeFromLeft (48).withHeight (btnH));
-    row.removeFromLeft (gap);
-    copyButton.setBounds (row.removeFromLeft (56).withHeight (btnH));
-    row.removeFromLeft (gap);
-    pasteButton.setBounds (row.removeFromLeft (56).withHeight (btnH));
-    row.removeFromLeft (gap);
-    deleteButton.setBounds (row.removeFromLeft (58).withHeight (btnH));
-    row.removeFromLeft (gap);
-    trimButton.setBounds (row.removeFromLeft (100).withHeight (btnH));
+    if (compact)
+    {
+        // M35 Compact: show only essential actions, rest goes into menu
+        undoButton.setBounds (row.removeFromLeft (52).withHeight (btnH));
+        row.removeFromLeft (gap);
+        redoButton.setBounds (row.removeFromLeft (52).withHeight (btnH));
+        row.removeFromLeft (gap * 2);
+        deleteButton.setBounds (row.removeFromLeft (58).withHeight (btnH));
+        row.removeFromLeft (gap);
+        // Cut/copy/paste/trim hidden on compact — accessible via menu
+        cutButton.setVisible (false);
+        copyButton.setVisible (false);
+        pasteButton.setVisible (false);
+        trimButton.setVisible (false);
+    }
+    else
+    {
+        // Expanded: full action strip
+        cutButton.setVisible (true);
+        copyButton.setVisible (true);
+        pasteButton.setVisible (true);
+        trimButton.setVisible (true);
+        undoButton.setBounds (row.removeFromLeft (52).withHeight (btnH));
+        row.removeFromLeft (gap);
+        redoButton.setBounds (row.removeFromLeft (52).withHeight (btnH));
+        row.removeFromLeft (gap * 2);
+        cutButton.setBounds (row.removeFromLeft (48).withHeight (btnH));
+        row.removeFromLeft (gap);
+        copyButton.setBounds (row.removeFromLeft (56).withHeight (btnH));
+        row.removeFromLeft (gap);
+        pasteButton.setBounds (row.removeFromLeft (56).withHeight (btnH));
+        row.removeFromLeft (gap);
+        deleteButton.setBounds (row.removeFromLeft (58).withHeight (btnH));
+        row.removeFromLeft (gap);
+        trimButton.setBounds (row.removeFromLeft (100).withHeight (btnH));
+    }
 
     // Right side: zoom
     zoomFitButton.setBounds (row.removeFromRight (40).withHeight (btnH));
@@ -519,10 +543,11 @@ void EditorView::layoutMainContent (juce::Rectangle<int> area)
 {
     const int soundPanelWidth = juce::jmin (320, area.getWidth() / 3);
     const int gap = 8;
+    const bool compact = otoha::ds::responsive::isCompact (area.getWidth());
 
-    if (area.getWidth() > 500 && isOpen())
+    if (area.getWidth() > 500 && isOpen() && ! compact)
     {
-        // Split: timeline | sound panel
+        // Expanded/Medium: Split timeline | sound panel
         auto soundArea = area.removeFromRight (soundPanelWidth);
         area.removeFromRight (gap);
 

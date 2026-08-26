@@ -17,6 +17,7 @@
 #include "SoundView.h"
 #include "Components/DsNavigation.h"
 #include "Components/DsToolbar.h"
+#include "Components/DsResponsive.h"
 #include "SettingsView.h"
 
 /*

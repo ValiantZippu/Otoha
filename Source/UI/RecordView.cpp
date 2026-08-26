@@ -2,6 +2,7 @@
 
 #include "OtohaTheme.h"
 #include "Components/DsNavigation.h"
+#include "Components/DsResponsive.h"
 
 #include "../Core/RecordingSupport.h"
 
@@ -256,6 +257,8 @@ void RecordView::paint (juce::Graphics& g)
 void RecordView::resized()
 {
     auto bounds = getLocalBounds().reduced (Spacing::xl);
+    const int w = bounds.getWidth();
+    const bool compact = otoha::ds::responsive::isCompact (w);
     const int maxW = 720;
     auto content = bounds.withSizeKeepingCentre (juce::jmin (maxW, bounds.getWidth()),
                                                  bounds.getHeight());
@@ -301,6 +304,20 @@ void RecordView::resized()
     content.removeFromTop (gap);
 
     // --- Settings row ---
+    if (compact)
+    {
+        // Compact: stack settings vertically for touch-friendly spacing
+        auto inputRow = content.removeFromTop (rowH);
+        inputLabel.setBounds (inputRow.removeFromLeft (70));
+        inputCombo->setBounds (inputRow);
+        content.removeFromTop (gap);
+        auto countRow = content.removeFromTop (rowH);
+        countdownLabel.setBounds (countRow.removeFromLeft (70));
+        countdownCombo->setBounds (countRow.removeFromLeft (90).withHeight (rowH));
+        countRow.removeFromLeft (gap);
+        monitorToggle->setBounds (countRow);
+    }
+    else
     {
         auto settings = content.removeFromTop (rowH);
         inputLabel.setBounds (settings.removeFromLeft (82));
@@ -316,8 +333,9 @@ void RecordView::resized()
     // --- Post-recording actions ---
     {
         auto actions = content.removeFromTop (rowH);
-        const int btnW = 72;
-        actions = actions.withSizeKeepingCentre (btnW * 5 + gap * 4, rowH);
+        const int btnW = compact ? 64 : 72;
+        const int numBtns = 5;
+        actions = actions.withSizeKeepingCentre (btnW * numBtns + gap * (numBtns - 1), rowH);
         playButton.setBounds   (actions.removeFromLeft (btnW).withHeight (rowH));
         actions.removeFromLeft (gap);
         editButton->setBounds   (actions.removeFromLeft (btnW).withHeight (rowH));

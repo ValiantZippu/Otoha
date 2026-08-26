@@ -2,6 +2,7 @@
 
 #include "OtohaTheme.h"
 #include "Components/DsNavigation.h"
+#include "Components/DsResponsive.h"
 
 #include "../Core/RecordingSupport.h"
 
@@ -214,8 +215,10 @@ void HomeView::resized()
     auto content = bounds.withSizeKeepingCentre (
         juce::jmin (maxW, bounds.getWidth()), bounds.getHeight());
 
+    const int w = content.getWidth();
+    const bool compact = otoha::ds::responsive::isCompact (w);
     const int gap = otoha::theme::Spacing::lg;
-    const int cardH = 100;   // hero card height
+    const int cardH = compact ? 80 : 100;   // hero card height
     const int actionH = 36;
     const int recentH = 56;
 
@@ -249,7 +252,7 @@ void HomeView::resized()
     content.removeFromTop (otoha::theme::Spacing::xs);
     {
         const int tileGap = otoha::theme::Spacing::sm;
-        const int cols = 3;
+        const int cols = compact ? juce::jmax (1, content.getWidth() / 180) : 3;
         const int tileW = (content.getWidth() - (cols - 1) * tileGap) / cols;
         const int tileH = 72;
 

@@ -5,6 +5,7 @@
 #include "ExportUi.h"
 #include "OtohaTheme.h"
 #include "Components/OtohaIcons.h"
+#include "Components/DsResponsive.h"
 
 using namespace otoha::theme;
 
@@ -380,6 +381,8 @@ void LibraryView::paint (juce::Graphics& g)
 void LibraryView::resized()
 {
     auto bounds = getLocalBounds().reduced (Spacing::xl);
+    const int w = bounds.getWidth();
+    const bool compact = otoha::ds::responsive::isCompact (w);
     const int maxW = 960;
     auto content = bounds.withSizeKeepingCentre (juce::jmin (maxW, bounds.getWidth()),
                                                  bounds.getHeight());
@@ -387,23 +390,43 @@ void LibraryView::resized()
     // Header: title + subtitle
     {
         auto header = content.removeFromTop (36);
-        headerTitle.setBounds (header.removeFromLeft (180));
+        headerTitle.setBounds (header.removeFromLeft (compact ? 120 : 180));
         headerSubtitle.setBounds (header);  // takes remaining width
     }
     content.removeFromTop (Spacing::xs);
 
-    // Toolbar row: search + sort + filter chips + select toggle
+    // M35: Toolbar row adapts to compact — search full-width, filters below
+    if (compact)
     {
+        // Compact: search full width
+        auto searchRow = content.removeFromTop (36);
+        searchField->setBounds (searchRow.withHeight (30));
+        content.removeFromTop (Spacing::xs);
+        // Second row: filters + sort + select
+        auto filterRow = content.removeFromTop (30);
+        const int chipW = 56;
+        filterAllBtn.setBounds   (filterRow.removeFromLeft (chipW).withHeight (26));
+        filterRow.removeFromLeft (4);
+        filterAudioBtn.setBounds (filterRow.removeFromLeft (chipW).withHeight (26));
+        filterRow.removeFromLeft (4);
+        filterFavBtn.setBounds   (filterRow.removeFromLeft (chipW).withHeight (26));
+        filterRow.removeFromLeft (Spacing::sm);
+        selectToggleBtn.setBounds (filterRow.removeFromLeft (68).withHeight (26));
+        filterRow.removeFromLeft (Spacing::sm);
+        sortCombo->setBounds (filterRow.withHeight (30));
+        content.removeFromTop (Spacing::xs);
+    }
+    else
+    {
+        // Expanded: single toolbar row
         auto toolbar = content.removeFromTop (36);
         const int searchW = juce::jmin (300, toolbar.getWidth() / 3);
         searchField->setBounds (toolbar.removeFromLeft (searchW).withHeight (30));
         toolbar.removeFromLeft (Spacing::sm);
         sortCombo->setBounds (toolbar.removeFromRight (120).withHeight (30));
         toolbar.removeFromRight (Spacing::sm);
-        // Select toggle (far right before sort)
         selectToggleBtn.setBounds (toolbar.removeFromRight (68).withHeight (26));
         toolbar.removeFromRight (Spacing::sm);
-        // Filter chips
         auto chips = toolbar;
         const int chipW = 64;
         filterFavBtn.setBounds   (chips.removeFromRight (chipW).withHeight (26));
@@ -423,11 +446,18 @@ void LibraryView::resized()
         bulkExportBtn.setBounds (bulk.removeFromRight (72).withHeight (24));
     }
 
-    // Main content: list + details
+    // Main content: list + details (details hidden on compact for more list space)
     {
         auto main = content;
-        details->setBounds (main.removeFromRight (240));
-        main.removeFromRight (Spacing::sm);
+        if (! compact)
+        {
+            details->setBounds (main.removeFromRight (240));
+            main.removeFromRight (Spacing::sm);
+        }
+        else
+        {
+            details->setVisible (false);
+        }
         listBox.setBounds (main);
     }
 

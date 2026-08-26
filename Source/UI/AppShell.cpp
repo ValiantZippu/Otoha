@@ -198,19 +198,31 @@ bool AppShell::keyPressed (const juce::KeyPress& key)
 void AppShell::resized()
 {
     auto bounds = getLocalBounds();
+    const int w = bounds.getWidth();
+    const bool compact = otoha::ds::responsive::isCompact (w);
 
-    // sidebar decides its own width based on available height
-    const int sidebarW = otoha::ds::NavItem::fullWidth();
-    sidebar.setBounds (bounds.removeFromLeft (sidebarW)
-                          .reduced (otoha::theme::Spacing::md));
+    // M35: sidebar collapses on compact, full floating island on expanded
+    const int sidebarW = otoha::ds::responsive::sidebarWidth (w);
+    if (sidebarW > 0)
+    {
+        sidebar.setVisible (true);
+        sidebar.setBounds (bounds.removeFromLeft (sidebarW)
+                              .reduced (otoha::theme::Spacing::md));
+        sidebar.setExpanded (otoha::ds::responsive::sidebarLabelsVisible (w));
+    }
+    else
+    {
+        sidebar.setVisible (false);
+    }
 
-    // M28: top bar at full width of the remaining content area
+    // M28: top bar — full width of remaining content area
     const int toolbarH = otoha::ds::Toolbar::preferredHeight();
     toolbar.setBounds (bounds.removeFromTop (toolbarH));
     toolbarDivider.setBounds (bounds.removeFromTop (otoha::ds::ToolbarDivider::preferredHeight()));
 
-    // content fills the remainder with comfortable padding
-    auto content = bounds.reduced (otoha::theme::Spacing::lg);
+    // content fills the remainder; less padding on compact for more usable space
+    const int padH = otoha::ds::responsive::horizontalPadding (w);
+    auto content = bounds.reduced (padH, otoha::theme::Spacing::lg);
 
     homeView->setBounds    (content);
     recordView->setBounds  (content);
